@@ -1,0 +1,19 @@
+{
+  "properties": {
+    "name": "photo",
+    "hotSpot": "1,0",
+    "yHot": 0,
+    "threeD": false,
+    "borderWidth": 1,
+    "paintCompression": "png",
+    "rect": "0,56,350,448",
+    "lockLoc": true
+  },
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1352180387708,
+      "scripteditorvscroll": 0
+    }
+  }
+}

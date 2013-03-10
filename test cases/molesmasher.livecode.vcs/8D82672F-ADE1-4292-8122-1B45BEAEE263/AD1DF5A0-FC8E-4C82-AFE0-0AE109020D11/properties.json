@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "name": "mole_laugh2",
+    "paintCompression": "png",
+    "opaque": false,
+    "alwaysBuffer": true,
+    "rect": "1450,22,1628,222"
+  },
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1354339895538
+    }
+  }
+}

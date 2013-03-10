@@ -1,0 +1,12 @@
+on mouseUp
+   put the fileName of this stack into tPath
+   if the label of btn "tests" is not "lcVCS" then
+      set the itemDel to "/"
+      put "test cases/"&the label of btn "tests"&".livecode.vcs" into item -1 of tPath
+   else
+      put ".vcs" after tPath
+   end if
+   put the milliseconds into tTime
+   ImportStackFile tPath
+   put the milliseconds-tTime
+end mouseUp

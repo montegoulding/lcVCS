@@ -1,0 +1,22 @@
+{
+  "properties": {
+    "foregroundColor": "255,255,255",
+    "traversalOn": false,
+    "rect": "0,448,82,504",
+    "icon": "3DEF73F2-16A7-4ECF-B8EE-E51BD6BF3D76",
+    "textAlign": "center",
+    "autoHilite": false,
+    "backgroundColor": "135,135,135",
+    "name": "Photo",
+    "showIcon": true,
+    "sharedHilite": false
+  },
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1351837504839,
+      "scripteditorselection": 371,
+      "scripteditorvscroll": 0
+    }
+  }
+}

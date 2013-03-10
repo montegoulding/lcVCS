@@ -1,0 +1,9 @@
+on mouseUp
+   if the label of me = "Start Game" then
+      set the label of me to "Stop Game"
+      startGame
+   else
+      set the label of me to "Start Game"
+      stopGame
+   end if
+end mouseUp

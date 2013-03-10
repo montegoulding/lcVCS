@@ -1,0 +1,25 @@
+{
+  "properties": {
+    "showBorder": true,
+    "textAlign": "center",
+    "name": "Import",
+    "traversalOn": false,
+    "style": "standard",
+    "opaque": true,
+    "rect": "276,60,344,83"
+  },
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "scripteditorselection": 269,
+      "scripteditorvscroll": 0,
+      "revUniqueID": 1355715958895
+    },
+    "customKeys": {
+      "uVersionID": 1018,
+      "uVersionUUID": "0CC25F07-8315-4285-BE73-42A23519A98F",
+      "": 1018,
+      "hello": "sdsds"
+    }
+  }
+}

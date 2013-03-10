@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "name": "grass_upper.png",
+    "paintCompression": "png",
+    "opaque": false,
+    "alwaysBuffer": true,
+    "rect": "2,0,1026,384"
+  },
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1354339731753
+    }
+  }
+}

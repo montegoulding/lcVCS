@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "autoHilite": false,
+    "icon": "AD1DF5A0-FC8E-4C82-AFE0-0AE109020D11",
+    "rect": "730,444,910,650",
+    "textAlign": "center",
+    "traversalOn": false,
+    "name": "mole3",
+    "showIcon": true,
+    "showName": false
+  },
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "scripteditorselection": 23,
+      "scripteditorvscroll": 0,
+      "revUniqueID": 1354340066191
+    }
+  }
+}

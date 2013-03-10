@@ -1,0 +1,17 @@
+{
+  "properties": {
+    "name": "drawing",
+    "backgroundColor": "255,255,255",
+    "foregroundColor": "0,0,0",
+    "tabGroupBehavior": true,
+    "rect": "-4,52,354,452"
+  },
+  "class": "com.runrev.engine.group",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1351831300958,
+      "scripteditorselection": 168,
+      "scripteditorvscroll": 0
+    }
+  }
+}

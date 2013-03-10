@@ -1,0 +1,11 @@
+{
+  "name": "Untitled 1",
+  "objects": [
+    {
+      "uuid": "6A611423-AA5C-484C-8922-83E2B1A6A071",
+      "class": "com.runrev.engine.card"
+    }
+  ],
+  "uuid": "762431DF-C827-4712-8C5B-D5963EF22AC0",
+  "class": "com.runrev.engine.stack"
+}

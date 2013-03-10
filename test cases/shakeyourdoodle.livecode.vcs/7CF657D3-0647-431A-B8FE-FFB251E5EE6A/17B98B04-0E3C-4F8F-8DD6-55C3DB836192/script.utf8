@@ -1,0 +1,14 @@
+on mouseUp
+   set the opaque of me to false
+   answer "Are you sure you want to clear the doodle?" with "Clear" or "Cancel"
+   if the result is "Cancel" then exit mouseUp
+   clearDrawing
+end mouseUp
+
+on mouseDown
+   set the opaque of me to true
+end mouseDown
+
+on mouseRelease
+   set the opaque of me to false
+end mouseRelease

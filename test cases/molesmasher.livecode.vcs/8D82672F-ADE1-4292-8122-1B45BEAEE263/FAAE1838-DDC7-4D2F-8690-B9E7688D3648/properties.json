@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "name": "mole_thump1",
+    "paintCompression": "png",
+    "opaque": false,
+    "alwaysBuffer": true,
+    "rect": "1036,262,1214,462"
+  },
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1354339895505
+    }
+  }
+}

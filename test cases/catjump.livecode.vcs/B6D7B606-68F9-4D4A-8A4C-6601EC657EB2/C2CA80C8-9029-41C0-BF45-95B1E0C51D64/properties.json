@@ -1,0 +1,18 @@
+{
+  "properties": {
+    "autoHilite": false,
+    "icon": "C4A3BCAD-599F-4D64-9A58-FCA5FC211A66",
+    "rect": "960,324,1396,594",
+    "textAlign": "center",
+    "traversalOn": false,
+    "name": "enemy",
+    "showIcon": true,
+    "showName": false
+  },
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1354400331592
+    }
+  }
+}

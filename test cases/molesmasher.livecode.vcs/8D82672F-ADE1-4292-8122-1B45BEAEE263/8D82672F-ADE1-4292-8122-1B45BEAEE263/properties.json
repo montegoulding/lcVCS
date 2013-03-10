@@ -1,0 +1,22 @@
+{
+  "properties": {
+    "width": 1026,
+    "name": "molesmasher",
+    "backgroundColor": "0,0,0",
+    "height": 692
+  },
+  "class": "com.runrev.engine.stack",
+  "customPropertySets": {
+    "cREVGeometryCache": {
+      "stackID": 1023
+    },
+    "cREVGeneral": {
+      "scripteditorselection": 0,
+      "scripteditorvscroll": 0,
+      "breakpointconditions": "",
+      "breakpoints": "",
+      "stackfileversion": 5.5,
+      "breakpointstates": ""
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "showBorder": false,
+    "textAlign": "right",
+    "autoHilite": false,
+    "htmlText": "<p>1378</p>",
+    "traversalOn": false,
+    "style": "transparent",
+    "opaque": false,
+    "sharedText": true,
+    "name": "score",
+    "rect": "796,4,958,44",
+    "lockText": true,
+    "dontWrap": true,
+    "textSize": 24
+  },
+  "class": "com.runrev.engine.field",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1354418731069
+    }
+  }
+}

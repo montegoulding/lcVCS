@@ -1,0 +1,18 @@
+{
+  "properties": {
+    "autoHilite": false,
+    "icon": "467AFEA7-698B-45BA-A298-FB3F2D70423B",
+    "rect": "-2,342,320,600",
+    "textAlign": "center",
+    "traversalOn": false,
+    "name": "cat",
+    "showIcon": true,
+    "showName": false
+  },
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1354416607050
+    }
+  }
+}

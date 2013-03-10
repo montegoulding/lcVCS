@@ -1,0 +1,8 @@
+{
+  "properties": {
+    "width": 400,
+    "name": "Untitled 1",
+    "height": 400
+  },
+  "class": "com.runrev.engine.stack"
+}

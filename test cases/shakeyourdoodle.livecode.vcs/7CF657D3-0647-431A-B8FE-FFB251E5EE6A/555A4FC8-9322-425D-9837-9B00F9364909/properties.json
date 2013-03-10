@@ -1,0 +1,19 @@
+{
+  "properties": {
+    "name": "218-trash2@2x.png",
+    "hotSpot": "1,0",
+    "opaque": false,
+    "alwaysBuffer": true,
+    "yHot": 0,
+    "visible": false,
+    "paintCompression": "png",
+    "rect": "214,549,230,570",
+    "lockLoc": true
+  },
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1351839267227
+    }
+  }
+}

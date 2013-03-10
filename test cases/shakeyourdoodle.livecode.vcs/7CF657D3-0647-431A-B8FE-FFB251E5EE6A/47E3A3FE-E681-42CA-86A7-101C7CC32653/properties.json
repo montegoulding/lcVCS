@@ -1,0 +1,17 @@
+{
+  "properties": {
+    "filled": true,
+    "opaque": true,
+    "name": "background",
+    "lineSize": 0,
+    "style": "rectangle",
+    "points": "",
+    "rect": "0,56,350,448"
+  },
+  "class": "com.runrev.engine.graphic",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1351831285031
+    }
+  }
+}
