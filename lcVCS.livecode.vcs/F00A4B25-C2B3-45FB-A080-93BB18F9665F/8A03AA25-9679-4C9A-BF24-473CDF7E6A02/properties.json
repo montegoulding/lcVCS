@@ -1,22 +1,22 @@
 {
-  "properties": {
-    "textAlign": "center",
-    "autoHilite": false,
-    "unicodeText": "lcVCS\ncatjump\nmolesmasher\nshakeyourdoodle\nsimple",
-    "menuMode": "option",
-    "traversalOn": false,
-    "style": "menu",
-    "armBorder": false,
-    "rect": "52,60,192,82",
-    "unicodeLabel": "lcVCS",
-    "name": "tests"
-  },
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
+      "revUniqueID": 1355732484252,
       "scripteditorselection": 365,
-      "scripteditorvscroll": 0,
-      "revUniqueID": 1355732484252
+      "scripteditorvscroll": 0
     }
+  },
+  "properties": {
+    "armBorder": false,
+    "autoHilite": false,
+    "menuMode": "option",
+    "name": "tests",
+    "rect": "52,60,192,82",
+    "style": "menu",
+    "textAlign": "center",
+    "traversalOn": false,
+    "unicodeLabel": "lcVCS",
+    "unicodeText": "lcVCS\ncatjump\nmolesmasher\nshakeyourdoodle\nsimple"
   }
 }

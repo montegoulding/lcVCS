@@ -1,24 +1,24 @@
 {
-  "properties": {
-    "showBorder": false,
-    "textAlign": "right",
-    "autoHilite": false,
-    "htmlText": "<p>Test</p>",
-    "traversalOn": false,
-    "style": "transparent",
-    "opaque": false,
-    "sharedText": true,
-    "rect": "-28,60,52,81",
-    "lockText": true,
-    "dontWrap": true
-  },
   "class": "com.runrev.engine.field",
   "customPropertySets": {
-    "cREVTable": {
-      "currentview": "Test"
-    },
     "cREVGeneral": {
       "revUniqueID": 1355732913680
+    },
+    "cREVTable": {
+      "currentview": "Test"
     }
+  },
+  "properties": {
+    "autoHilite": false,
+    "dontWrap": true,
+    "htmlText": "<p>Test</p>",
+    "lockText": true,
+    "opaque": false,
+    "rect": "-28,60,52,81",
+    "sharedText": true,
+    "showBorder": false,
+    "style": "transparent",
+    "textAlign": "right",
+    "traversalOn": false
   }
 }

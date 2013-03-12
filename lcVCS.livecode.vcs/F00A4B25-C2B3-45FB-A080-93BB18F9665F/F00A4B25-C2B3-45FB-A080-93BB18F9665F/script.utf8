@@ -683,8 +683,8 @@ end checkBehaviors
 -- pForceRootType - can force the root to be an object if it looks like an array
 -- pPretty - include whitespace
 function ArrayToJSON pArray,pForceRootType,pPretty
-   local tArray
-   repeat for each key tKey in pArray
+   local tArray,tKeys
+   repeat for each line tKey in the keys of pArray
       if pArray[tKey] is an array then
          put "}"&ArrayToJSON(pArray[tKey]) into tArray[tKey]
       else if needsEncoding(pArray[tKey]) then

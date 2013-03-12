@@ -1,10 +1,4 @@
 {
-  "properties": {
-    "textAlign": "center",
-    "name": "Import",
-    "traversalOn": false,
-    "rect": "276,60,344,83"
-  },
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
@@ -12,5 +6,11 @@
       "scripteditorselection": 269,
       "scripteditorvscroll": 0
     }
+  },
+  "properties": {
+    "name": "Import",
+    "rect": "276,60,344,83",
+    "textAlign": "center",
+    "traversalOn": false
   }
 }
