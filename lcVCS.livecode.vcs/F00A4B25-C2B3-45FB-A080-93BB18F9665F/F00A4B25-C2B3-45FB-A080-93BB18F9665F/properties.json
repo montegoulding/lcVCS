@@ -38,8 +38,8 @@
       "OSX,longVersion": "git-lc 1.0.0.0",
       "OSX,identifier": "com..git-lc",
       "OSX,shortVersion": "1.0.0.0",
-      "Windows,productversion3": 0,
       "Windows,fileversion4": 0,
+      "Windows,productversion3": 0,
       "OSX,info": "git-lc Version 1.0.0.0",
       "askDialog": true,
       "OSX,signature": "????",
@@ -50,18 +50,12 @@
       "id": 1360464201195
     },
     "cREVGeneral": {
-      "breakpointconditions": "",
-      "breakpoints": "",
       "scripteditorselection": 3454,
       "scripteditorvscroll": 5491,
+      "breakpointconditions": "",
+      "breakpoints": "",
       "stackfileversion": 5.5,
       "breakpointstates": ""
-    },
-    "customKeys": {
-      "uVersionID": 1028,
-      "uVersionUUID": "D7D87BC8-160D-4CF5-BEAC-336C6D77338E",
-      "": 1028,
-      "hello": "sdsds"
     }
   }
 }

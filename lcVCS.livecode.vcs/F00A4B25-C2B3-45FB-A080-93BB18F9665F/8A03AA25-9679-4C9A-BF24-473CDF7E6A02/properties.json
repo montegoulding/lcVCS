@@ -1,13 +1,11 @@
 {
   "properties": {
-    "showBorder": true,
     "textAlign": "center",
     "autoHilite": false,
-    "traversalOn": false,
-    "style": "menu",
-    "opaque": true,
     "unicodeText": "lcVCS\ncatjump\nmolesmasher\nshakeyourdoodle\nsimple",
     "menuMode": "option",
+    "traversalOn": false,
+    "style": "menu",
     "armBorder": false,
     "rect": "52,60,192,82",
     "unicodeLabel": "lcVCS",
@@ -16,15 +14,9 @@
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1355732484252,
       "scripteditorselection": 365,
-      "scripteditorvscroll": 0
-    },
-    "customKeys": {
-      "uVersionID": 1024,
-      "uVersionUUID": "3AA51FB0-A135-4FA8-AB5B-7FE683BB9053",
-      "": 1024,
-      "hello": "sdsds"
+      "scripteditorvscroll": 0,
+      "revUniqueID": 1355732484252
     }
   }
 }

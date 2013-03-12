@@ -1,26 +1,17 @@
 {
   "properties": {
     "visited": true,
-    "style": "standard",
-    "showBorder": true,
+    "rect": "198,60,268,83",
     "textAlign": "center",
-    "traversalOn": false,
     "name": "Export",
-    "opaque": true,
-    "rect": "198,60,268,83"
+    "traversalOn": false
   },
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1355714905492,
       "scripteditorselection": 22,
-      "scripteditorvscroll": 0
-    },
-    "customKeys": {
-      "uVersionID": 1014,
-      "uVersionUUID": "598C3781-A4B2-4048-BC8D-E844EEDEBAF0",
-      "": 1014,
-      "hello": "sdsds"
+      "scripteditorvscroll": 0,
+      "revUniqueID": 1355714905492
     }
   }
 }
