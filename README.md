@@ -21,4 +21,4 @@ This structure has been designed to resolve many of the issues there are with me
 
 Dependencies
 ------------
-This project depends on mergJSON which is a dual licensed (GPL/Commercial) JSON external for implementing JSONToArray and ArrayToJSON.
+This project depends on [mergJSON](https://github.com/montegoulding/mergJSON) which is a dual licensed (GPL/Commercial) JSON external for implementing JSONToArray and ArrayToJSON.
