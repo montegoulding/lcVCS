@@ -1,65 +1,65 @@
 {
+  "class": "com.runrev.engine.stack",
   "name": "Shake Your Doodle",
   "objects": [
     {
+      "class": "com.runrev.engine.card",
       "objects": [
         {
+          "class": "com.runrev.engine.button",
           "name": "Photo",
-          "uuid": "5B4CF604-5702-4A71-A424-47C2F0ACCBB6",
-          "class": "com.runrev.engine.button"
+          "uuid": "5B4CF604-5702-4A71-A424-47C2F0ACCBB6"
         },
         {
+          "class": "com.runrev.engine.field",
           "name": "heading",
-          "uuid": "051FAC8A-21E2-4E8F-8C5B-AB38728AC1BD",
-          "class": "com.runrev.engine.field"
+          "uuid": "051FAC8A-21E2-4E8F-8C5B-AB38728AC1BD"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "86-camera@2x.png",
-          "uuid": "3DEF73F2-16A7-4ECF-B8EE-E51BD6BF3D76",
-          "class": "com.runrev.engine.image"
+          "uuid": "3DEF73F2-16A7-4ECF-B8EE-E51BD6BF3D76"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "211-action@2x.png",
-          "uuid": "A30F4E3D-B195-4993-A7A8-4D231C7CF276",
-          "class": "com.runrev.engine.image"
+          "uuid": "A30F4E3D-B195-4993-A7A8-4D231C7CF276"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "218-trash2@2x.png",
-          "uuid": "555A4FC8-9322-425D-9837-9B00F9364909",
-          "class": "com.runrev.engine.image"
+          "uuid": "555A4FC8-9322-425D-9837-9B00F9364909"
         },
         {
+          "class": "com.runrev.engine.button",
           "name": "Share",
-          "uuid": "C04EB81D-9096-4C57-A2C0-F7C27F1E2AD4",
-          "class": "com.runrev.engine.button"
+          "uuid": "C04EB81D-9096-4C57-A2C0-F7C27F1E2AD4"
         },
         {
+          "class": "com.runrev.engine.button",
           "name": "Clear",
-          "uuid": "17B98B04-0E3C-4F8F-8DD6-55C3DB836192",
-          "class": "com.runrev.engine.button"
+          "uuid": "17B98B04-0E3C-4F8F-8DD6-55C3DB836192"
         },
         {
+          "class": "com.runrev.engine.group",
           "name": "drawing",
           "objects": [
             {
+              "class": "com.runrev.engine.graphic",
               "name": "background",
-              "uuid": "47E3A3FE-E681-42CA-86A7-101C7CC32653",
-              "class": "com.runrev.engine.graphic"
+              "uuid": "47E3A3FE-E681-42CA-86A7-101C7CC32653"
             },
             {
+              "class": "com.runrev.engine.image",
               "name": "photo",
-              "uuid": "5114FF54-9458-4442-A493-49F691CDB626",
-              "class": "com.runrev.engine.image"
+              "uuid": "5114FF54-9458-4442-A493-49F691CDB626"
             }
           ],
-          "uuid": "274994FF-F97A-4FBF-BDA9-4CDD879CFAEE",
-          "class": "com.runrev.engine.group"
+          "uuid": "274994FF-F97A-4FBF-BDA9-4CDD879CFAEE"
         }
       ],
-      "uuid": "78416179-9AE2-4500-9EFB-5B931FE64C0C",
-      "class": "com.runrev.engine.card"
+      "uuid": "78416179-9AE2-4500-9EFB-5B931FE64C0C"
     }
   ],
-  "uuid": "7CF657D3-0647-431A-B8FE-FFB251E5EE6A",
-  "class": "com.runrev.engine.stack"
+  "uuid": "7CF657D3-0647-431A-B8FE-FFB251E5EE6A"
 }

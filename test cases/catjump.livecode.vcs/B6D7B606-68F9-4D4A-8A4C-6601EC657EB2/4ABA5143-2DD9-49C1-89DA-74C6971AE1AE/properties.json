@@ -1,15 +1,15 @@
 {
-  "properties": {
-    "name": "dog_2",
-    "paintCompression": "png",
-    "opaque": false,
-    "alwaysBuffer": true,
-    "rect": "996,24,1437,300"
-  },
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1354398477383
     }
+  },
+  "properties": {
+    "alwaysBuffer": true,
+    "name": "dog_2",
+    "opaque": false,
+    "paintCompression": "png",
+    "rect": "996,24,1437,300"
   }
 }

@@ -1,16 +1,4 @@
 {
-  "properties": {
-    "foregroundColor": "255,255,255",
-    "traversalOn": false,
-    "rect": "82,448,164,504",
-    "icon": "A30F4E3D-B195-4993-A7A8-4D231C7CF276",
-    "textAlign": "center",
-    "autoHilite": false,
-    "backgroundColor": "135,135,135",
-    "name": "Share",
-    "showIcon": true,
-    "sharedHilite": false
-  },
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
@@ -18,5 +6,17 @@
       "scripteditorselection": 175,
       "scripteditorvscroll": 0
     }
+  },
+  "properties": {
+    "autoHilite": false,
+    "backgroundColor": "135,135,135",
+    "foregroundColor": "255,255,255",
+    "icon": "A30F4E3D-B195-4993-A7A8-4D231C7CF276",
+    "name": "Share",
+    "rect": "82,448,164,504",
+    "sharedHilite": false,
+    "showIcon": true,
+    "textAlign": "center",
+    "traversalOn": false
   }
 }

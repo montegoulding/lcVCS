@@ -1,15 +1,15 @@
 {
-  "properties": {
-    "name": "grass lower",
-    "paintCompression": "png",
-    "opaque": false,
-    "alwaysBuffer": true,
-    "rect": "2,384,1026,768"
-  },
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1354339731789
     }
+  },
+  "properties": {
+    "alwaysBuffer": true,
+    "name": "grass lower",
+    "opaque": false,
+    "paintCompression": "png",
+    "rect": "2,384,1026,768"
   }
 }

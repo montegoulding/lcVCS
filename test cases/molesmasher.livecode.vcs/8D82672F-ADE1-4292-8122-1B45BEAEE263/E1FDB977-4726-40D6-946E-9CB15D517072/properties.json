@@ -1,15 +1,15 @@
 {
-  "properties": {
-    "name": "mole_thump4",
-    "paintCompression": "png",
-    "opaque": false,
-    "alwaysBuffer": true,
-    "rect": "1228,328,1406,528"
-  },
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1354339895472
     }
+  },
+  "properties": {
+    "alwaysBuffer": true,
+    "name": "mole_thump4",
+    "opaque": false,
+    "paintCompression": "png",
+    "rect": "1228,328,1406,528"
   }
 }

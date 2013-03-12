@@ -1,14 +1,14 @@
 {
-  "properties": {
-    "name": "bg",
-    "paintCompression": "png",
-    "alwaysBuffer": true,
-    "rect": "0,0,960,640"
-  },
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1354398477701
     }
+  },
+  "properties": {
+    "alwaysBuffer": true,
+    "name": "bg",
+    "paintCompression": "png",
+    "rect": "0,0,960,640"
   }
 }

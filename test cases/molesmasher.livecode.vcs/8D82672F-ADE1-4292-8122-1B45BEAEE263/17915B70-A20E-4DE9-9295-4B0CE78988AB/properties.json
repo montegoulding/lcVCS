@@ -1,20 +1,20 @@
 {
-  "properties": {
-    "autoHilite": false,
-    "icon": "1188D27A-7F9E-4B4A-9945-98E987609700",
-    "rect": "425,444,605,650",
-    "textAlign": "center",
-    "traversalOn": false,
-    "name": "mole2",
-    "showIcon": true,
-    "showName": false
-  },
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
+      "revUniqueID": 1354340065768,
       "scripteditorselection": 23,
-      "scripteditorvscroll": 0,
-      "revUniqueID": 1354340065768
+      "scripteditorvscroll": 0
     }
+  },
+  "properties": {
+    "autoHilite": false,
+    "icon": "1188D27A-7F9E-4B4A-9945-98E987609700",
+    "name": "mole2",
+    "rect": "425,444,605,650",
+    "showIcon": true,
+    "showName": false,
+    "textAlign": "center",
+    "traversalOn": false
   }
 }

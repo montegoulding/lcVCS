@@ -1,83 +1,83 @@
 {
+  "class": "com.runrev.engine.stack",
   "name": "molesmasher",
   "objects": [
     {
+      "class": "com.runrev.engine.card",
       "objects": [
         {
+          "class": "com.runrev.engine.image",
           "name": "grass_upper.png",
-          "uuid": "F36106DA-4DE1-4E15-A0EB-635FD58C9144",
-          "class": "com.runrev.engine.image"
+          "uuid": "F36106DA-4DE1-4E15-A0EB-635FD58C9144"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "mole_thump4",
-          "uuid": "E1FDB977-4726-40D6-946E-9CB15D517072",
-          "class": "com.runrev.engine.image"
+          "uuid": "E1FDB977-4726-40D6-946E-9CB15D517072"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "mole_thump3",
-          "uuid": "529DE1F6-0B06-482E-A012-18348786836C",
-          "class": "com.runrev.engine.image"
+          "uuid": "529DE1F6-0B06-482E-A012-18348786836C"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "mole_thump2",
-          "uuid": "592D8EF1-3885-4840-9CAA-D01509AFF802",
-          "class": "com.runrev.engine.image"
+          "uuid": "592D8EF1-3885-4840-9CAA-D01509AFF802"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "mole_thump1",
-          "uuid": "FAAE1838-DDC7-4D2F-8690-B9E7688D3648",
-          "class": "com.runrev.engine.image"
+          "uuid": "FAAE1838-DDC7-4D2F-8690-B9E7688D3648"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "mole_laugh3",
-          "uuid": "1188D27A-7F9E-4B4A-9945-98E987609700",
-          "class": "com.runrev.engine.image"
+          "uuid": "1188D27A-7F9E-4B4A-9945-98E987609700"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "mole_laugh2",
-          "uuid": "AD1DF5A0-FC8E-4C82-AFE0-0AE109020D11",
-          "class": "com.runrev.engine.image"
+          "uuid": "AD1DF5A0-FC8E-4C82-AFE0-0AE109020D11"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "mole_laugh1",
-          "uuid": "642F0018-DABA-4E2A-89B2-499BAC1F89A2",
-          "class": "com.runrev.engine.image"
+          "uuid": "642F0018-DABA-4E2A-89B2-499BAC1F89A2"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "mole",
-          "uuid": "94E52246-4139-41B1-979A-C05BC61BD30C",
-          "class": "com.runrev.engine.image"
+          "uuid": "94E52246-4139-41B1-979A-C05BC61BD30C"
         },
         {
+          "class": "com.runrev.engine.button",
           "name": "mole1",
-          "uuid": "B79E19DA-3053-4344-A2C0-C73E253ED2DD",
-          "class": "com.runrev.engine.button"
+          "uuid": "B79E19DA-3053-4344-A2C0-C73E253ED2DD"
         },
         {
+          "class": "com.runrev.engine.button",
           "name": "mole2",
-          "uuid": "17915B70-A20E-4DE9-9295-4B0CE78988AB",
-          "class": "com.runrev.engine.button"
+          "uuid": "17915B70-A20E-4DE9-9295-4B0CE78988AB"
         },
         {
+          "class": "com.runrev.engine.button",
           "name": "mole3",
-          "uuid": "2F7E1E35-9639-42F0-9D5F-20A20263842F",
-          "class": "com.runrev.engine.button"
+          "uuid": "2F7E1E35-9639-42F0-9D5F-20A20263842F"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "grass lower",
-          "uuid": "C94AB405-1B2F-4686-91E1-4D6F575B11F8",
-          "class": "com.runrev.engine.image"
+          "uuid": "C94AB405-1B2F-4686-91E1-4D6F575B11F8"
         },
         {
+          "class": "com.runrev.engine.button",
           "name": "Start Game",
-          "uuid": "669426F1-C0D7-4EE4-85E7-9669C035D280",
-          "class": "com.runrev.engine.button"
+          "uuid": "669426F1-C0D7-4EE4-85E7-9669C035D280"
         }
       ],
-      "uuid": "5E68C729-564C-4CA3-8130-35A8102BC35E",
-      "class": "com.runrev.engine.card"
+      "uuid": "5E68C729-564C-4CA3-8130-35A8102BC35E"
     }
   ],
-  "uuid": "8D82672F-ADE1-4292-8122-1B45BEAEE263",
-  "class": "com.runrev.engine.stack"
+  "uuid": "8D82672F-ADE1-4292-8122-1B45BEAEE263"
 }

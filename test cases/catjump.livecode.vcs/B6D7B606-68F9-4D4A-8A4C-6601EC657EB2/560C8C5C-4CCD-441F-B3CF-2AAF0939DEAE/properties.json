@@ -1,15 +1,15 @@
 {
-  "properties": {
-    "name": "kidontrike_3",
-    "paintCompression": "png",
-    "opaque": false,
-    "alwaysBuffer": true,
-    "rect": "972,306,1203,574"
-  },
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1354399717024
     }
+  },
+  "properties": {
+    "alwaysBuffer": true,
+    "name": "kidontrike_3",
+    "opaque": false,
+    "paintCompression": "png",
+    "rect": "972,306,1203,574"
   }
 }

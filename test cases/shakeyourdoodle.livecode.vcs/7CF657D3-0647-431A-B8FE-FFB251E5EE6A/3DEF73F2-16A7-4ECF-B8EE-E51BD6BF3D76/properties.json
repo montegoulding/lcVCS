@@ -1,19 +1,19 @@
 {
-  "properties": {
-    "name": "86-camera@2x.png",
-    "hotSpot": "1,0",
-    "opaque": false,
-    "alwaysBuffer": true,
-    "yHot": 0,
-    "visible": false,
-    "paintCompression": "png",
-    "rect": "99,549,123,567",
-    "lockLoc": true
-  },
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1351839041359
     }
+  },
+  "properties": {
+    "alwaysBuffer": true,
+    "hotSpot": "1,0",
+    "lockLoc": true,
+    "name": "86-camera@2x.png",
+    "opaque": false,
+    "paintCompression": "png",
+    "rect": "99,549,123,567",
+    "visible": false,
+    "yHot": 0
   }
 }

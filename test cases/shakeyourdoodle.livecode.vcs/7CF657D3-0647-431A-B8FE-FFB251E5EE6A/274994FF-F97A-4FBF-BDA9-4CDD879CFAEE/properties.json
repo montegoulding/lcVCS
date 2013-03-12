@@ -1,11 +1,4 @@
 {
-  "properties": {
-    "name": "drawing",
-    "backgroundColor": "255,255,255",
-    "foregroundColor": "0,0,0",
-    "tabGroupBehavior": true,
-    "rect": "-4,52,354,452"
-  },
   "class": "com.runrev.engine.group",
   "customPropertySets": {
     "cREVGeneral": {
@@ -13,5 +6,12 @@
       "scripteditorselection": 168,
       "scripteditorvscroll": 0
     }
+  },
+  "properties": {
+    "backgroundColor": "255,255,255",
+    "foregroundColor": "0,0,0",
+    "name": "drawing",
+    "rect": "-4,52,354,452",
+    "tabGroupBehavior": true
   }
 }

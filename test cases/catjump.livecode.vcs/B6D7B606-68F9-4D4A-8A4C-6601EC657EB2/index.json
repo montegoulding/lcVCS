@@ -1,93 +1,93 @@
 {
+  "class": "com.runrev.engine.stack",
   "name": "catjump",
   "objects": [
     {
+      "class": "com.runrev.engine.card",
       "objects": [
         {
+          "class": "com.runrev.engine.image",
           "name": "bg",
-          "uuid": "4FBC3F94-DAB9-4174-95EC-33D6F27A14BA",
-          "class": "com.runrev.engine.image"
+          "uuid": "4FBC3F94-DAB9-4174-95EC-33D6F27A14BA"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "dog_4",
-          "uuid": "C4A3BCAD-599F-4D64-9A58-FCA5FC211A66",
-          "class": "com.runrev.engine.image"
+          "uuid": "C4A3BCAD-599F-4D64-9A58-FCA5FC211A66"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "dog_3",
-          "uuid": "494B7E63-61A9-44BA-9D76-59DE26897205",
-          "class": "com.runrev.engine.image"
+          "uuid": "494B7E63-61A9-44BA-9D76-59DE26897205"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "dog_2",
-          "uuid": "4ABA5143-2DD9-49C1-89DA-74C6971AE1AE",
-          "class": "com.runrev.engine.image"
+          "uuid": "4ABA5143-2DD9-49C1-89DA-74C6971AE1AE"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "dog_1",
-          "uuid": "B5E675C6-2E9D-4039-8B63-D2AB7055696E",
-          "class": "com.runrev.engine.image"
+          "uuid": "B5E675C6-2E9D-4039-8B63-D2AB7055696E"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "cat_leap_2",
-          "uuid": "0AD0F4DB-E45C-448D-ACC1-34277B4543E5",
-          "class": "com.runrev.engine.image"
+          "uuid": "0AD0F4DB-E45C-448D-ACC1-34277B4543E5"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "cat_leap_1",
-          "uuid": "BC5CCF04-0867-4790-9B02-B5CB4EF19CFF",
-          "class": "com.runrev.engine.image"
+          "uuid": "BC5CCF04-0867-4790-9B02-B5CB4EF19CFF"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "cat",
-          "uuid": "467AFEA7-698B-45BA-A298-FB3F2D70423B",
-          "class": "com.runrev.engine.image"
+          "uuid": "467AFEA7-698B-45BA-A298-FB3F2D70423B"
         },
         {
+          "class": "com.runrev.engine.button",
           "name": "Start Game",
-          "uuid": "78340A26-9839-4EB6-9D4D-013E0F15DACF",
-          "class": "com.runrev.engine.button"
+          "uuid": "78340A26-9839-4EB6-9D4D-013E0F15DACF"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "kidontrike_3",
-          "uuid": "560C8C5C-4CCD-441F-B3CF-2AAF0939DEAE",
-          "class": "com.runrev.engine.image"
+          "uuid": "560C8C5C-4CCD-441F-B3CF-2AAF0939DEAE"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "kidontrike_4",
-          "uuid": "DE67AE14-63EF-42E6-B25B-802D7AD9A0CC",
-          "class": "com.runrev.engine.image"
+          "uuid": "DE67AE14-63EF-42E6-B25B-802D7AD9A0CC"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "kidontrike_2",
-          "uuid": "8C13F316-80B9-4AE3-89EE-8F067FEC27F8",
-          "class": "com.runrev.engine.image"
+          "uuid": "8C13F316-80B9-4AE3-89EE-8F067FEC27F8"
         },
         {
+          "class": "com.runrev.engine.image",
           "name": "kidontrike_1",
-          "uuid": "C4F1F462-13FC-4E1F-8D7D-4D9C47F0FB04",
-          "class": "com.runrev.engine.image"
+          "uuid": "C4F1F462-13FC-4E1F-8D7D-4D9C47F0FB04"
         },
         {
+          "class": "com.runrev.engine.button",
           "name": "enemy",
-          "uuid": "C2CA80C8-9029-41C0-BF45-95B1E0C51D64",
-          "class": "com.runrev.engine.button"
+          "uuid": "C2CA80C8-9029-41C0-BF45-95B1E0C51D64"
         },
         {
+          "class": "com.runrev.engine.button",
           "name": "cat",
-          "uuid": "2F476C55-0206-43A3-9B57-4B7E3D09034D",
-          "class": "com.runrev.engine.button"
+          "uuid": "2F476C55-0206-43A3-9B57-4B7E3D09034D"
         },
         {
+          "class": "com.runrev.engine.field",
           "name": "score",
-          "uuid": "40030BA7-E90A-4ECD-A3DF-04E8D194DBBA",
-          "class": "com.runrev.engine.field"
+          "uuid": "40030BA7-E90A-4ECD-A3DF-04E8D194DBBA"
         }
       ],
-      "uuid": "A1D1B732-B2B4-4E8D-A91C-F15EC63371EA",
-      "class": "com.runrev.engine.card"
+      "uuid": "A1D1B732-B2B4-4E8D-A91C-F15EC63371EA"
     }
   ],
-  "uuid": "B6D7B606-68F9-4D4A-8A4C-6601EC657EB2",
-  "class": "com.runrev.engine.stack"
+  "uuid": "B6D7B606-68F9-4D4A-8A4C-6601EC657EB2"
 }

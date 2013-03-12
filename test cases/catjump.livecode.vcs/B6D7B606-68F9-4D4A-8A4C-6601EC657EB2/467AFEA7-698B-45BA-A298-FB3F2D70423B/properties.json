@@ -1,15 +1,15 @@
 {
-  "properties": {
-    "name": "cat",
-    "paintCompression": "png",
-    "opaque": false,
-    "alwaysBuffer": true,
-    "rect": "1002,88,1281,332"
-  },
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1354398477597
     }
+  },
+  "properties": {
+    "alwaysBuffer": true,
+    "name": "cat",
+    "opaque": false,
+    "paintCompression": "png",
+    "rect": "1002,88,1281,332"
   }
 }

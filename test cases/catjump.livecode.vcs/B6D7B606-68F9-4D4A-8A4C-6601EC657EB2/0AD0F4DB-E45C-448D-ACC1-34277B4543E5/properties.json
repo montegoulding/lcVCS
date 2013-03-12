@@ -1,15 +1,15 @@
 {
-  "properties": {
-    "name": "cat_leap_2",
-    "paintCompression": "png",
-    "opaque": false,
-    "alwaysBuffer": true,
-    "rect": "966,-6,1245,238"
-  },
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1354398477531
     }
+  },
+  "properties": {
+    "alwaysBuffer": true,
+    "name": "cat_leap_2",
+    "opaque": false,
+    "paintCompression": "png",
+    "rect": "966,-6,1245,238"
   }
 }

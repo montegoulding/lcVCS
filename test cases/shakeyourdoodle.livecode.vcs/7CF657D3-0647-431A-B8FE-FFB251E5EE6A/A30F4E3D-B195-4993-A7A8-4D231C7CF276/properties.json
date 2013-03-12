@@ -1,19 +1,19 @@
 {
-  "properties": {
-    "name": "211-action@2x.png",
-    "hotSpot": "1,0",
-    "opaque": false,
-    "alwaysBuffer": true,
-    "yHot": 0,
-    "visible": false,
-    "paintCompression": "png",
-    "rect": "160,543,188,565",
-    "lockLoc": true
-  },
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1351839170018
     }
+  },
+  "properties": {
+    "alwaysBuffer": true,
+    "hotSpot": "1,0",
+    "lockLoc": true,
+    "name": "211-action@2x.png",
+    "opaque": false,
+    "paintCompression": "png",
+    "rect": "160,543,188,565",
+    "visible": false,
+    "yHot": 0
   }
 }
