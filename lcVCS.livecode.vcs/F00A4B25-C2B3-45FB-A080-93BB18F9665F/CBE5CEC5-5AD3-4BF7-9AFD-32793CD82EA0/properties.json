@@ -9,7 +9,6 @@
     "name": "Export",
     "rect": "198,60,268,83",
     "textAlign": "center",
-    "traversalOn": false,
-    "visited": true
+    "traversalOn": false
   }
 }

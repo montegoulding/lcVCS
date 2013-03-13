@@ -9,7 +9,6 @@
     "name": "Import",
     "rect": "276,60,344,83",
     "textAlign": "center",
-    "traversalOn": false,
-    "visited": true
+    "traversalOn": false
   }
 }

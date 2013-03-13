@@ -6,7 +6,7 @@ constant kColorProps = "foregroundColor,backgroundColor,hiliteColor,borderColor,
 constant kPatternProps = "foregroundPattern,backgroundPattern,hilitePattern,borderPattern,topPattern,bottomPattern,shadowPattern,focusPattern"
 constant kIconProps = "icon,hiliteIcon,disabledIcon,borderPattern,visitedIcon,armedIcon,hoverIcon"
 constant kUnicodeProps = "Label,Text,ToolTip,Title"
-constant kDeleteProps = "colors,patterns,orientation,scroll,framecount,id" -- no longer relevant
+constant kDeleteProps = "colors,patterns,orientation,scroll,framecount,id,visited" -- no longer relevant
 constant kTempNameSuffix = " temp"
 
 local sIDMap,sUUIDsToResolve
