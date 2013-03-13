@@ -1,14 +1,9 @@
 on mouseDown
-   put "lcVCS" into tTests
    put the filename of this stack into tPath
    set the itemDel to "/"
    put "test cases" into item -1 of tPath
    set the defaultFolder to tPath
-   put the files into tFiles
-   filter tFiles with "*.livecode"
-   set the itemDel to "."
-   repeat for each line tFile in tFiles
-      put cr& item 1 of tFile after tTests
-   end repeat
-   put tTests into me
+   put "lcVCS.livecode"&cr&the files into tFiles
+   filter tFiles without ".DS_Store"
+   put tFiles into me
 end mouseDown

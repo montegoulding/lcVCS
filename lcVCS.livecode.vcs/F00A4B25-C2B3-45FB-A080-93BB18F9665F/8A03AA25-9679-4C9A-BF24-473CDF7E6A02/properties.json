@@ -3,7 +3,7 @@
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": 1355732484252,
-      "scripteditorselection": 365,
+      "scripteditorselection": 282,
       "scripteditorvscroll": 0
     }
   },
@@ -16,7 +16,7 @@
     "style": "menu",
     "textAlign": "center",
     "traversalOn": false,
-    "unicodeLabel": "lcVCS",
-    "unicodeText": "lcVCS\ncatjump\nmolesmasher\nshakeyourdoodle\nsimple"
+    "unicodeLabel": "lcVCS.livecode",
+    "unicodeText": "lcVCS.livecode\ncatjump.livecode\nmolesmasher.livecode\nshakeyourdoodle.livecode\nsimple.livecode"
   }
 }

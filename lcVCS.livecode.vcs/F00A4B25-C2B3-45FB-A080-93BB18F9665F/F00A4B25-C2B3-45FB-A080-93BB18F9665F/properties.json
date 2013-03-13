@@ -1,56 +1,13 @@
 {
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
-    "cGlassGeneral": {
-      "id": 1360464201195
-    },
     "cREVGeneral": {
       "breakpointconditions": "",
       "breakpoints": "",
       "breakpointstates": "",
       "scripteditorselection": 29961,
-      "scripteditorvscroll": 12212,
+      "scripteditorvscroll": 630,
       "stackfileversion": 5.5
-    },
-    "cRevStandaloneSettings": {
-      "Linux": true,
-      "MacOSX": true,
-      "MacOSX PowerPC-32": false,
-      "MacOSX x86-32": false,
-      "OSX,copyright": "2013  All rights reserved worldwide",
-      "OSX,documentExtension": "",
-      "OSX,documentType": "",
-      "OSX,identifier": "com..git-lc",
-      "OSX,info": "git-lc Version 1.0.0.0",
-      "OSX,longVersion": "git-lc 1.0.0.0",
-      "OSX,name": "git-lc",
-      "OSX,shortVersion": "1.0.0.0",
-      "OSX,signature": "????",
-      "UNIX,colorChooser": true,
-      "UNIX,fileSelector": true,
-      "UNIX,pageSetup": true,
-      "UNIX,printerChooser": true,
-      "Windows": true,
-      "Windows,FileDescription": "git-lc 1.0.0.0 for Windows",
-      "Windows,LegalCopyright": "2013  All rights reserved worldwide",
-      "Windows,ProductName": "git-lc",
-      "Windows,companyname": "",
-      "Windows,documenticonFile": "/Applications/LiveCode 5.5.3 copy.app/Contents/Tools/Runtime/Windows/x86-32/Support/Sample Icons/genericdoc.ico",
-      "Windows,fileversion1": 1,
-      "Windows,fileversion2": 0,
-      "Windows,fileversion3": 0,
-      "Windows,fileversion4": 0,
-      "Windows,iconFile": "/Applications/LiveCode 5.5.3 copy.app/Contents/Tools/Runtime/Windows/x86-32/Support/Sample Icons/genericapp.ico",
-      "Windows,productversion1": 1,
-      "Windows,productversion2": 0,
-      "Windows,productversion3": 0,
-      "Windows,productversion4": 0,
-      "answerDialog": true,
-      "askDialog": true,
-      "cursors": false,
-      "inclusions": "search",
-      "name": "git-lc",
-      "scriptLibraries": "Internet\nGeometry\nPrinting"
     }
   },
   "properties": {

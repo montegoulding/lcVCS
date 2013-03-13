@@ -1,8 +1,8 @@
 on mouseUp
    put the fileName of this stack into tPath
-   if the label of btn "tests" is not "lcVCS" then
+   if the label of btn "tests" is not "lcVCS.livecode" then
       set the itemDel to "/"
-      put "test cases/"&the label of btn "tests"&".livecode" into item -1 of tPath
+      put "test cases/"&the label of btn "tests" into item -1 of tPath
    end if
    put the milliseconds into tTime
    ExportStackFile tPath
