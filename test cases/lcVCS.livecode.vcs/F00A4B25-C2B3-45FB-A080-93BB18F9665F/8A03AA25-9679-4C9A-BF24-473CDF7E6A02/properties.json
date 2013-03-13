@@ -1,0 +1,20 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1355732484252
+    }
+  },
+  "properties": {
+    "armBorder": false,
+    "autoHilite": false,
+    "menuMode": "option",
+    "name": "tests",
+    "rect": "52,60,192,82",
+    "style": "menu",
+    "textAlign": "center",
+    "traversalOn": false,
+    "unicodeLabel": "lcVCS.livecode",
+    "unicodeText": "lcVCS.livecode\ncatjump.livecode\nmolesmasher.livecode\nshakeyourdoodle.livecode\nsimple.livecode"
+  }
+}

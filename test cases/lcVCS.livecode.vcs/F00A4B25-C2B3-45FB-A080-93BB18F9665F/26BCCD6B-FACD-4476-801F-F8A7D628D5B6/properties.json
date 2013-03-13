@@ -1,0 +1,14 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1355715958895
+    }
+  },
+  "properties": {
+    "name": "Import",
+    "rect": "276,60,344,83",
+    "textAlign": "center",
+    "traversalOn": false
+  }
+}
