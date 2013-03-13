@@ -539,6 +539,14 @@ function ExportObjectProperties pObject,pShared
                delete variable tPropertySetA["breakpoints"]
                delete variable tPropertySetA["scripteditorselection"]
                delete variable tPropertySetA["scripteditorvscroll"]
+               delete variable tPropertySetA["bookmarks"]
+               delete variable tPropertySetA["handlerList"]
+               delete variable tPropertySetA["scriptSelection"]
+               delete variable tPropertySetA["prevHanlder"]
+               delete variable tPropertySetA["tempScript"]
+               delete variable tPropertySetA["script"]
+               delete variable tPropertySetA["scriptCheckSum"]
+               delete variable tPropertySetA["stackfileversion"]
             case "dgProps"
                -- handle row template but need better way for custom control authors to deal with this
                if tPropertySetA["row template"] <> "" then

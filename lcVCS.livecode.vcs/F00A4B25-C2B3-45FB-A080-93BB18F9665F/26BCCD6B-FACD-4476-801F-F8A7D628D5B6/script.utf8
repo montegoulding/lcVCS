@@ -4,9 +4,12 @@ on mouseUp
       set the itemDel to "/"
       put "test cases/"&the label of btn "tests"&".vcs" into item -1 of tPath
    else
+      put "exporting first for safety"
+      ExportStackFile tPath
       put ".vcs" after tPath
    end if
    put the milliseconds into tTime
    ImportStackFile tPath
    put the milliseconds-tTime
 end mouseUp
+
