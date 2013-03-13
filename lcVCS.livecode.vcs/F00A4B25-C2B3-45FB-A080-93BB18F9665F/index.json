@@ -23,11 +23,6 @@
         {
           "class": "com.runrev.engine.field",
           "uuid": "1AF6CED3-9751-462C-9278-94D9622CF371"
-        },
-        {
-          "class": "com.runrev.engine.button",
-          "name": "3.",
-          "uuid": "BF00ADDA-C693-438F-95D5-9997B60770AC"
         }
       ],
       "uuid": "6BDB1E14-658F-4D11-B8CA-078BE128FBED"

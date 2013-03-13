@@ -301,7 +301,11 @@ on ImportObject pObjectIndex,pStackUUID,pGroup,pThisStack
       if tCustomPropertySet = "dgProps" then
          put tObject["customPropertySets"][tCustomPropertySet]["row template"] into sUUIDsToResolve[sIDMap[pObjectIndex["uuid"]]]["row template"]
       end if
-      set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sIDMap[pObjectIndex["uuid"]] to tObject["customPropertySets"][tCustomPropertySet]
+      if tCustomPropertySet is "customKeys" then
+         set the customProperties[""] of sIDMap[pObjectIndex["uuid"]] to tObject["customPropertySets"][tCustomPropertySet]
+      else
+         set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sIDMap[pObjectIndex["uuid"]] to tObject["customPropertySets"][tCustomPropertySet]
+      end if
    end repeat
    set the script of sIDMap[pObjectIndex["uuid"]] to uniDecode(uniEncode(url ("binfile:"&pStackUUID&"/"&pObjectIndex["uuid"]&"/script.utf8"),"UTF8"),"ANSI")
    put pObjectIndex["uuid"] into tVersion["UUID"]
@@ -708,9 +712,13 @@ function JSONToArray pJSON
    local tArray,tKeys
    if pJSON = "" then return ""
    put mergJSONDecode(pJSON,"tArray") into tKeys
-   repeat for each line tKey in tKeys
-      if tKey is not empty then
+   repeat for each line tKey in the keys of tArray
+      if tKey is among the lines of tKeys then
          put JSONToArray(tArray[tKey]) into tArray[tKey]
+      else
+         if char 1 to 13 of tArray[tKey] is "base64Decode(" then
+            put base64Decode(char 14 to -2 of tArray[tKey]) into tArray[tKey]
+         end if
       end if
    end repeat
    return tArray

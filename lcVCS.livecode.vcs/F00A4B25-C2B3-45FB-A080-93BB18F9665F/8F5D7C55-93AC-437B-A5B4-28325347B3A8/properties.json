@@ -1,0 +1,16 @@
+{
+  "class": "com.runrev.engine.field",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": 1363204484488
+    },
+    "customKeys": {
+      "digest": "base64Decode(XUFAKrxLKna5cZ2REBfFkg==)"
+    }
+  },
+  "properties": {
+    "name": "Field",
+    "rect": "44,103,144,124",
+    "textAlign": "left"
+  }
+}

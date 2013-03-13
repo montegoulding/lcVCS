@@ -5,13 +5,13 @@
       "revUniqueID": 1355732913680
     },
     "cREVTable": {
-      "currentview": "Test"
+      "currentview": "Tests"
     }
   },
   "properties": {
     "autoHilite": false,
     "dontWrap": true,
-    "htmlText": "<p>Test</p>",
+    "htmlText": "<p>Tests</p>",
     "lockText": true,
     "opaque": false,
     "rect": "-28,60,52,81",
