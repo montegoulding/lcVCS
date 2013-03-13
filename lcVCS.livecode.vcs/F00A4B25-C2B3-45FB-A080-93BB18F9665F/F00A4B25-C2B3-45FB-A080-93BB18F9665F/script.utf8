@@ -14,6 +14,7 @@ local sIDMap,sUUIDsToResolve
 command ExportStackFile pFilePath
    local tFolder,tStacks,tSubstacks,tIndex,tJSON
    lock screen
+   delete variable sIDMap
    if there is a stack pFilePath then
       -- mainstack
       lock messages
@@ -38,7 +39,7 @@ command ExportStackFile pFilePath
       -- delete folders from deleted stacks
       repeat for each line tFolder in the folders
          if tFolder is not ".." and sIDMap[tFolder] is empty then
-            delete folder tFolder
+            revDeleteFolder tFolder
          end if
       end repeat
       put ArrayToJSON(tStacks,,true) into tJSON
@@ -354,7 +355,7 @@ function ExportStack pStack
    -- delete folders from deleted objects
    repeat for each line tFolder in the folders
       if tFolder is not ".." and sIDMap[tFolder] is empty then
-         delete folder tFolder
+         revDeleteFolder tFolder
       end if
    end repeat
    return tUUID
@@ -367,6 +368,7 @@ function ExportObjectProperties pObject,pShared
       create folder tUUID
    end if
    put tUUID into tReturn["uuid"]
+   put pObject into sIDMap[tUUID]
    -- properties
    put the properties of pObject into tObject["properties"]
    -- we don't want object names that are really abbrev ids because the id might change
