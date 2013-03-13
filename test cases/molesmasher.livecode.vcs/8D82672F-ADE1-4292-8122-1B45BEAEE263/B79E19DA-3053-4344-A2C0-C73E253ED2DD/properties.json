@@ -2,18 +2,19 @@
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1354339944501,
-      "scripteditorselection": 23,
-      "scripteditorvscroll": 0
+      "revUniqueID": 1354339944501
     }
   },
   "properties": {
     "autoHilite": false,
     "icon": "94E52246-4139-41B1-979A-C05BC61BD30C",
     "name": "mole1",
+    "opaque": false,
     "rect": "110,444,290,650",
+    "showBorder": false,
     "showIcon": true,
     "showName": false,
+    "style": "transparent",
     "textAlign": "center",
     "traversalOn": false
   }

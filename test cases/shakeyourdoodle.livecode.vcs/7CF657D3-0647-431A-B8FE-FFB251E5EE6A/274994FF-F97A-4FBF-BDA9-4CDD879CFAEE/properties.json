@@ -2,9 +2,7 @@
   "class": "com.runrev.engine.group",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1351831300958,
-      "scripteditorselection": 168,
-      "scripteditorvscroll": 0
+      "revUniqueID": 1351831300958
     }
   },
   "properties": {

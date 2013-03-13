@@ -1,9 +1,3 @@
 {
-  "class": "com.runrev.engine.card",
-  "customPropertySets": {
-    "cREVGeneral": {
-      "scripteditorselection": 0,
-      "scripteditorvscroll": 0
-    }
-  }
+  "class": "com.runrev.engine.card"
 }

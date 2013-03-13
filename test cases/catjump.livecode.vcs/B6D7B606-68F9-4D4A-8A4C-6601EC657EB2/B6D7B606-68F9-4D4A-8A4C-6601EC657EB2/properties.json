@@ -2,11 +2,6 @@
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
     "cREVGeneral": {
-      "breakpointconditions": "",
-      "breakpoints": "",
-      "breakpointstates": "",
-      "scripteditorselection": 0,
-      "scripteditorvscroll": 0,
       "stackfileversion": 5.5
     }
   },

@@ -527,6 +527,13 @@ function ExportObjectProperties pObject,pShared
          switch tCustomPropertySet
             case "uVersion"
                break
+            case "cREVGeneral"
+               -- delete some unnecessaries
+               delete variable tPropertySetA["breakpointconditions"]
+               delete variable tPropertySetA["breakpointstates"]
+               delete variable tPropertySetA["breakpoints"]
+               delete variable tPropertySetA["scripteditorselection"]
+               delete variable tPropertySetA["scripteditorvscroll"]
             case "dgProps"
                -- handle row template but need better way for custom control authors to deal with this
                if tPropertySetA["row template"] <> "" then

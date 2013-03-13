@@ -1,10 +1,6 @@
 {
   "class": "com.runrev.engine.card",
   "customPropertySets": {
-    "cREVGeneral": {
-      "scripteditorselection": 3128,
-      "scripteditorvscroll": 992
-    },
     "cREVGeometryCacheIDs": {
       "1354339731753": 1006,
       "1354339731789": 1007,
