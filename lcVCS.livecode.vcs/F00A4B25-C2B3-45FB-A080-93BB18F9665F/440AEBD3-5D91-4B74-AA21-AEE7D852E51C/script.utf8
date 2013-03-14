@@ -1,0 +1,5 @@
+on mouseUp
+   if the effective filename of the topStack is not empty then
+      ExportStackFile the effective filename of the topStack
+   end if
+end mouseUp

@@ -1,0 +1,15 @@
+{
+  "class": "com.runrev.engine.group",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1363250387388"
+    }
+  },
+  "properties": {
+    "margins": "8",
+    "name": "Tests",
+    "rect": "8,44,274,97",
+    "showBorder": "true",
+    "showName": "true"
+  }
+}

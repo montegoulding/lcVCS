@@ -7,7 +7,7 @@
   },
   "properties": {
     "name": "Import",
-    "rect": "276,60,344,83",
+    "rect": "206,65,264,87",
     "textAlign": "center",
     "traversalOn": "false"
   }

@@ -2,12 +2,12 @@
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": "1355714905492"
+      "revUniqueID": "1363250563554"
     }
   },
   "properties": {
-    "name": "Export",
-    "rect": "144,65,202,87",
+    "name": "Import Mainstack",
+    "rect": "144,10,274,40",
     "textAlign": "center",
     "traversalOn": "false"
   }
