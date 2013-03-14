@@ -577,7 +577,7 @@ function ExportObjectProperties pObject,pShared
    if the number of elements of tObject["properties"] is 0 then
       delete variable tObject["properties"]
    end if
-   put ArrayToJSON(tObject,"string",true) into tJSON
+   put ArrayToJSON(tObject,,true) into tJSON
    if url ("binfile:"& tReturn["uuid"]&"/properties.json") <> tJSON then
       put tJSON into url ("binfile:"& tReturn["uuid"]&"/properties.json")
    end if
@@ -711,7 +711,8 @@ function ArrayToJSON pArray,pForceRootType,pPretty
       else if needsEncoding(pArray[tKey]) then
          put "base64Decode("&base64Encode(pArray[tKey])&")" into tArray[tKey]
       else 
-         put pArray[tKey] into tArray[tKey]
+         -- force all elements to be strings
+         put "}}"&pArray[tKey] into tArray[tKey]
       end if
    end repeat
    return mergJSONEncode("tArray",pForceRootType,pPretty)
