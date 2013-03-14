@@ -373,8 +373,7 @@ function ExportObjectProperties pObject,pShared
    put the properties of pObject into tObject["properties"]
    -- we don't want object names that are really abbrev ids because the id might change
    if the short name of pObject <> the abbrev id of pObject then
-      put uniDecode(uniEncode(tObject["properties"]["name"],"ANSI"),"UTF8") into tName
-      put "}"&mergJSONEncode("tName","string") into tObject["properties"]["name"]
+      put uniDecode(uniEncode(tObject["properties"]["name"],"ANSI"),"UTF8") into tObject["properties"]["name"]
       put tObject["properties"]["name"] into tReturn["name"]
    else
       delete variable tObject["properties"]["name"]
@@ -578,7 +577,7 @@ function ExportObjectProperties pObject,pShared
    if the number of elements of tObject["properties"] is 0 then
       delete variable tObject["properties"]
    end if
-   put ArrayToJSON(tObject,,true) into tJSON
+   put ArrayToJSON(tObject,"string",true) into tJSON
    if url ("binfile:"& tReturn["uuid"]&"/properties.json") <> tJSON then
       put tJSON into url ("binfile:"& tReturn["uuid"]&"/properties.json")
    end if
@@ -708,7 +707,7 @@ function ArrayToJSON pArray,pForceRootType,pPretty
    local tArray,tKeys
    repeat for each line tKey in the keys of pArray
       if pArray[tKey] is an array then
-         put "}"&ArrayToJSON(pArray[tKey]) into tArray[tKey]
+         put "}"&ArrayToJSON(pArray[tKey],pForceRootType) into tArray[tKey]
       else if needsEncoding(pArray[tKey]) then
          put "base64Decode("&base64Encode(pArray[tKey])&")" into tArray[tKey]
       else 

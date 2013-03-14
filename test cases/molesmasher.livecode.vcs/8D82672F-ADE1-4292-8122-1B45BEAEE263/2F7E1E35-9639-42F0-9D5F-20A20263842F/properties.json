@@ -2,20 +2,20 @@
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1354340066191
+      "revUniqueID": "1354340066191"
     }
   },
   "properties": {
-    "autoHilite": false,
+    "autoHilite": "false",
     "icon": "AD1DF5A0-FC8E-4C82-AFE0-0AE109020D11",
     "name": "mole3",
-    "opaque": false,
+    "opaque": "false",
     "rect": "730,444,910,650",
-    "showBorder": false,
-    "showIcon": true,
-    "showName": false,
+    "showBorder": "false",
+    "showIcon": "true",
+    "showName": "false",
     "style": "transparent",
     "textAlign": "center",
-    "traversalOn": false
+    "traversalOn": "false"
   }
 }

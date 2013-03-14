@@ -1,17 +1,14 @@
 {
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
-    "cREVGeneral": {
-      "stackfileversion": 5.5
-    },
     "cREVGeometryCache": {
-      "stackID": 1023
+      "stackID": "1023"
     }
   },
   "properties": {
     "backgroundColor": "0,0,0",
-    "height": 692,
+    "height": "692",
     "name": "molesmasher",
-    "width": 1026
+    "width": "1026"
   }
 }

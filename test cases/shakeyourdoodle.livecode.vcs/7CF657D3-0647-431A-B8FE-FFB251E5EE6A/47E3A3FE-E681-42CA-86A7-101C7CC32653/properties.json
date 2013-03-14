@@ -2,14 +2,14 @@
   "class": "com.runrev.engine.graphic",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1351831285031
+      "revUniqueID": "1351831285031"
     }
   },
   "properties": {
-    "filled": true,
-    "lineSize": 0,
+    "filled": "true",
+    "lineSize": "0",
     "name": "background",
-    "opaque": true,
+    "opaque": "true",
     "rect": "0,56,350,448"
   }
 }

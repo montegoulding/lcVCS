@@ -2,22 +2,22 @@
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1351839614686
+      "revUniqueID": "1351839614686"
     }
   },
   "properties": {
-    "autoHilite": false,
+    "autoHilite": "false",
     "backgroundColor": "135,135,135",
     "foregroundColor": "255,255,255",
     "icon": "555A4FC8-9322-425D-9837-9B00F9364909",
     "name": "Clear",
-    "opaque": false,
+    "opaque": "false",
     "rect": "268,448,350,504",
-    "sharedHilite": false,
-    "showBorder": false,
-    "showIcon": true,
+    "sharedHilite": "false",
+    "showBorder": "false",
+    "showIcon": "true",
     "style": "transparent",
     "textAlign": "center",
-    "traversalOn": false
+    "traversalOn": "false"
   }
 }

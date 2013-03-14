@@ -1,14 +1,9 @@
 {
   "class": "com.runrev.engine.stack",
-  "customPropertySets": {
-    "cREVGeneral": {
-      "stackfileversion": 5.5
-    }
-  },
   "properties": {
     "decorations": "title,menu,minimize,maximize,close",
-    "height": 639,
+    "height": "639",
     "name": "catjump",
-    "width": 960
+    "width": "960"
   }
 }

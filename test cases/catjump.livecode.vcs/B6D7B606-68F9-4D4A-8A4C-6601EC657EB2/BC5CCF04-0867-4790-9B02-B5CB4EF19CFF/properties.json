@@ -2,13 +2,13 @@
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1354398477565
+      "revUniqueID": "1354398477565"
     }
   },
   "properties": {
-    "alwaysBuffer": true,
+    "alwaysBuffer": "true",
     "name": "cat_leap_1",
-    "opaque": false,
+    "opaque": "false",
     "paintCompression": "png",
     "rect": "1030,52,1309,296"
   }

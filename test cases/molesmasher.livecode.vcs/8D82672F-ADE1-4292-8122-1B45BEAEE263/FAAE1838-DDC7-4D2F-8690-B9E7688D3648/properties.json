@@ -2,13 +2,13 @@
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1354339895505
+      "revUniqueID": "1354339895505"
     }
   },
   "properties": {
-    "alwaysBuffer": true,
+    "alwaysBuffer": "true",
     "name": "mole_thump1",
-    "opaque": false,
+    "opaque": "false",
     "paintCompression": "png",
     "rect": "1036,262,1214,462"
   }

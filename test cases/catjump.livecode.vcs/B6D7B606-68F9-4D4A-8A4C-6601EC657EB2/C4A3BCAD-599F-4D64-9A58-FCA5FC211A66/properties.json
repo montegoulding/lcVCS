@@ -2,13 +2,13 @@
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1354398477316
+      "revUniqueID": "1354398477316"
     }
   },
   "properties": {
-    "alwaysBuffer": true,
+    "alwaysBuffer": "true",
     "name": "dog_4",
-    "opaque": false,
+    "opaque": "false",
     "paintCompression": "png",
     "rect": "1002,-30,1443,246"
   }

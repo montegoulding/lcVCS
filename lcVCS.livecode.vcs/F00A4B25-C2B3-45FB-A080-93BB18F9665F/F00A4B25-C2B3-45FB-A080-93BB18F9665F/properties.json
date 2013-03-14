@@ -1,8 +1,8 @@
 {
   "class": "com.runrev.engine.stack",
   "properties": {
-    "height": 153,
+    "height": "153",
     "name": "lcVCS",
-    "width": 424
+    "width": "424"
   }
 }

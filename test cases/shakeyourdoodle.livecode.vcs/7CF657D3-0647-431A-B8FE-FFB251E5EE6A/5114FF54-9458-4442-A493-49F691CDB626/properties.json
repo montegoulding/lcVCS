@@ -2,17 +2,17 @@
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1352180387708
+      "revUniqueID": "1352180387708"
     }
   },
   "properties": {
-    "borderWidth": 1,
+    "borderWidth": "1",
     "hotSpot": "1,0",
-    "lockLoc": true,
+    "lockLoc": "true",
     "name": "photo",
     "paintCompression": "png",
     "rect": "0,56,350,448",
-    "threeD": false,
-    "yHot": 0
+    "threeD": "false",
+    "yHot": "0"
   }
 }

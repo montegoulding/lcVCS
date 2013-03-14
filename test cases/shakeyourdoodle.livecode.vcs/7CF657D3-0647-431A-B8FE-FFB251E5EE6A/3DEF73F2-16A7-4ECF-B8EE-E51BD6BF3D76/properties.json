@@ -2,18 +2,18 @@
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1351839041359
+      "revUniqueID": "1351839041359"
     }
   },
   "properties": {
-    "alwaysBuffer": true,
+    "alwaysBuffer": "true",
     "hotSpot": "1,0",
-    "lockLoc": true,
+    "lockLoc": "true",
     "name": "86-camera@2x.png",
-    "opaque": false,
+    "opaque": "false",
     "paintCompression": "png",
     "rect": "99,549,123,567",
-    "visible": false,
-    "yHot": 0
+    "visible": "false",
+    "yHot": "0"
   }
 }

@@ -2,7 +2,7 @@
   "class": "com.runrev.engine.group",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1351831300958
+      "revUniqueID": "1351831300958"
     }
   },
   "properties": {
@@ -10,6 +10,6 @@
     "foregroundColor": "0,0,0",
     "name": "drawing",
     "rect": "-4,52,354,452",
-    "tabGroupBehavior": true
+    "tabGroupBehavior": "true"
   }
 }

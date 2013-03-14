@@ -2,13 +2,13 @@
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": 1354399533186
+      "revUniqueID": "1354399533186"
     }
   },
   "properties": {
     "name": "Start Game",
     "rect": "30,22,112,45",
     "textAlign": "center",
-    "traversalOn": false
+    "traversalOn": "false"
   }
 }
