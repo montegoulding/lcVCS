@@ -8,3 +8,23 @@ on mouseUp
       ImportStackFile the effective filename of the topStack
    end if
 end mouseUp
+
+on dragEnter
+   put the dragData["files"] into tFiles
+   filter tFiles with "*.vcs"
+   if tFiles is not empty then
+      set the dragAction to "copy"
+   end if
+end dragEnter
+
+on dragDrop
+   put the dragData["files"] into tFolders
+   filter tFiles with "*.vcs"
+   if tFiles is not empty then
+      repeat for each line tFolder in tFolders
+         if there is a folder tFolder then
+            ImportStackFile tFolder
+         end if
+      end repeat
+   end if
+end dragDrop
