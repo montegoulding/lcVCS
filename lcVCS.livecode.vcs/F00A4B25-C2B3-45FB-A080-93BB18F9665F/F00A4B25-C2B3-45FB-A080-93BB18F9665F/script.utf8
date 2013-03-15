@@ -363,6 +363,9 @@ end ExportStack
 
 function ExportObjectProperties pObject,pShared
    local tImage,tObject
+   unlock messages
+   dispatch "lcVCSExport" to pObject
+   lock messages
    put uuidForObject(pObject) into tUUID
    if there is not a folder tUUID then
       create folder tUUID
