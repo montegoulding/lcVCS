@@ -1,0 +1,16 @@
+{
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1363341078070"
+    }
+  },
+  "properties": {
+    "alwaysBuffer": "true",
+    "name": "LiveCodeDoc.png",
+    "opaque": "false",
+    "paintCompression": "png",
+    "rect": "70,4,106,40",
+    "visible": "false"
+  }
+}

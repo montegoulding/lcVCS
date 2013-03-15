@@ -6,9 +6,16 @@
     }
   },
   "properties": {
-    "name": "Export Mainstack",
-    "rect": "8,10,138,40",
+    "icon": "24CB39C6-4D53-4973-8068-8A9DDC68F040",
+    "name": "Export",
+    "opaque": "false",
+    "rect": "0,0,42,40",
+    "showBorder": "false",
+    "showIcon": "true",
+    "showName": "false",
+    "style": "transparent",
     "textAlign": "center",
-    "traversalOn": "false"
+    "traversalOn": "false",
+    "unicodeToolTip": "Export to folder"
   }
 }

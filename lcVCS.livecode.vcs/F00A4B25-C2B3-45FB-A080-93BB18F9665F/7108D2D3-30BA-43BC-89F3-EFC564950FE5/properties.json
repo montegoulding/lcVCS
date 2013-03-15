@@ -6,9 +6,16 @@
     }
   },
   "properties": {
-    "name": "Import Mainstack",
-    "rect": "144,10,274,40",
+    "icon": "AF977C5B-25CD-4582-94E3-3CCEA9A5F7F5",
+    "name": "Import",
+    "opaque": "false",
+    "rect": "42,0,84,40",
+    "showBorder": "false",
+    "showIcon": "true",
+    "showName": "false",
+    "style": "transparent",
     "textAlign": "center",
-    "traversalOn": "false"
+    "traversalOn": "false",
+    "unicodeToolTip": "Import from folder"
   }
 }

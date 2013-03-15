@@ -1,11 +1,16 @@
 on mouseUp
    if the effective filename of the topStack is not empty then
+      put  the effective filename of the topStack into tPath
       if the mainstack of the topStack is "lcVCS" then
          -- for safety
-         ExportStackFile the effective filename of the topStack
+         ExportStackFile tPath
       end if
       put ".vcs" after tPath
-      ImportStackFile the effective filename of the topStack
+      if there is a folder tPath then
+         ImportStackFile tPath
+      else
+         beep 
+      end if
    end if
 end mouseUp
 

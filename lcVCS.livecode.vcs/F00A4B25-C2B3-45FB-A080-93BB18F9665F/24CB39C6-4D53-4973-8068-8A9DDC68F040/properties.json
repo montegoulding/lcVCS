@@ -1,0 +1,16 @@
+{
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1363339963147"
+    }
+  },
+  "properties": {
+    "alwaysBuffer": "true",
+    "name": "Git_icon.svg.png",
+    "opaque": "false",
+    "paintCompression": "png",
+    "rect": "94,10,130,46",
+    "visible": "false"
+  }
+}

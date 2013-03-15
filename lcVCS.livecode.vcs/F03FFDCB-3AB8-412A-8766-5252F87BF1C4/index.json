@@ -1,0 +1,35 @@
+{
+  "class": "com.runrev.engine.stack",
+  "name": "lcVCSTests",
+  "objects": [
+    {
+      "class": "com.runrev.engine.card",
+      "objects": [
+        {
+          "class": "com.runrev.engine.group",
+          "name": "Tests",
+          "objects": [
+            {
+              "class": "com.runrev.engine.button",
+              "name": "Import",
+              "uuid": "26BCCD6B-FACD-4476-801F-F8A7D628D5B6"
+            },
+            {
+              "class": "com.runrev.engine.button",
+              "name": "Export",
+              "uuid": "CBE5CEC5-5AD3-4BF7-9AFD-32793CD82EA0"
+            },
+            {
+              "class": "com.runrev.engine.button",
+              "name": "tests",
+              "uuid": "8A03AA25-9679-4C9A-BF24-473CDF7E6A02"
+            }
+          ],
+          "uuid": "E53740C6-9E81-487D-B23F-6B01C5712F95"
+        }
+      ],
+      "uuid": "CD363718-CEE0-4B9B-AC33-7916DAF7480C"
+    }
+  ],
+  "uuid": "F03FFDCB-3AB8-412A-8766-5252F87BF1C4"
+}
