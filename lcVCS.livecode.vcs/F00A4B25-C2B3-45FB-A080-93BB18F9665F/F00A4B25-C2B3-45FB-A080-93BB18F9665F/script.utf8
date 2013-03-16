@@ -523,7 +523,7 @@ function ExportObjectProperties pObject,pShared
       put "the template"&word 1 of pObject into tTemplateObject
    end if
    repeat for each key tProperty in tObject["properties"]
-      if tObject["properties"][tProperty] is the tProperty of tTemplateObject and tProperty is not "textAlign" then
+      if tObject["properties"][tProperty] is the tProperty of tTemplateObject then
          -- double check that we are not comparing an array to a simple var
          if (tObject["properties"][tProperty] is an array and the tProperty of tTemplateObject is an array) or \
                (tObject["properties"][tProperty] is not an array and the tProperty of tTemplateObject is not an array) then

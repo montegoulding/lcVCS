@@ -14,7 +14,6 @@
     "showIcon": "true",
     "showName": "false",
     "style": "transparent",
-    "textAlign": "center",
     "traversalOn": "false",
     "unicodeToolTip": "Import from folder"
   }

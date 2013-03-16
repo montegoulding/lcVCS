@@ -11,7 +11,6 @@
     "name": "tests",
     "rect": "18,31,140,53",
     "style": "menu",
-    "textAlign": "center",
     "traversalOn": "false",
     "unicodeLabel": "lcVCS.livecode",
     "unicodeText": "lcVCS.livecode\ncatjump.livecode\nmolesmasher.livecode\nshakeyourdoodle.livecode\nsimple.livecode"
