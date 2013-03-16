@@ -8,7 +8,6 @@
   "properties": {
     "name": "Export",
     "rect": "144,31,202,53",
-    "style": "standard",
     "textAlign": "center",
     "traversalOn": "false"
   }

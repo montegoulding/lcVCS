@@ -1,5 +1,5 @@
 on mouseDown
-   put the filename of this stack into tPath
+   put the effective filename of this stack into tPath
    set the itemDel to "/"
    put "test cases" into item -1 of tPath
    set the defaultFolder to tPath

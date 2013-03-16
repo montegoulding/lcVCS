@@ -8,14 +8,16 @@ constant kIconProps = "icon,hiliteIcon,disabledIcon,borderPattern,visitedIcon,ar
 constant kUnicodeProps = "Label,Text,ToolTip,Title"
 constant kDeleteProps = "colors,patterns,orientation,scroll,framecount,id,visited" -- no longer relevant
 constant kTempNameSuffix = " temp"
+constant kTemplateObjects = "the templateStack,the templateGroup,the templateCard,the templateGraphic,the templateButton,the templateField,the templateScrollbar,the templateImage,the templatePlayer"
 
-local sIDMap,sUUIDsToResolve
+local sIDMap,sUUIDsToResolve,sTemplateObjects
 
 command ExportStackFile pFilePath
    local tFolder,tStacks,tSubstacks,tIndex,tJSON
    lock screen
    delete variable sIDMap
    if there is a stack pFilePath then
+      resetTemplateObjects
       -- mainstack
       lock messages
       put pFilePath into tFolder
@@ -48,6 +50,7 @@ command ExportStackFile pFilePath
       end if
    end if
    save stack pFilePath
+   revertTemplateObjects
 end ExportStackFile
 
 on ImportStackFile pFolder
@@ -56,6 +59,7 @@ on ImportStackFile pFolder
    lock messages
    delete variable sIDMap
    delete variable sUUIDsToResolve
+   resetTemplateObjects
    set the defaultFolder to pFolder
    if there is not a file "index.json" then
       exit ImportStackFile
@@ -132,6 +136,7 @@ on ImportStackFile pFolder
    if tStackFileIndex["mainstack"]["name"] = "lcVCS temp" then
       send "PostImportStack" to stack tStackFileIndex["mainstack"]["name"] in 0 milliseconds
    end if
+   revertTemplateObjects
 end ImportStackFile
 
 -- if the stack gets this message then it just 
@@ -702,6 +707,30 @@ function checkBehaviors pID,pObject
       end if
    end if
 end checkBehaviors
+
+command resetTemplateObjects
+   -- reset template objects
+   repeat for each item tObject in kTemplateObjects
+      put the properties of tObject into sTemplateObjects[tObject]
+   end repeat
+   -- reset command doesn't compile with a variable
+   reset the templateStack
+   reset the templateGroup
+   reset the templateCard
+   reset the templateGraphic
+   reset the templateButton
+   reset the templateScrollbar
+   reset the templateImage
+   reset the templatePlayer
+   reset the templateField
+end resetTemplateObjects
+
+command revertTemplateObjects
+   -- reset template objects to saved props
+   repeat for each item tObject in kTemplateObjects
+      set the properties of tObject to sTemplateObjects[tObject]
+   end repeat
+end revertTemplateObjects
 
 -- pArray - array to be encoded
 -- pForceRootType - can force the root to be an object if it looks like an array
