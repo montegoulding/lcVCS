@@ -1,10 +1,5 @@
 {
   "class": "com.runrev.engine.stack",
-  "customPropertySets": {
-    "cREVGeometryCache": {
-      "stackID": "1023"
-    }
-  },
   "properties": {
     "backgroundColor": "0,0,0",
     "height": "692",

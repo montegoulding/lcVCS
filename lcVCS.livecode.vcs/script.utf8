@@ -566,6 +566,11 @@ function ExportObjectProperties pObject,pShared,pMainstack
          if tCustomPropertySet = "" then put "customKeys" into tCustomPropertySet
          switch tCustomPropertySet
             case "uVersion"
+               -- redundant as reset during import
+               break
+            case "cREVGeometryCache"
+            case "cREVGeometryCacheIDs"
+               -- revGeometry will regenerate it's cache as needed
                break
             case "cREVGeneral"
                -- delete some unnecessaries

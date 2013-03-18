@@ -1,10 +1,5 @@
 {
   "class": "com.runrev.engine.stack",
-  "customPropertySets": {
-    "cREVGeometryCache": {
-      "stackID": "1007"
-    }
-  },
   "properties": {
     "height": "40",
     "name": "lcVCS",

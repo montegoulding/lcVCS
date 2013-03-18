@@ -1,9 +1,6 @@
 {
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
-    "cREVGeometryCache": {
-      "stackID": "1077"
-    },
     "cRevStandaloneSettings": {
       "Linux": "false",
       "MacOSX": "false",
