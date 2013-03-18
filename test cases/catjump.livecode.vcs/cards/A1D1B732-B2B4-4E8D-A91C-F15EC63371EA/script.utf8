@@ -1,0 +1,124 @@
+constant kOriginalVelocity = 1100
+constant G = 32.152231
+
+local sMessage,sCounter,sEnemyStyle,sMoving = false,sLastYVelocity,sCurrentLoc
+
+on preOpenCard
+   set the acceleratedRendering of this stack to true
+end preOpenCard
+
+on startGame
+   send gameLoop to me in 20 milliseconds
+   put the result into sMessage
+   put 0 into sCounter
+end startGame
+
+on gameLoop
+   add 1 to sCounter
+   lock screen
+   put sCounter into fld "score"
+   animateEnemy
+   moveEnemy
+   moveCat
+   detectCollisions
+   send gameLoop to me in 20 milliseconds
+   put the result into sMessage
+end gameLoop
+
+on detectCollisions
+   if the left of btn "enemy" < the right of btn "cat" then
+      if intersect(btn "cat", btn "enemy", "opaque pixels") then 
+         stopGame
+      end if
+   end if
+end detectCollisions
+
+on animateEnemy
+   if sCounter mod 4 = 0 then
+      switch sEnemyStyle
+         case "dog"
+            if the icon of btn "enemy" = the short id of image "dog_1" then
+               set the icon of btn "enemy" to "dog_2"
+            else  if the icon of btn "enemy" = the short id of image "dog_2" then
+               set the icon of btn "enemy" to "dog_3"
+            else  if the icon of btn "enemy" = the short id of image "dog_3" then
+               set the icon of btn "enemy" to "dog_4"
+            else
+               set the icon of btn "enemy" to "dog_1"
+            end if
+            break
+         case "kidontrike"
+            if the icon of btn "enemy" = the short id of image "kidontrike_1" then
+               set the icon of btn "enemy" to "kidontrike_2"
+            else  if the icon of btn "enemy" = the short id of image "kidontrike_2" then
+               set the icon of btn "enemy" to "kidontrike_3"
+            else  if the icon of btn "enemy" = the short id of image "kidontrike_3" then
+               set the icon of btn "enemy" to "kidontrike_4"
+            else
+               set the icon of btn "enemy" to "kidontrike_1"
+            end if
+            break
+      end switch
+   end if
+end animateEnemy
+
+on moveEnemy
+   if the right of btn "enemy" < 0 then
+      set the left of btn "enemy" to the right of image "bg"
+      put item random(2) of "dog,kidontrike" into sEnemyStyle
+   else
+      set the left of btn "enemy" to the left of btn "enemy" - 15
+   end if
+end moveEnemy
+
+on stopGame
+   show btn "Start Game"
+   cancel sMessage
+   set the left of btn "enemy" to the right of image "bg"
+   set the bottom of btn "cat" to the bottom of image "bg" -40
+   set the icon of btn "cat" to "cat"
+   put false into sMoving
+   exit to top
+end stopGame
+
+on mouseUp
+   if not sMoving and not the visible of btn "Start Game" then
+      put the milliseconds into sStartTime
+      put true into sMoving
+      put the loc of btn "cat" into sCurrentLoc
+      put kOriginalVelocity into sLastYVelocity
+   end if
+end mouseUp
+
+on moveCat
+   if sMoving then
+      put sCurrentLoc into tLoc
+      if sLastYVelocity <> 0 then
+         put item 2 of sCurrentLoc-sLastYVelocity*0.02+G*100*0.02*0.02/2 into item 2 of tLoc
+         put (item 2 of sCurrentLoc-item 2 of tLoc)*50 into sLastYVelocity
+      end if
+      set the loc of btn "cat" to round(item 1 of tLoc),round(item 2 of tLoc)
+      if the bottom of btn "cat" >= the bottom of image "bg" -40  then
+         put 0 into sLastYVelocity
+         set the bottom of btn "cat" to the bottom of image "bg" -40
+         put false into sMoving
+      else
+         put the loc of btn "cat" into sCurrentLoc
+      end if
+   end if
+  if sCounter mod 2 = 0 then
+      if sMoving then
+         if the icon of btn "cat" = the short id of image "cat" then
+            set the icon of btn "cat" to "cat_leap_1"
+         else if the icon of btn "cat" = the short id of image "cat_leap_1" then
+            set the icon of btn "cat" to "cat_leap_2"
+         end if
+      else
+         if the icon of btn "cat" = the short id of image "cat_leap_2" then
+            set the icon of btn "cat" to "cat_leap_1"
+         else if the icon of btn "cat" = the short id of image "cat_leap_1" then
+            set the icon of btn "cat" to "cat"
+         end if
+      end if
+   end if
+end moveCat

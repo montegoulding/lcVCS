@@ -1,0 +1,24 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1361788906867"
+    }
+  },
+  "properties": {
+    "hilite": {
+      "5AF245AA-7BBC-4A74-9C48-1E645C8042D0": "false",
+      "94A4DDB4-E391-4D5C-AF1D-234C06C70B98": "true"
+    },
+    "hiliteBorder": "false",
+    "layer": "5",
+    "name": "Check",
+    "opaque": "false",
+    "rect": "274,36,356,59",
+    "sharedHilite": "false",
+    "showBorder": "false",
+    "style": "checkbox",
+    "textAlign": "left"
+  },
+  "uuid": "5297B58D-615F-4CAB-9380-B04DCB798F61"
+}

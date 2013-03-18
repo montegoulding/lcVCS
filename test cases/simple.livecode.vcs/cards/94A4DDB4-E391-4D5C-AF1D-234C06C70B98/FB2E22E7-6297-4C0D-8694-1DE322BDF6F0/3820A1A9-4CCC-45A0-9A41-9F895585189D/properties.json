@@ -1,0 +1,18 @@
+{
+  "class": "com.runrev.engine.field",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1355732407369"
+    }
+  },
+  "properties": {
+    "htmlText": "<p>hello <i><b>world</b></i></p>",
+    "layer": "7",
+    "name": "Field",
+    "rect": "52,244,302,300",
+    "scrollbarWidth": "16",
+    "style": "scrolling",
+    "vScrollbar": "true"
+  },
+  "uuid": "3820A1A9-4CCC-45A0-9A41-9F895585189D"
+}

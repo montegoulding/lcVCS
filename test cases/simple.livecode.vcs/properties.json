@@ -1,0 +1,16 @@
+{
+  "class": "com.runrev.engine.stack",
+  "customPropertySets": {
+    "cGLX2General": {
+      "cDirtyFlag": "true",
+      "cHTMLScript": ""
+    }
+  },
+  "properties": {
+    "decorations": "title,menu,minimize,maximize,close",
+    "height": "400",
+    "name": "Untitled 1",
+    "width": "400"
+  },
+  "uuid": "EA3809F5-B007-4CAF-9BCE-0DF9BE2B5754"
+}

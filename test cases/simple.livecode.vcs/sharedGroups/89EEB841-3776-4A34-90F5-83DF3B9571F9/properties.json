@@ -1,0 +1,19 @@
+{
+  "class": "com.runrev.engine.group",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1355732372137"
+    }
+  },
+  "properties": {
+    "backgroundBehavior": "true",
+    "layer": {
+      "5AF245AA-7BBC-4A74-9C48-1E645C8042D0": "4",
+      "94A4DDB4-E391-4D5C-AF1D-234C06C70B98": "1"
+    },
+    "rect": "262,32,370,142",
+    "sharedBehavior": "true",
+    "tabGroupBehavior": "true"
+  },
+  "uuid": "89EEB841-3776-4A34-90F5-83DF3B9571F9"
+}

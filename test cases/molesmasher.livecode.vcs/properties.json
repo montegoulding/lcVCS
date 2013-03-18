@@ -1,0 +1,15 @@
+{
+  "class": "com.runrev.engine.stack",
+  "customPropertySets": {
+    "cREVGeometryCache": {
+      "stackID": "1023"
+    }
+  },
+  "properties": {
+    "backgroundColor": "0,0,0",
+    "height": "692",
+    "name": "molesmasher",
+    "width": "1026"
+  },
+  "uuid": "8D82672F-ADE1-4292-8122-1B45BEAEE263"
+}

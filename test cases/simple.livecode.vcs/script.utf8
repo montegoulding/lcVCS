@@ -1,0 +1,3 @@
+on helloWorld
+   answer "hello"
+end helloWorld

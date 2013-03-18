@@ -1,0 +1,17 @@
+{
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1355732357224"
+    }
+  },
+  "properties": {
+    "alwaysBuffer": "true",
+    "layer": "3",
+    "name": "info.gif",
+    "paintCompression": "png",
+    "rect": "184,184,217,217",
+    "unicodeToolTip": "base64Decode(44Sy44Cw44iw)"
+  },
+  "uuid": "A62F335C-8D96-4B58-A276-D6B9B9549F81"
+}

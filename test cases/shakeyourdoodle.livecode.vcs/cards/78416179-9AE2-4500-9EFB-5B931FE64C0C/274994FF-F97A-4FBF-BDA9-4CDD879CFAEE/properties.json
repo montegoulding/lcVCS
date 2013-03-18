@@ -1,0 +1,17 @@
+{
+  "class": "com.runrev.engine.group",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1351831300958"
+    }
+  },
+  "properties": {
+    "backgroundColor": "255,255,255",
+    "foregroundColor": "0,0,0",
+    "layer": "8",
+    "name": "drawing",
+    "rect": "-4,52,354,452",
+    "tabGroupBehavior": "true"
+  },
+  "uuid": "274994FF-F97A-4FBF-BDA9-4CDD879CFAEE"
+}

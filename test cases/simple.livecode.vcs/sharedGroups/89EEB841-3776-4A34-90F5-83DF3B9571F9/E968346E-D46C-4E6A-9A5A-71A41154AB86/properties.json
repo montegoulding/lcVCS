@@ -1,0 +1,18 @@
+{
+  "class": "com.runrev.engine.field",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1361788909706"
+    }
+  },
+  "properties": {
+    "htmlText": {
+      "5AF245AA-7BBC-4A74-9C48-1E645C8042D0": "<p>World</p>",
+      "94A4DDB4-E391-4D5C-AF1D-234C06C70B98": "<p>Hello</p>"
+    },
+    "layer": "7",
+    "name": "Field",
+    "rect": "266,117,366,138"
+  },
+  "uuid": "E968346E-D46C-4E6A-9A5A-71A41154AB86"
+}

@@ -1,0 +1,17 @@
+{
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1354339731789"
+    }
+  },
+  "properties": {
+    "alwaysBuffer": "true",
+    "layer": "13",
+    "name": "grass lower",
+    "opaque": "false",
+    "paintCompression": "png",
+    "rect": "2,384,1026,768"
+  },
+  "uuid": "C94AB405-1B2F-4686-91E1-4D6F575B11F8"
+}

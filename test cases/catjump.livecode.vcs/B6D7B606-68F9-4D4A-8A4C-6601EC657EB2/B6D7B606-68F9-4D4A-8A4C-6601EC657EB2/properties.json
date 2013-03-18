@@ -1,9 +1,0 @@
-{
-  "class": "com.runrev.engine.stack",
-  "properties": {
-    "decorations": "title,menu,minimize,maximize,close",
-    "height": "639",
-    "name": "catjump",
-    "width": "960"
-  }
-}

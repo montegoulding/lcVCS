@@ -1,0 +1,15 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1355714905492"
+    }
+  },
+  "properties": {
+    "layer": "2",
+    "name": "Export",
+    "rect": "144,31,202,53",
+    "traversalOn": "false"
+  },
+  "uuid": "CBE5CEC5-5AD3-4BF7-9AFD-32793CD82EA0"
+}

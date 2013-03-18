@@ -1,0 +1,17 @@
+{
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1354398477531"
+    }
+  },
+  "properties": {
+    "alwaysBuffer": "true",
+    "layer": "6",
+    "name": "cat_leap_2",
+    "opaque": "false",
+    "paintCompression": "png",
+    "rect": "966,-6,1245,238"
+  },
+  "uuid": "0AD0F4DB-E45C-448D-ACC1-34277B4543E5"
+}

@@ -1,0 +1,22 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1363250436996"
+    }
+  },
+  "properties": {
+    "icon": "24CB39C6-4D53-4973-8068-8A9DDC68F040",
+    "layer": "2",
+    "name": "Export",
+    "opaque": "false",
+    "rect": "0,0,42,40",
+    "showBorder": "false",
+    "showIcon": "true",
+    "showName": "false",
+    "style": "transparent",
+    "traversalOn": "false",
+    "unicodeToolTip": "Export to folder"
+  },
+  "uuid": "440AEBD3-5D91-4B74-AA21-AEE7D852E51C"
+}

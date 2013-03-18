@@ -1,0 +1,10 @@
+{
+  "class": "com.runrev.engine.stack",
+  "properties": {
+    "decorations": "title,menu,minimize,maximize,close",
+    "height": "639",
+    "name": "catjump",
+    "width": "960"
+  },
+  "uuid": "B6D7B606-68F9-4D4A-8A4C-6601EC657EB2"
+}

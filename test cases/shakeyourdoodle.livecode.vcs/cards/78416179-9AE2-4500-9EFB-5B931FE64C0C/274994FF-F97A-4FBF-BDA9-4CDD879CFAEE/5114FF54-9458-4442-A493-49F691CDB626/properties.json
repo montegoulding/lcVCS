@@ -1,0 +1,20 @@
+{
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1352180387708"
+    }
+  },
+  "properties": {
+    "borderWidth": "1",
+    "hotSpot": "1,0",
+    "layer": "10",
+    "lockLoc": "true",
+    "name": "photo",
+    "paintCompression": "png",
+    "rect": "0,56,350,448",
+    "threeD": "false",
+    "yHot": "0"
+  },
+  "uuid": "5114FF54-9458-4442-A493-49F691CDB626"
+}

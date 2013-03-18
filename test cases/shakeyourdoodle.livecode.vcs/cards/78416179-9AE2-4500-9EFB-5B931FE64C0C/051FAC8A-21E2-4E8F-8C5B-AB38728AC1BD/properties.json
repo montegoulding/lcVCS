@@ -1,0 +1,30 @@
+{
+  "class": "com.runrev.engine.field",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1351837510532"
+    },
+    "cREVTable": {
+      "currentview": "Shake Your Doodle"
+    }
+  },
+  "properties": {
+    "autoHilite": "false",
+    "dontWrap": "true",
+    "foregroundColor": "255,255,255",
+    "htmlText": "<p>Shake Your Doodle</p>",
+    "layer": "2",
+    "lockText": "true",
+    "name": "heading",
+    "opaque": "false",
+    "rect": "-56,4,406,50",
+    "sharedText": "true",
+    "showBorder": "false",
+    "style": "transparent",
+    "textAlign": "center",
+    "textFont": "Arial Bold",
+    "textSize": "24",
+    "traversalOn": "false"
+  },
+  "uuid": "051FAC8A-21E2-4E8F-8C5B-AB38728AC1BD"
+}

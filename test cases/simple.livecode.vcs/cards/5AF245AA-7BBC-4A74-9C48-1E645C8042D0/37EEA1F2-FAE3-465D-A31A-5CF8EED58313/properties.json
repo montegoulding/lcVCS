@@ -1,0 +1,27 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cGLX2General": {
+      "cExplicitVariables": "",
+      "cHTMLScript": "",
+      "cHscrollHandlers": "0",
+      "cHscrollScript": "0",
+      "cLocals": "pMouseBtnNo",
+      "cScriptChecksum": "",
+      "cSelectedChunk": "char 55 to 54"
+    },
+    "cGlx2TimeStamp": {
+      "checksum": "base64Decode(M1AuINOar8Aj1u6NsKY8pw==)"
+    },
+    "cREVGeneral": {
+      "revUniqueID": "1361788871213"
+    }
+  },
+  "properties": {
+    "layer": "2",
+    "name": "Button",
+    "rect": "76,28,158,51",
+    "traversalOn": "false"
+  },
+  "uuid": "37EEA1F2-FAE3-465D-A31A-5CF8EED58313"
+}

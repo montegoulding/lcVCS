@@ -1,0 +1,16 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1354340276163"
+    }
+  },
+  "properties": {
+    "layer": "14",
+    "name": "Start Game",
+    "rect": "30,22,112,45",
+    "traversalOn": "false",
+    "unicodeLabel": "Start Game"
+  },
+  "uuid": "669426F1-C0D7-4EE4-85E7-9669C035D280"
+}

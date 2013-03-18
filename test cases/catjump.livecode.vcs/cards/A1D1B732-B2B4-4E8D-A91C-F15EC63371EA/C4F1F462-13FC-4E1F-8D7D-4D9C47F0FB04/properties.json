@@ -1,0 +1,17 @@
+{
+  "class": "com.runrev.engine.image",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1354399717063"
+    }
+  },
+  "properties": {
+    "alwaysBuffer": "true",
+    "layer": "13",
+    "name": "kidontrike_1",
+    "opaque": "false",
+    "paintCompression": "png",
+    "rect": "992,324,1223,592"
+  },
+  "uuid": "C4F1F462-13FC-4E1F-8D7D-4D9C47F0FB04"
+}
