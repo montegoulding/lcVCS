@@ -485,7 +485,11 @@ function ExportObjectProperties pObject,pShared,pMainstack
    if the cIDEProperties["cCustomControlID"] of pObject <> "" then
       put the cIDEProperties["cCustomControlID"] of pObject into tObjectClass
    else
-      put "com.runrev.engine."&word 1 of the abbrev id of pObject into tObjectClass
+      if word 1 of pObject is "bkgnd" then
+         put "com.runrev.engine.group" into tObjectClass
+      else
+         put "com.runrev.engine."&word 1 of pObject into tObjectClass
+      end if
    end if
    put tObjectClass into tObject["class"]
    try
@@ -548,6 +552,7 @@ function ExportObjectProperties pObject,pShared,pMainstack
          end if
          break
       case "group"
+      case "bkgnd"
          -- no point exporting group rect if it's not locked
          if not the lockLoc of pObject then
             delete variable tObject["properties"]["rect"]
@@ -604,7 +609,11 @@ function ExportObjectProperties pObject,pShared,pMainstack
       put the cControlData of stack tObjectClass into tControlData
       put tControlData["template_group"] into tTemplateObject
    else
-      put "the template"&word 1 of pObject into tTemplateObject
+      if word 1 of pObject is "bkgnd" then
+         put "the templateGroup" into tTemplateObject
+      else
+         put "the template"&word 1 of pObject into tTemplateObject
+      end if
    end if
    repeat for each key tProperty in tObject["properties"]
       if tProperty is not "layer" then
