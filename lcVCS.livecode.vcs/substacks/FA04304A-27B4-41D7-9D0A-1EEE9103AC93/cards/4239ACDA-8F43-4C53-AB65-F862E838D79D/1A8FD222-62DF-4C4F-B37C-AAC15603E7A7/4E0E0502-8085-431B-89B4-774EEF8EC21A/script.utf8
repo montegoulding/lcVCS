@@ -1,0 +1,4 @@
+on mouseUp
+   resolveConflict the hilitedText of group "objects"
+   delete line (the hilitedLine of group "objects") of group "objects"
+end mouseUp

@@ -1,0 +1,60 @@
+on resizeStack pWidth,pHeight
+   lock screen
+   set the rect of fld "objects" to 0,0,pWidth,pHeight -40
+   set the topLeft of group "toolbar" to (pWidth-the width of group "toolbar") div 2,the bottom of fld "objects"
+end resizeStack
+
+on preOpenCard
+   updateList
+end preOpenCard
+
+on resumeStack
+   updateList
+end resumeStack
+
+on updateList
+   local tConflicts,tKeys,tMax,tHilitedText
+   put the hilitedText of fld "objects" into tHilitedText
+   put getConflicts() into tConflicts
+   put the keys of tConflicts into tObjects
+   -- sort
+   -- replace "of" with tab (can't just use replacetext as it's unsafe)
+   repeat with X = the number of words in tObjects down to 1
+      if word X of tObject = "of" then put tab into word X of tObjects
+   end repeat
+   -- get max items
+   set the itemDel to tab
+   put 1 into tMax
+   repeat for each line tObject in tObjects
+      get the number of items of tLine
+      if it > tMax then 
+         put it into tMax
+      end if
+   end repeat
+   -- sort it
+   repeat with X = tMax down to 1
+      sort lines of tObjects by item -X of each
+   end repeat
+   replace tab with "of" in tObjects
+   put tObjects into fld "objects"
+   if tObjects is not empty then
+      set the hilitedLine of fld "objects" to max(1,lineOffset(tHilitedText,tObjects))
+   end if
+   send "mouseUp" to fld "objects"
+end updateList
+
+on mergeTool pObject,pFile
+   local tPath,tCurrentFolder,tConflictedData,tChangedData
+   set the hideConsoleWindows to true
+   put pathForObject(the long id of pObject) into tPath
+   put the defaultFolder into tCurrentFolder
+   set the defaultFolder to tPath
+   put url ("binfile:"&pFile) into tConflictedData
+   get shell("git mergetool "&pFile)
+   -- reimport the file if changed
+   put url ("binfile:"&pFile) into tChangedData
+   if tChangedData is not tConflictedData then
+      -- parse it again
+   end if
+   set the defaultFolder to tCurrentFolder
+end mergeTool

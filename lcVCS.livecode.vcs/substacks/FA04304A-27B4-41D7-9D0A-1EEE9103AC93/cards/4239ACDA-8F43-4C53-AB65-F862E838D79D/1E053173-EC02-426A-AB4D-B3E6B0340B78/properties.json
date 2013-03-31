@@ -1,0 +1,22 @@
+{
+  "class": "com.runrev.engine.field",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1364282980474"
+    }
+  },
+  "properties": {
+    "dontWrap": "true",
+    "hScrollbar": "true",
+    "layer": "1",
+    "listBehavior": "true",
+    "lockText": "true",
+    "name": "objects",
+    "rect": "0,0,580,286",
+    "scrollbarWidth": "16",
+    "sharedText": "true",
+    "style": "scrolling",
+    "vScrollbar": "true"
+  },
+  "uuid": "1E053173-EC02-426A-AB4D-B3E6B0340B78"
+}

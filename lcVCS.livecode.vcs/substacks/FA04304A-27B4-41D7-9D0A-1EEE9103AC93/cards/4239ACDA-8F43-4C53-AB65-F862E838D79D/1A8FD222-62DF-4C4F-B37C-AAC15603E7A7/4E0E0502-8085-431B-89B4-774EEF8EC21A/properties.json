@@ -1,0 +1,17 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1364417373058"
+    }
+  },
+  "properties": {
+    "disabled": "true",
+    "layer": "12",
+    "name": "Resolved",
+    "rect": "482,294,554,317",
+    "traversalOn": "false",
+    "unicodeToolTip": "Delete it from the conflict list"
+  },
+  "uuid": "4E0E0502-8085-431B-89B4-774EEF8EC21A"
+}

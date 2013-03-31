@@ -1,0 +1,10 @@
+{
+  "class": "com.runrev.engine.stack",
+  "properties": {
+    "height": "326",
+    "name": "lcVCSConflicts",
+    "unicodeTitle": "lcVCS - Conflicted Objects",
+    "width": "580"
+  },
+  "uuid": "FA04304A-27B4-41D7-9D0A-1EEE9103AC93"
+}

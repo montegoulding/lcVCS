@@ -1,0 +1,16 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1364383842124"
+    }
+  },
+  "properties": {
+    "disabled": "true",
+    "layer": "9",
+    "name": "Merge",
+    "rect": "179,294,230,317",
+    "traversalOn": "false"
+  },
+  "uuid": "3B8BC31C-884A-48A3-9034-FCD64AA68DF6"
+}

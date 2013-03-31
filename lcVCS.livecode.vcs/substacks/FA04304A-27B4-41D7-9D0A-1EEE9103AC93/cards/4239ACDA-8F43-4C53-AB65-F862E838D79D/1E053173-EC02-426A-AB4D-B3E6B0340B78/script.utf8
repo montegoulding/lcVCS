@@ -1,0 +1,13 @@
+on mouseUp
+   local tObject,tConflicts
+   put the hilitedText of me into tObject
+   if tObject is empty then
+      disable group "toolbar"
+   else
+      enable group "toolbar"
+      put getConflicts() into tConflicts
+      repeat for each item tType in "script,properties"
+         set the enabled of group tType to tConflicts[tObject]["type"]
+      end repeat
+   end if
+end mouseUp

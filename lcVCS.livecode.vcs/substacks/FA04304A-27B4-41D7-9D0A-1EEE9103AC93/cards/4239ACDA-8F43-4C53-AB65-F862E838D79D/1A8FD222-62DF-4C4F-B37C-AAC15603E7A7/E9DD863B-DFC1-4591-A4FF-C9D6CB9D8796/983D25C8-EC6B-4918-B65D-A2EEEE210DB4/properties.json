@@ -1,0 +1,17 @@
+{
+  "class": "com.runrev.engine.button",
+  "customPropertySets": {
+    "cREVGeneral": {
+      "revUniqueID": "1364383869851"
+    }
+  },
+  "properties": {
+    "disabled": "true",
+    "layer": "11",
+    "name": "B",
+    "rect": "148,294,174,317",
+    "traversalOn": "false",
+    "unicodeToolTip": "Use the properties from branch B"
+  },
+  "uuid": "983D25C8-EC6B-4918-B65D-A2EEEE210DB4"
+}
