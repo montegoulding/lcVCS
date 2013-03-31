@@ -733,6 +733,7 @@ function ExportObject pObject,pShared,pMainstack
          break
       case "card"
       case "group"
+      case "bkgnd"
          -- only if it's not a cusom control
          if the cIDEProperties["cCustomControlID"] of pObject = "" then
             repeat with tControl=1 to the number of controls of pObject
