@@ -102,18 +102,7 @@ on ImportStackFile pFolder
          end if
       end repeat
    end repeat
-   repeat for each key tCardUUID in sLayersToSet["objectlayers"]
-      if tCardUUID = "" then next repeat
-      go sIDMap[tCardUUID]
-      put the keys of sLayersToSet["objectlayers"][tCardUUID] into tLayers
-      sort tLayers numeric
-      repeat for each line tLayer in tLayers
-         try
-            relayer sLayersToSet["objectlayers"][tCardUUID][tLayer] to front of owner
-         end try
-      end repeat
-      set the layer of sIDMap[tCardUUID] to sLayersToSet["cardlayers"][tCardUUID]
-   end repeat
+   SetLayers
    set the itemDel to "."
    if item -1 of pFolder = "vcs" then
       delete item -1 of pFolder
@@ -128,6 +117,35 @@ on ImportStackFile pFolder
       modeless "lcVCSConflicts"
    end if
 end ImportStackFile
+
+command SetLayers
+   local tLayers,tCardUUID,tObject,tCards
+   -- interleave conflicted card layers
+   repeat for each key tStackUUID in sLayersToSet["cardlayers"]
+      repeat for each key tCardUUID in sLayersToSet["cardlayers"][tStackUUID]
+         put tCardUUID,sLayersToSet["cardlayers"][tStackUUID][tCardUUID] &cr after tCards
+      end repeat
+      sort tCards numeric by item 2 of each
+      repeat for each line tCard in tCards
+         put item 1 of tCard into tCardUUID
+         if tCardUUID = "" then next repeat
+         go sIDMap[tCardUUID]
+         put the keys of sLayersToSet["objectlayers"][tCardUUID] into tLayers
+         sort tLayers numeric
+         repeat for each line tLayer in tLayers
+            try
+               -- interleave conflicted layers
+               repeat for each line tObject in sLayersToSet["objectlayers"][tCardUUID][tLayer]
+                  relayer tObject to front of owner
+               end repeat
+            end try
+         end repeat
+         set the layer of sIDMap[tCardUUID] to sLayersToSet["cardlayers"][tStackUUID][tCardUUID]
+      end repeat
+      close sIDMap[tStackUUID]
+      delete variable tCards
+   end repeat
+end SetLayers
 
 -- if the stack gets this message then it just 
 -- imported a version of itself with a temp name
@@ -153,7 +171,7 @@ on PostImportStack
 end PostImportStack
 
 on ImportObject pStackUUID,pCardUUID,pParentUUID
-   local tObject,tSetName,tType,tError
+   local tObject,tSetName,tType,tError,tConflict=false
    put url ("binfile:properties.json") into tObject
    try
       put JSONToArray(tObject) into tObject["A"]
@@ -276,71 +294,21 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
       set the rect of sIDMap[tObject["A"]["uuid"]] to tObject["A"]["properties"]["rect"]
    end if
    delete variable tObject["A"]["properties"]["name"]
-   repeat for each key tProperty in tObject["A"]["properties"]
-      switch
-         case tProperty is "layer"
-            if tObject["A"]["class"] is "com.runrev.engine.card" then
-               put tObject["A"]["properties"][tProperty] into sLayersToSet["cardlayers"][tObject["A"]["uuid"]]
-            else
-               if tObject["A"]["properties"][tProperty] is an array then
-                  put "" into tFirstCard["layer"]
-                  -- it's a background that needs to be placed
-                  repeat for each key tCardUUID in tObject["A"]["properties"][tProperty]
-                     put the abbrev id of sIDMap[tObject["A"]["uuid"]]&" of "&sIDMap[tCardUUID] into sLayersToSet["objectlayers"][tCardUUID][tObject["A"]["properties"][tProperty][tCardUUID]]
-                     try -- throws error if it's already on the card
-                        place sIDMap[tObject["A"]["uuid"]] onto sIDMap[tCardUUID]
-                     end try
-                  end repeat
-               else
-                  put sIDMap[tObject["A"]["uuid"]] into sLayersToSet["objectlayers"][pCardUUID][tObject["A"]["properties"][tProperty]]
-               end if
-            end if
-            break
-         case tProperty is among the items of kIconProps,kPatternProps
-         case tProperty is "behavior"
-         case tProperty is "defaultButton"
-            -- store the value 
-            if tObject["A"]["properties"][tProperty] <> "" then
-               put tObject["A"]["properties"][tProperty] into sUUIDsToResolve[sIDMap[tObject["A"]["uuid"]]][tProperty]
-            end if
-            break
-         case char 8 to -1 of tProperty is among the items of kUnicodeProps -- "unicode"&tProperty
-            -- utf8 encoded
-            set the tProperty of sIDMap[tObject["A"]["uuid"]] to uniEncode(tObject["A"]["properties"][tProperty],"UTF8")
-            break
-         case tProperty is among the items of "htmlText,hilite"
-            if tObject["A"]["properties"][tProperty] is an array then
-               put the short id of sIDMap[tObject["A"]["uuid"]] into tID
-               repeat for each key tUUID in tObject["A"]["properties"][tProperty]
-                  put "control id "&tID&" of "&sIDMap[tUUID] into tControl
-                  set the tProperty of tControl to tObject["A"]["properties"][tProperty][tUUID]
-               end repeat
-               break
-            end if
-         default
-            set the tProperty of sIDMap[tObject["A"]["uuid"]] to tObject["A"]["properties"][tProperty]
-            break
-      end switch
-   end repeat
-   repeat for each key tCustomPropertySet in tObject["A"]["customPropertySets"]
-      if tCustomPropertySet = "dgProps" then
-         put tObject["A"]["customPropertySets"][tCustomPropertySet]["row template"] into sUUIDsToResolve[sIDMap[tObject["A"]["uuid"]]]["row template"]
-      end if
-      if tCustomPropertySet is "customKeys" then
-         set the customProperties[""] of sIDMap[tObject["A"]["uuid"]] to tObject["A"]["customPropertySets"][tCustomPropertySet]
-      else
-         set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sIDMap[tObject["A"]["uuid"]] to tObject["A"]["customPropertySets"][tCustomPropertySet]
-      end if
-   end repeat
+   SetObjectProperties tObject["A"],pCardUUID
    put uniDecode(uniEncode(url ("binfile:script.utf8"),"UTF8"),"ANSI") into tScript
    set the script of sIDMap[tObject["A"]["uuid"]] to tScript
    -- conflict resolution
    if the result contains ">>>>>>>" then
       -- script compilation error caused by conflict markers
       AddToConflicts sIDMap[tObject["A"]["uuid"]],"script"
+      put true into tConflict
    end if
    if tObject["B"] is an array then
-      AddToConflicts sIDMap[tObject["A"]["uuid"]],"property",tObject
+      AddToConflicts sIDMap[tObject["A"]["uuid"]],"properties",tObject
+      put true into tConflict
+   end if
+   if not tConflict then
+      resolveConflict sIDMap[tObject["A"]["uuid"]]
    end if
    put tObject["A"]["uuid"] into tVersion["UUID"]
    put the short id of sIDMap[tObject["A"]["uuid"]] into tVersion["ID"]
@@ -386,8 +354,85 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
    return pStackUUID
 end ImportObject
 
+command SetObjectProperties pProperties,pCardUUID
+   local tOwner
+   -- workaround for rect messing up gradients issue
+   if pProperties["class"] is "com.runrev.engine.graphic" and pProperties["properties"]["rect"] is not empty then
+      set the rect of sIDMap[pProperties["uuid"]] to pProperties["properties"]["rect"]
+   end if
+   delete variable pProperties["properties"]["name"]
+   repeat for each key tProperty in pProperties["properties"]
+      switch
+         case tProperty is "layer"
+            if pProperties["class"] is "com.runrev.engine.card" then
+               put pProperties["properties"][tProperty] into sLayersToSet["cardlayers"][uuidForObject(the owner of sIDMap[pProperties["uuid"]])][pProperties["uuid"]]
+            else
+               if pProperties["properties"][tProperty] is an array then
+                  put "" into tFirstCard["layer"]
+                  -- it's a background that needs to be placed
+                  repeat for each key tCardUUID in pProperties["properties"][tProperty]
+                     put the abbrev id of sIDMap[pProperties["uuid"]]&" of "&sIDMap[tCardUUID] &cr after sLayersToSet["objectlayers"][tCardUUID][pProperties["properties"][tProperty][tCardUUID]]
+                     try -- throws error if it's already on the card
+                        place sIDMap[pProperties["uuid"]] onto sIDMap[tCardUUID]
+                     end try
+                  end repeat
+               else
+                  -- support calling this command independent of main import for conflict resolution
+                  if pCardUUID is empty then
+                     put the long owner of sIDMap[pProperties["uuid"]] into tOwner
+                     repeat forever
+                        if word 1 of tOwner is "card" then
+                           put uuidForObject(tOwner) into pCardUUID
+                           exit repeat
+                        end if
+                        put the long owner of tOwner into tOwner
+                     end repeat
+                  end if
+                  put sIDMap[pProperties["uuid"]] into sLayersToSet["objectlayers"][pCardUUID][pProperties["properties"][tProperty]]
+               end if
+            end if
+            break
+         case tProperty is among the items of kIconProps,kPatternProps
+         case tProperty is "behavior"
+         case tProperty is "defaultButton"
+            -- store the value 
+            if pProperties["properties"][tProperty] <> "" then
+               put pProperties["properties"][tProperty] into sUUIDsToResolve[sIDMap[pProperties["uuid"]]][tProperty]
+            end if
+            break
+         case char 8 to -1 of tProperty is among the items of kUnicodeProps -- "unicode"&tProperty
+            -- utf8 encoded
+            set the tProperty of sIDMap[pProperties["uuid"]] to uniEncode(pProperties["properties"][tProperty],"UTF8")
+            break
+         case tProperty is among the items of "htmlText,hilite"
+            if pProperties["properties"][tProperty] is an array then
+               put the short id of sIDMap[pProperties["uuid"]] into tID
+               repeat for each key tUUID in pProperties["properties"][tProperty]
+                  put "control id "&tID&" of "&sIDMap[tUUID] into tControl
+                  set the tProperty of tControl to pProperties["properties"][tProperty][tUUID]
+               end repeat
+               break
+            end if
+         default
+            try
+               set the tProperty of sIDMap[pProperties["uuid"]] to pProperties["properties"][tProperty]
+            end try
+            break
+      end switch
+   end repeat
+   repeat for each key tCustomPropertySet in pProperties["customPropertySets"]
+      if tCustomPropertySet = "dgProps" then
+         put pProperties["customPropertySets"][tCustomPropertySet]["row template"] into sUUIDsToResolve[sIDMap[pProperties["uuid"]]]["row template"]
+      end if
+      if tCustomPropertySet is "customKeys" then
+         set the customProperties[""] of sIDMap[pProperties["uuid"]] to pProperties["customPropertySets"][tCustomPropertySet]
+      else
+         set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sIDMap[pProperties["uuid"]] to pProperties["customPropertySets"][tCustomPropertySet]
+      end if
+   end repeat
+end SetObjectProperties
+
 command AddToConflicts pObject,pType,pProperties
-   put pType into sConflicts[pObject]["type"]
    put true into sConflicts[pObject][pType] 
    if pType = "properties" then
       put pProperties into sConflicts[pObject]["propertiesdata"]
@@ -865,7 +910,7 @@ function ParseConflictedFile tFile
    -- assumes someone hasn't done something crazy like change the conflicted marker length!!!
    repeat for each line tLine in tFile
       switch char 1 to 7 of tLine
-         case ">>>>>>>" -- A starts on next line
+         case "<<<<<<<" -- A starts on next line
             put "A" into tState
             break
          case "|||||||" -- Original starts on next line
@@ -873,7 +918,7 @@ function ParseConflictedFile tFile
          case "=======" -- B starts on next line
             put "B" into tState
             break
-         case "<<<<<<<" -- conflict ends
+         case ">>>>>>>" -- conflict ends
             put "" into tState
             break
          default
@@ -887,8 +932,8 @@ function ParseConflictedFile tFile
             end if
             break
       end switch
-      return tReturn
    end repeat
+   return tReturn
 end ParseConflictedFile
 
 function sharedObject pObject
@@ -906,27 +951,25 @@ end sharedObject
 
 function pathForObject pObject
    local tPath
-   put "/"&uuidForObject(pObject)&"/" into tPath
-   repeat while word 4 of pObject is "of"
-      if word 5 of pObject is "card" then
-         if word 1 of pObject is "group" \
-               and the sharedBehavior of pObject then
+   put "/" into tPath
+   repeat forever
+      put "/"&uuidForObject(pObject) before tPath
+      switch
+         case word 1 of pObject is "card"
+            put "/cards" before tPath
+            break
+         case (word 1 of pObject is "group" and the sharedBehavior of pObject) or word 1 of pObject = "bkgnd"
             put "/sharedGroups" before tPath
-            delete word 1 to 8 of pObject
-         else
-            delete word 1 to 4 of pObject
-            put "/cards/"&uuidForObject(pObject) before tPath
-         end if
-      else
-         delete word 1 to 4 of pObject
-         put "/"&uuidForObject(pObject) before tPath
+            break
+         case word 1 of pObject is "stack" and the number of words of pObject is 5 
+            put "/substacks" before tPath
+            break
+      end switch
+      put the long owner of pObject into pObject
+      if the number of words of pObject is 2 then
+         exit repeat
       end if
    end repeat
-   if word 3 of pObject is "of" then
-      delete word 1 to 3 of pObject
-      put "/substacks" before tPath
-   end if
-   -- pObject should now be the mainstack ref
    return the effective filename of pObject&"."&kExtension&tPath 
 end pathForObject
 

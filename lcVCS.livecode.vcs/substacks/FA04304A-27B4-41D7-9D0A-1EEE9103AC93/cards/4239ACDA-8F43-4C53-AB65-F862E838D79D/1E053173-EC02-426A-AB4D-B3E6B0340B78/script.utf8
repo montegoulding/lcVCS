@@ -7,7 +7,7 @@ on mouseUp
       enable group "toolbar"
       put getConflicts() into tConflicts
       repeat for each item tType in "script,properties"
-         set the enabled of group tType to tConflicts[tObject]["type"]
+         set the enabled of group tType to tConflicts[tObject][tType] is true
       end repeat
    end if
 end mouseUp
