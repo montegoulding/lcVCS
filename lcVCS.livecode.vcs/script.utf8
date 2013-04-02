@@ -367,15 +367,14 @@ command SetObjectProperties pProperties,pCardUUID
    if pProperties["class"] is "com.runrev.engine.graphic" and pProperties["properties"]["rect"] is not empty then
       set the rect of sIDMap[pProperties["uuid"]] to pProperties["properties"]["rect"]
    end if
-   delete variable pProperties["properties"]["name"]
+   -- set id first so it's already set when working out the uuids to resolve
+   try
+      set the id of sIDMap[pProperties["uuid"]] to pProperties["properties"]["id"]
+      put pProperties["properties"]["id"] into word 3 of sIDMap[pProperties["uuid"]]
+   end try
+   delete variable pProperties["properties"]["id"]
    repeat for each key tProperty in pProperties["properties"]
       switch
-         case tProperty is "id"
-            try
-               set the id of sIDMap[pProperties["uuid"]] to pProperties["properties"][tProperty]
-               put pProperties["properties"][tProperty] into word 3 of sIDMap[pProperties["uuid"]]
-            end try
-            break
          case tProperty is "layer"
             if pProperties["class"] is "com.runrev.engine.card" then
                put pProperties["properties"][tProperty] into sLayersToSet["cardlayers"][uuidForObject(the owner of sIDMap[pProperties["uuid"]])][pProperties["uuid"]]
