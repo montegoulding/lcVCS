@@ -7,6 +7,7 @@
   },
   "properties": {
     "autoHilite": "false",
+    "id": "1006",
     "layer": "4",
     "menuMode": "option",
     "name": "tests",

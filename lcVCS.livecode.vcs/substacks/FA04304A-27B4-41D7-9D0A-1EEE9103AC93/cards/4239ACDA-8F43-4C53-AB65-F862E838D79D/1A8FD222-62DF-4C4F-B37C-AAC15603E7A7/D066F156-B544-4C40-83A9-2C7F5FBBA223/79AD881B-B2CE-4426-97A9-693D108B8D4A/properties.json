@@ -7,7 +7,8 @@
   },
   "properties": {
     "disabled": "true",
-    "layer": "5",
+    "id": "1028",
+    "layer": "4",
     "name": "Edit",
     "rect": "301,294,356,317",
     "traversalOn": "false"

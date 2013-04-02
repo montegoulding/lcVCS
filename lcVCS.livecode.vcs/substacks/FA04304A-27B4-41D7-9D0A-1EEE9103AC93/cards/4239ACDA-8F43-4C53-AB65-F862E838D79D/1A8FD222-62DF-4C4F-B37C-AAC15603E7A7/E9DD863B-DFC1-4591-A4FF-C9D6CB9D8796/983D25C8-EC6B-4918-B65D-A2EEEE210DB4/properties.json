@@ -7,7 +7,8 @@
   },
   "properties": {
     "disabled": "true",
-    "layer": "11",
+    "id": "1033",
+    "layer": "9",
     "name": "B",
     "rect": "148,294,174,317",
     "traversalOn": "false",

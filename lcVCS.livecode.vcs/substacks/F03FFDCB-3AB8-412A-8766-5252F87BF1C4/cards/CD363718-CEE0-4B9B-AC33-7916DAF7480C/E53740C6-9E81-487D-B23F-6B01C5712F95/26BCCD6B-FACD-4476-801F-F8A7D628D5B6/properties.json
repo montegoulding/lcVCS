@@ -6,6 +6,7 @@
     }
   },
   "properties": {
+    "id": "1005",
     "layer": "3",
     "name": "Import",
     "rect": "206,31,264,53",

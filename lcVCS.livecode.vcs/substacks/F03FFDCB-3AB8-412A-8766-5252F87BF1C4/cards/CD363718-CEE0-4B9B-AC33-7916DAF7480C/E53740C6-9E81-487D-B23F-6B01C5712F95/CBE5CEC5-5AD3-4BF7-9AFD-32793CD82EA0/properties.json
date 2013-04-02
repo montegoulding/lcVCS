@@ -6,6 +6,7 @@
     }
   },
   "properties": {
+    "id": "1007",
     "layer": "2",
     "name": "Export",
     "rect": "144,31,202,53",

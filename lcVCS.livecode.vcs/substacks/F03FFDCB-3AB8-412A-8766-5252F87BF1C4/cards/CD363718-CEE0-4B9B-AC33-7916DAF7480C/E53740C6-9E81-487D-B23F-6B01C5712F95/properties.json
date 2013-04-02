@@ -6,6 +6,7 @@
     }
   },
   "properties": {
+    "id": "1004",
     "layer": "1",
     "margins": "8",
     "name": "Tests",

@@ -1,6 +1,7 @@
 {
   "class": "com.runrev.engine.card",
   "properties": {
+    "id": "1003",
     "layer": "1"
   },
   "uuid": "6BDB1E14-658F-4D11-B8CA-078BE128FBED"

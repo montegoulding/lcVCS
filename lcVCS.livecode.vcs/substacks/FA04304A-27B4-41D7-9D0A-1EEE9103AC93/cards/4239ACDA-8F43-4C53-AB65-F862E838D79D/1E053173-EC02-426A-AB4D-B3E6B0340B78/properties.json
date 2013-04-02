@@ -11,7 +11,8 @@
   "properties": {
     "dontWrap": "true",
     "hScrollbar": "true",
-    "layer": "1",
+    "id": "1007",
+    "layer": "12",
     "listBehavior": "true",
     "lockText": "true",
     "name": "objects",

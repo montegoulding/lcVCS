@@ -7,7 +7,8 @@
   },
   "properties": {
     "disabled": "true",
-    "layer": "2",
+    "id": "1038",
+    "layer": "1",
     "name": "toolbar"
   },
   "uuid": "1A8FD222-62DF-4C4F-B37C-AAC15603E7A7"

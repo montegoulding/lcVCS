@@ -6,7 +6,7 @@ constant kColorProps = "foregroundColor,backgroundColor,hiliteColor,borderColor,
 constant kPatternProps = "foregroundPattern,backgroundPattern,hilitePattern,borderPattern,topPattern,bottomPattern,shadowPattern,focusPattern"
 constant kIconProps = "icon,hiliteIcon,disabledIcon,borderPattern,visitedIcon,armedIcon,hoverIcon"
 constant kUnicodeProps = "Label,Text,ToolTip,Title"
-constant kDeleteProps = "colors,patterns,orientation,scroll,framecount,id,visited"
+constant kDeleteProps = "colors,patterns,orientation,scroll,framecount,visited"
 constant kTempNameSuffix = " temp"
 constant kTemplateObjects = "the templateStack,the templateGroup,the templateCard,the templateGraphic,the templateButton,the templateField,the templateScrollbar,the templateImage,the templatePlayer"
 constant kExtension = "vcs"
@@ -159,7 +159,7 @@ on PostImportStack
    end if
    -- set names correctly
    set the name of stack tStack to tStackName
-   put the substacks of this stack into tSubstacks
+   put the substacks of stack tStackName into tSubstacks
    repeat for each line tStack in tSubstacks
       put tStack into tStackName
       replace kTempNameSuffix with empty in tStackName
@@ -210,6 +210,10 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
          end if
          set the defaultStack to it
          set the loc of it to the screenLoc
+         -- workaround for the fact that the first card is already created
+         -- and we use this for a background creation card
+         -- a new stack id is always 1002 so the id of 1000 will be safe
+         set the id of card 1 of it to 1000
          if pStackUUID is not empty then
             set the mainstack of it to the short name of sIDMap[pStackUUID]
          end if
@@ -325,6 +329,9 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
          if there is a folder tType then
             set the defaultFolder to tType
             repeat for each line tUUID in the folders
+               if tType = "sharedGroups" then
+                  go ("cd 1 of "&sIDMap[pStackUUID])
+               end if
                if char 1 of tUUID = "." then next repeat
                set the defaultFolder to tUUID
                if tType = "substacks" then
@@ -363,6 +370,12 @@ command SetObjectProperties pProperties,pCardUUID
    delete variable pProperties["properties"]["name"]
    repeat for each key tProperty in pProperties["properties"]
       switch
+         case tProperty is "id"
+            try
+               set the id of sIDMap[pProperties["uuid"]] to pProperties["properties"][tProperty]
+               put pProperties["properties"][tProperty] into word 3 of sIDMap[pProperties["uuid"]]
+            end try
+            break
          case tProperty is "layer"
             if pProperties["class"] is "com.runrev.engine.card" then
                put pProperties["properties"][tProperty] into sLayersToSet["cardlayers"][uuidForObject(the owner of sIDMap[pProperties["uuid"]])][pProperties["uuid"]]
@@ -585,6 +598,8 @@ function ExportObjectProperties pObject,pShared,pMainstack
          delete variable tObject["properties"]["rect"]
          put the width of pObject into tObject["properties"]["width"]
          put the height of pObject into tObject["properties"]["height"]
+         -- stack id is too likely to cause a conflict and will resolve itself anyway
+         delete variable tObject["properties"]["id"]
          break
       case "image"
          put the text of pObject into url ("binfile:image."&tObject["properties"]["paintCompression"])

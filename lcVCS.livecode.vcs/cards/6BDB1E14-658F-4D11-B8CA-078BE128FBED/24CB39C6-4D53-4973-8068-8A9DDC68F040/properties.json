@@ -7,6 +7,7 @@
   },
   "properties": {
     "alwaysBuffer": "true",
+    "id": "1004",
     "layer": "1",
     "name": "Git_icon.svg.png",
     "opaque": "false",
