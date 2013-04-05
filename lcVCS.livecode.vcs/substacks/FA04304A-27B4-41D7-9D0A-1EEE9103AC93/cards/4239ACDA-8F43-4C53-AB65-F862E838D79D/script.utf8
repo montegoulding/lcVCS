@@ -43,22 +43,6 @@ on updateList
    send "mouseUp" to fld "objects"
 end updateList
 
-on mergeTool pObject,pFile
-   local tPath,tCurrentFolder,tConflictedData,tChangedData
-   set the hideConsoleWindows to true
-   put pathForObject(the long id of pObject) into tPath
-   put the defaultFolder into tCurrentFolder
-   set the defaultFolder to tPath
-   put url ("binfile:"&pFile) into tConflictedData
-   get shell("git mergetool -y -t opendiff "&pFile)
-   -- reimport the file if changed
-   put url ("binfile:"&pFile) into tChangedData
-   if tChangedData is not tConflictedData then
-      -- parse it again
-   end if
-   set the defaultFolder to tCurrentFolder
-end mergeTool
-
 on setProperties pObject,pBranch
    put getConflicts() into tConflicts
    -- set the properties

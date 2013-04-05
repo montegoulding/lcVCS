@@ -1,0 +1,8 @@
+on preOpenStack
+   -- this makes sure the datagrid behaviors have the same UUID on everyone's version of the IDE
+   put the customProperties["uDataGridBehaviors"] of this stack into tVersion
+   repeat for each key tID in tVersion
+      set the customProperties["uVersion"] of control id tID of stack "revDataGridLibrary" to tVersion[tID]
+   end repeat
+   save stack "revDataGridLibrary"
+end preOpenStack

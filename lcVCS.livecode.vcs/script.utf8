@@ -142,7 +142,7 @@ command SetLayers
          end repeat
          set the layer of sIDMap[tCardUUID] to sLayersToSet["cardlayers"][tStackUUID][tCardUUID]
       end repeat
-      close sIDMap[tStackUUID]
+      --close sIDMap[tStackUUID]
       delete variable tCards
    end repeat
 end SetLayers

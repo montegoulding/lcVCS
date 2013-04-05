@@ -1,3 +1,0 @@
-on mouseUp
-   mergeTool the hilitedText of fld "objects","properties.json"
-end mouseUp

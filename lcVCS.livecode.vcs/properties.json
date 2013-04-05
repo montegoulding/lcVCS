@@ -1,5 +1,57 @@
 {
   "class": "com.runrev.engine.stack",
+  "customPropertySets": {
+    "uDataGridBehaviors": {
+      "1005": {
+        "ID": "1005",
+        "UUID": "4B5CF4EB-992B-4EDA-809F-6A2872946D3F"
+      },
+      "1006": {
+        "ID": "1006",
+        "UUID": "7994108E-138B-4699-AA15-4614416F972A"
+      },
+      "1007": {
+        "ID": "1007",
+        "UUID": "0EEB4BAB-6772-4DD6-9C68-DB9151C3783A"
+      },
+      "1066": {
+        "ID": "1066",
+        "UUID": "59D5596E-742D-4B2B-8137-E54231ED9CBC"
+      },
+      "1089": {
+        "ID": "1089",
+        "UUID": "0AED05F4-AB4A-45D3-B3F9-4123FDB8B9A7"
+      },
+      "1126": {
+        "ID": "1126",
+        "UUID": "91607A23-941F-4AE2-88FE-049F08CC2F25"
+      },
+      "1127": {
+        "ID": "1127",
+        "UUID": "12E71764-D8C8-456B-8524-3E35AC296C36"
+      },
+      "1128": {
+        "ID": "1128",
+        "UUID": "984B7FD9-631C-49BC-B77D-FAE29178CB10"
+      },
+      "1145": {
+        "ID": "1145",
+        "UUID": "92537B69-3E4C-4C56-B1D9-BBCB6BAE0721"
+      },
+      "1146": {
+        "ID": "1146",
+        "UUID": "5EA0680E-B19A-4B85-9573-DAF0833CE916"
+      },
+      "1160": {
+        "ID": "1160",
+        "UUID": "6EB5FE48-CDD5-4B77-A4EC-DDE2BAF20B69"
+      },
+      "1173": {
+        "ID": "1173",
+        "UUID": "423A8BDF-8825-4B40-B185-B3B2D6DB4C76"
+      }
+    }
+  },
   "properties": {
     "height": "40",
     "name": "lcVCS",

@@ -1,3 +1,0 @@
-on mouseUp
-   mergTool the hilitedText of fld "objects","script.utf8"
-end mouseUp

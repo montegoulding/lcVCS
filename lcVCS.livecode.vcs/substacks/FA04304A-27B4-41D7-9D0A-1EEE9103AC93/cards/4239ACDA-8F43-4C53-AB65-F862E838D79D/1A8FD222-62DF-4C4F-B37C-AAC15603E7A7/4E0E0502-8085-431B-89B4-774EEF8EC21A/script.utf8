@@ -1,4 +1,5 @@
 on mouseUp
-   resolveConflict the hilitedText of group "objects"
-   delete line (the hilitedLine of group "objects") of group "objects"
+   resolveConflict the hilitedText of fld "objects"
+   delete line (the hilitedLine of fld "objects") of fld "objects"
+   updateList
 end mouseUp
