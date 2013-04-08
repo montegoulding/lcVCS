@@ -1,0 +1,16 @@
+{
+  "class": "com.runrev.engine.stack",
+  "customPropertySets": {
+    "customKeys": {
+      "uCustomPropertySet": "dgProps",
+      "uResolveUUIDs": "true"
+    }
+  },
+  "properties": {
+    "decorations": "title,menu,minimize,maximize,close",
+    "height": "400",
+    "name": "dgProps",
+    "width": "400"
+  },
+  "uuid": "C597239A-2B64-4C4C-8BE4-6958BAF1CD07"
+}

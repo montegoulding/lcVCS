@@ -1,0 +1,21 @@
+on lcVCSFilterExportedProps pObject,@pProps
+   -- delete some unnecessaries
+   delete variable pProps["breakpointconditions"]
+   delete variable pProps["breakpointstates"]
+   delete variable pProps["breakpoints"]
+   delete variable pProps["scripteditorselection"]
+   delete variable pProps["scripteditorvscroll"]
+   delete variable pProps["bookmarks"]
+   delete variable pProps["handlerList"]
+   delete variable pProps["scriptSelection"]
+   delete variable pProps["prevHanlder"]
+   delete variable pProps["tempScript"]
+   delete variable pProps["script"]
+   delete variable pProps["scriptCheckSum"]
+   delete variable pProps["stackfileversion"]
+end lcVCSFilterExportedProps
+
+-- not used for this one
+on lcVCSResolveUUIDs pObject
+   
+end lcVCSResolveUUIDs

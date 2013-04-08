@@ -1,0 +1,16 @@
+{
+  "class": "com.runrev.engine.stack",
+  "customPropertySets": {
+    "customKeys": {
+      "uCustomPropertySet": "cREVGeometryCache",
+      "uResolveUUIDs": "false"
+    }
+  },
+  "properties": {
+    "decorations": "title,menu,minimize,maximize,close",
+    "height": "400",
+    "name": "cREVGeometryCache",
+    "width": "400"
+  },
+  "uuid": "E3E9A97D-5B80-41B1-B8C8-057B1C9A0A04"
+}
