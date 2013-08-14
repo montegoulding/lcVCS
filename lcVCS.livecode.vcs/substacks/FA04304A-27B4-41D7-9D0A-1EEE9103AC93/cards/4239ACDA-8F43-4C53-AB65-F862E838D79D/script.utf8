@@ -47,5 +47,5 @@ on setProperties pObject,pBranch
    put getConflicts() into tConflicts
    -- set the properties
    SetObjectProperties tConflicts[pObject]["propertiesdata"][pBranch]
-   SetLayers
+   SetLayers true
 end setProperties

@@ -1,19 +1,70 @@
 {
+  "UUID": "24CB39C6-4D53-4973-8068-8A9DDC68F040",
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": "1363339963147"
+    },
+    "customKeys": {
+      "innerShaddow": "",
+      "kMissingProps": ""
     }
   },
   "properties": {
+    "altId": "0",
     "alwaysBuffer": "true",
+    "angle": "0",
+    "backColor": "",
+    "backPattern": "",
+    "behavior": "",
+    "blendLevel": "0",
+    "borderColor": "",
+    "borderPattern": "",
+    "borderWidth": "2",
+    "bottomColor": "",
+    "bottomPattern": "",
+    "cantSelect": "false",
+    "colorOverlay": "",
+    "constantMask": "false",
+    "currentFrame": "1",
+    "disabled": "false",
+    "dontDither": "false",
+    "dropShadow": "",
+    "fileName": "",
+    "focusColor": "",
+    "focusPattern": "",
+    "foreColor": "",
+    "forePattern": "",
+    "hiliteColor": "",
+    "hilitePattern": "",
+    "hotSpot": "1,1",
     "id": "1004",
+    "ink": "srcCopy",
+    "innerGlow": "",
+    "innerShaddow": "",
     "layer": "1",
+    "layerMode": "static",
+    "lockLoc": "false",
     "name": "Git_icon.svg.png",
     "opaque": "false",
+    "outerGlow": "",
     "paintCompression": "png",
+    "palindromeFrames": "false",
     "rect": "94,10,130,46",
-    "visible": "false"
-  },
-  "uuid": "24CB39C6-4D53-4973-8068-8A9DDC68F040"
+    "repeatCount": "-1",
+    "resizeQuality": "normal",
+    "shadowColor": "",
+    "shadowOffset": "4",
+    "shadowPattern": "",
+    "showBorder": "false",
+    "showFocusBorder": "true",
+    "threeD": "true",
+    "toolTip": "",
+    "topColor": "",
+    "topPattern": "",
+    "traversalOn": "false",
+    "visible": "false",
+    "xHot": "1",
+    "yHot": "1"
+  }
 }

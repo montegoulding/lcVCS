@@ -1,19 +1,70 @@
 {
+  "UUID": "AF977C5B-25CD-4582-94E3-3CCEA9A5F7F5",
   "class": "com.runrev.engine.image",
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": "1363341078070"
+    },
+    "customKeys": {
+      "innerShaddow": "",
+      "kMissingProps": ""
     }
   },
   "properties": {
+    "altId": "0",
     "alwaysBuffer": "true",
+    "angle": "0",
+    "backColor": "",
+    "backPattern": "",
+    "behavior": "",
+    "blendLevel": "0",
+    "borderColor": "",
+    "borderPattern": "",
+    "borderWidth": "2",
+    "bottomColor": "",
+    "bottomPattern": "",
+    "cantSelect": "false",
+    "colorOverlay": "",
+    "constantMask": "false",
+    "currentFrame": "1",
+    "disabled": "false",
+    "dontDither": "false",
+    "dropShadow": "",
+    "fileName": "",
+    "focusColor": "",
+    "focusPattern": "",
+    "foreColor": "",
+    "forePattern": "",
+    "hiliteColor": "",
+    "hilitePattern": "",
+    "hotSpot": "1,1",
     "id": "1007",
+    "ink": "srcCopy",
+    "innerGlow": "",
+    "innerShaddow": "",
     "layer": "4",
+    "layerMode": "static",
+    "lockLoc": "false",
     "name": "LiveCodeDoc.png",
     "opaque": "false",
+    "outerGlow": "",
     "paintCompression": "png",
+    "palindromeFrames": "false",
     "rect": "70,4,106,40",
-    "visible": "false"
-  },
-  "uuid": "AF977C5B-25CD-4582-94E3-3CCEA9A5F7F5"
+    "repeatCount": "-1",
+    "resizeQuality": "normal",
+    "shadowColor": "",
+    "shadowOffset": "4",
+    "shadowPattern": "",
+    "showBorder": "false",
+    "showFocusBorder": "true",
+    "threeD": "true",
+    "toolTip": "",
+    "topColor": "",
+    "topPattern": "",
+    "traversalOn": "false",
+    "visible": "false",
+    "xHot": "1",
+    "yHot": "1"
+  }
 }

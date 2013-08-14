@@ -1,3 +1,0 @@
-on mouseUp
-   setProperties the hilitedText of fld "objects","A"
-end mouseUp

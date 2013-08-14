@@ -24,8 +24,8 @@ end dragEnter
 
 on dragDrop
    put the dragData["files"] into tFolders
-   filter tFiles with "*.vcs"
-   if tFiles is not empty then
+   filter tFolders with "*.vcs"
+   if tFolders is not empty then
       repeat for each line tFolder in tFolders
          if there is a folder tFolder then
             ImportStackFile tFolder

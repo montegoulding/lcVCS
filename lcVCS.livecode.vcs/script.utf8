@@ -1,30 +1,34 @@
 
-
--- bug #8884 : the following are missing from "the properties"
-constant kMissingProps = "filename,innershadow,innerglow,outerglow,dropshadow,coloroverlay,fillgradient,strokegradient,resizeQuality,paintCompression"
-constant kColorProps = "foregroundColor,backgroundColor,hiliteColor,borderColor,topColor,bottomColor,shadowColor,focusColor"
-constant kPatternProps = "foregroundPattern,backgroundPattern,hilitePattern,borderPattern,topPattern,bottomPattern,shadowPattern,focusPattern"
-constant kIconProps = "icon,hiliteIcon,disabledIcon,borderPattern,visitedIcon,armedIcon,hoverIcon"
-constant kUnicodeProps = "Label,Text,ToolTip,Title"
-constant kDeleteProps = "colors,patterns,orientation,scroll,framecount,visited"
+constant kUnicodeProps = "unicodeTitle,unicodeLabel,unicodeToolTip,unicodeText"
+constant kIconProps = "icon,hiliteIcon,disabledIcon,visitedIcon,armedIcon,hoverIcon"
+constant kPatternProps = "forePattern,focusPattern,backPattern,borderPattern,bottomPattern,hilitePattern,shadowPattern,topPattern"
 constant kTempNameSuffix = " temp"
-constant kTemplateObjects = "the templateStack,the templateGroup,the templateCard,the templateGraphic,the templateButton,the templateField,the templateScrollbar,the templateImage,the templatePlayer"
 constant kExtension = "vcs"
 
-local sIDMap,sUUIDsToResolve,sTemplateObjects,sLayersToSet,sConflicts,sUUIDCache
+local sIDMap,sUUIDsToResolve,sTemplateObjects,sLayersToSet,sConflicts,sUUIDCache,sStacksToReopen
 local sPlugins -- an array with loaded plugins for UUID resolution and unnecessary custom property filtering
 
-command ExportStackFile pFilePath
-   local tFolder,tStacks,tSubstacks,tIndex,tJSON,tOldDefaultFolder
+# Export the stackfile. Creates a directory at the same path as the stackfile&.kExtension
+command ExportStackFile pFilePath,pFolder
+   local tFolder,tStacks,tSubstacks,tIndex,tOldDefaultFolder,tRepo
    start using this stack
    lock screen
    put the defaultFolder into tOldDefaultFolder
    if there is a stack pFilePath then
-      resetTemplateObjects
       -- mainstack
       lock messages
-      put pFilePath into tFolder
-      put "."&kExtension after tFolder
+      if pFolder is empty then
+         put pFilePath into tFolder
+         put "."&kExtension after tFolder
+      else
+         if there is a folder pFolder then
+            put pFolder into tFolder
+         else -- relative path
+            put pFilePath into tFolder
+            set the itemDel to slash
+            put pFolder into item -1 of tFolder
+         end if
+      end if
       if there is not a folder tFolder then
          create folder tFolder
       end if
@@ -44,12 +48,12 @@ command ExportStackFile pFilePath
       end if
    end if
    save stack pFilePath
-   revertTemplateObjects
    set the defaultFolder to tOldDefaultFolder
    stop using this stack
 end ExportStackFile
 
-on ImportStackFile pFolder
+# Import a stackfile from a folder
+on ImportStackFile pFolder,pFilePath
    local tUUIDSearchDone = "false",tOldDefaultFolder
    start using this stack
    lock screen
@@ -57,16 +61,16 @@ on ImportStackFile pFolder
    put the defaultFolder into tOldDefaultFolder
    delete variable sUUIDsToResolve
    delete variable sLayersToSet
-   resetTemplateObjects
+   delete variable sStacksToReopen
    set the defaultFolder to pFolder
    ImportObject
-   put  the short name of sIDMap[the result] into tMainstack
-   -- only load uuids from all mainstacks if necessary
+   put the short name of sIDMap[the result] into tMainstack
+   -- only load UUIDs from all mainstacks if necessary
    repeat for each key tObject in sUUIDsToResolve
       repeat for each key tProperty in sUUIDsToResolve[tObject] 
          repeat for each line tUUID in sUUIDsToResolve[tObject][tProperty]
-            -- resolve uuid references (icons, patterns, behaviors)
-            -- load uuids from all mainstacks only if required
+            -- resolve UUID references (icons, patterns, behaviors)
+            -- load UUIDs from all mainstacks only if required
             if not tUUIDSearchDone and there is not a sIDMap[tUUID] then
                put true into tUUIDSearchDone
                repeat for each line tMainstack in the mainstacks
@@ -74,64 +78,79 @@ on ImportStackFile pFolder
                      repeat with tCard = 1 to the number of cards of stack tStack
                         -- behavior buttons
                         repeat with tControl =1 to the number of buttons of card tCard of stack tStack
-                           if the uVersion["uuid"] of btn tControl of card tCard of stack tStack <> "" then
-                              put the long id of btn tControl of card tCard of stack tStack into sIDMap[uuidForObject(the long id of btn tControl of card tCard of stack tStack)]
+                           if the uVersion["UUID"] of btn tControl of card tCard of stack tStack <> "" then
+                              put the long id of btn tControl of card tCard of stack tStack into sIDMap[UUIDForObject(the long id of btn tControl of card tCard of stack tStack)]
                            end if
                         end repeat
                         -- images
                         repeat with tControl =1 to the number of images of card tCard of stack tStack
-                           if the uVersion["uuid"] of image tControl of card tCard of stack tStack <> "" then
-                              put the long id of image tControl of card tCard of stack tStack into sIDMap[uuidForObject(the long id of image tControl of card tCard of stack tStack)]
+                           if the uVersion["UUID"] of image tControl of card tCard of stack tStack <> "" then
+                              put the long id of image tControl of card tCard of stack tStack into sIDMap[UUIDForObject(the long id of image tControl of card tCard of stack tStack)]
                            end if
                         end repeat
                      end repeat
                   end repeat
                end repeat
             end if
-            if there is a sIDMap[tUUID] then
-               switch 
-                  case tProperty is "behavior"
-                     set the tProperty of tObject to sIDMap[tUUID]
-                     break
-                  case tProperty is "defaultButton"
-                     set the default of sIDMap[tUUID] to true
-                     break
-                  case there is a stack sPlugins[tProperty]["stack"]
-                     dispatch "lcVCSResolveUUIDs" to stack sPlugins[tCustomPropertySet]["stack"] with tObject
-                     break
-                  default
-                     set the tProperty of tObject to the short id of sIDMap[tUUID]
-                     break
-               end switch
-            else
-               if there is not a stack sPlugins[tProperty]["stack"] then
-                  try -- could be some object that wasn't in memory during the export so it's not a uuid
-                     set the tProperty of tObject to tUUID
-                  end try
-               end if
-            end if
          end repeat
+         if there is a stack sPlugins[tProperty]["stack"] then
+            dispatch "lcVCSResolveUUIDs" to stack sPlugins[tProperty]["stack"] with tObject
+         else if there is a sIDMap[tUUID] then
+            switch 
+               case tProperty is "behavior"
+                  set the tProperty of tObject to sIDMap[tUUID]
+                  break
+               case tProperty is "defaultButton"
+                  set the default of sIDMap[tUUID] to true
+                  break
+               default
+                  set the tProperty of tObject to the short id of sIDMap[tUUID]
+                  break
+            end switch
+         else
+            if there is not a stack sPlugins[tProperty]["stack"] then
+               try -- could be some object that wasn't in memory during the export so it's not a UUID
+                  set the tProperty of tObject to tUUID
+               end try
+            end if
+         end if
       end repeat
    end repeat
    SetLayers
-   set the itemDel to "."
-   if item -1 of pFolder = "vcs" then
-      delete item -1 of pFolder
+   if pFilePath is empty then
+      set the itemDel to "."
+      if item -1 of pFolder = "vcs" then
+         delete item -1 of pFolder
+      end if
+      set the fileName of stack tMainStack to pFolder
+   else
+      set the itemDel to slash
+      if there is a folder (item 1 to -2 of pFilePath) then
+         set the fileName of stack tMainStack to pFilePath
+      else -- relative path
+         if char -1 of pFolder is "/" then
+            delete char -1 of pFolder
+         end if
+         set the fileName of stack tMainStack to pFolder&"/"&pFilePath
+      end if
    end if
-   set the fileName of stack tMainStack to pFolder
    go cd 1 of stack tMainStack
-   revertTemplateObjects
    if sConflicts is an array then
       modeless "lcVCSConflicts"
    end if
    set the defaultFolder to tOldDefaultFolder
    stop using this stack
+   repeat for each key tStack in sStacksToReopen
+      set the topLeft of stack tStack to sStacksToReopen[tStack]
+      go stack tStack
+   end repeat
    if tMainStack = ("lcVCS"&kTempNameSuffix) then
       send "PostImportStack" to stack tMainStack in 0 milliseconds
    end if
 end ImportStackFile
 
-command SetLayers
+# Set the layers of controls
+command SetLayers pDontClose
    local tLayers,tCardUUID,tObject,tCards
    -- interleave conflicted card layers
    repeat for each key tStackUUID in sLayersToSet["cardlayers"]
@@ -155,7 +174,7 @@ command SetLayers
          end repeat
          set the layer of sIDMap[tCardUUID] to sLayersToSet["cardlayers"][tStackUUID][tCardUUID]
       end repeat
-      --close sIDMap[tStackUUID]
+      if not pDontClose then close sIDMap[tStackUUID]
       delete variable tCards
    end repeat
 end SetLayers
@@ -182,6 +201,7 @@ on PostImportStack
       set the name of stack tStack to tStackName
    end repeat
 end PostImportStack
+
 
 on ImportObject pStackUUID,pCardUUID,pParentUUID
    local tObject,tSetName,tType,tError,tConflict=false
@@ -217,6 +237,11 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
             create stack (tObject["A"]["properties"]["name"]&kTempNameSuffix)
          else
             if there is a stack tObject["A"]["properties"]["name"] then
+               repeat for each line tStack in the mainstack of stack tObject["A"]["properties"]["name"]&cr & the substacks of stack the mainstack of stack tObject["A"]["properties"]["name"]
+                  if tStack is among the lines of the openStacks then
+                     put the topLeft of stack tStack into  sStacksToReopen[tStack]
+                  end if
+               end repeat
                delete stack tObject["A"]["properties"]["name"]
             end if
             create stack tObject["A"]["properties"]["name"]
@@ -230,11 +255,11 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
          if pStackUUID is not empty then
             set the mainstack of it to the short name of sIDMap[pStackUUID]
          end if
-         put tObject["A"]["uuid"] into pStackUUID
+         put tObject["A"]["UUID"] into pStackUUID
          break
       case "com.runrev.engine.card"
          create card tObject["A"]["properties"]["name"]
-         put tObject["A"]["uuid"] into pCardUUID
+         put tObject["A"]["UUID"] into pCardUUID
          break
       case "com.runrev.engine.image"
          if word 1 of sIDMap[pParentUUID] is "group" then
@@ -246,6 +271,9 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
             set the text of it to url ("binfile:image."&tObject["A"]["properties"]["paintCompression"])
          end if
          delete variable tObject["A"]["properties"]["paintCompression"]
+         if tObject["A"]["properties"]["fileName"] is empty then
+            delete variable tObject["A"]["properties"]["fileName"]
+         end if
          break
       case "com.runrev.engine.button"
          ##! workaround bug http://quality.runrev.com/show_bug.cgi?id=10696
@@ -292,6 +320,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
          else
             create group tObject["A"]["properties"]["name"]
          end if
+         set the lockUpdates of it to true
          break
       default
          ##! TODO
@@ -301,40 +330,35 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
          break
    end switch
    if tObject["A"]["class"] <> "com.runrev.engine.stack" then
-      put the abbrev id of it &" of "& sIDMap[pStackUUID] into sIDMap[tObject["A"]["uuid"]]
+      put the abbrev id of it &" of "& sIDMap[pStackUUID] into sIDMap[tObject["A"]["UUID"]]
    else
-      put it into sIDMap[tObject["A"]["uuid"]]
+      put it into sIDMap[tObject["A"]["UUID"]]
    end if
    set the itemDel to ","
-   -- workaround for rect messing up gradients issue
-   if tObject["A"]["class"] is "com.runrev.engine.graphic" and tObject["A"]["properties"]["rect"] is not empty then
-      set the rect of sIDMap[tObject["A"]["uuid"]] to tObject["A"]["properties"]["rect"]
-   end if
-   delete variable tObject["A"]["properties"]["name"]
-   SetObjectProperties tObject["A"],pCardUUID
+   SetObjectProperties tObject["A"],pCardUUID,true
    put uniDecode(uniEncode(url ("binfile:script.utf8"),"UTF8"),"ANSI") into tScript
-   set the script of sIDMap[tObject["A"]["uuid"]] to tScript
+   set the script of sIDMap[tObject["A"]["UUID"]] to tScript
    -- conflict resolution
-   if the result contains ">>>>>>>" then
+   if the result contains "<<<<<<<" then
       -- script compilation error caused by conflict markers
-      AddToConflicts sIDMap[tObject["A"]["uuid"]],"script"
+      AddToConflicts sIDMap[tObject["A"]["UUID"]],"script"
       put true into tConflict
    end if
    if tObject["B"] is an array then
-      AddToConflicts sIDMap[tObject["A"]["uuid"]],"properties",tObject
+      AddToConflicts sIDMap[tObject["A"]["UUID"]],"properties",tObject
       put true into tConflict
    end if
    if not tConflict then
-      resolveConflict sIDMap[tObject["A"]["uuid"]]
+      resolveConflict sIDMap[tObject["A"]["UUID"]]
    end if
-   put tObject["A"]["uuid"] into tVersion["UUID"]
-   put the short id of sIDMap[tObject["A"]["uuid"]] into tVersion["ID"]
-   set the customProperties["uVersion"] of sIDMap[tObject["A"]["uuid"]] to tVersion
+   put tObject["A"]["UUID"] into tVersion["UUID"]
+   put the short id of sIDMap[tObject["A"]["UUID"]] into tVersion["ID"]
+   set the customProperties["uVersion"] of sIDMap[tObject["A"]["UUID"]] to tVersion
    if tObject["A"]["class"] <> "com.runrev.engine.stack" then
       repeat for each line tUUID in the folders
          if char 1 of tUUID = "." then next repeat
          set the defaultFolder to tUUID
-         ImportObject pStackUUID,pCardUUID,tObject["A"]["uuid"]
+         ImportObject pStackUUID,pCardUUID,tObject["A"]["UUID"]
          set the defaultFolder to ".."
       end repeat
    else
@@ -358,9 +382,9 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
          end if
          switch tType
             case "cards"
-               -- find card layer 1 and put it's uuid into 
+               -- find card layer 1 and put it's UUID into 
                repeat with X=1 to the number of cards of sIDMap[pStackUUID]
-                  put uuidForObject(the long id of card X of sIDMap[pStackUUID]) into pCardUUID
+                  put UUIDForObject(the long id of card X of sIDMap[pStackUUID]) into pCardUUID
                   if sLayersToSet["cardlayers"][pCardUUID] is 1 then exit repeat
                end repeat
                break
@@ -371,95 +395,105 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
          end switch
       end repeat
    end if
+   if tObject["A"]["class"] is "com.runrev.engine.group" then
+      set the lockUpdates of sIDMap[tObject["A"]["UUID"]] to false
+   end if
    return pStackUUID
 end ImportObject
 
-command SetObjectProperties pProperties,pCardUUID
-   local tOwner,tUUIDsToResolve
-   -- workaround for rect messing up gradients issue
-   if pProperties["class"] is "com.runrev.engine.graphic" and pProperties["properties"]["rect"] is not empty then
-      set the rect of sIDMap[pProperties["uuid"]] to pProperties["properties"]["rect"]
+command SetObjectProperties pProperties,pCardUUID,pDontSetNames
+   local tOwner,tUUIDsToResolve,tCurrentProps
+   if pDontSetNames then
+      delete variable pProperties["properties"]["name"]
    end if
-   -- set id first so it's already set when working out the uuids to resolve
+   # clean the properties array
+   -- set id first so it's already set when working out the UUIDs to resolve
    try
-      set the id of sIDMap[pProperties["uuid"]] to pProperties["properties"]["id"]
-      put pProperties["properties"]["id"] into word 3 of sIDMap[pProperties["uuid"]]
+      set the id of sIDMap[pProperties["UUID"]] to pProperties["properties"]["id"]
+      put pProperties["properties"]["id"] into word 3 of sIDMap[pProperties["UUID"]]
    end try
    delete variable pProperties["properties"]["id"]
+   put the properties of sIDMap[pProperties["UUID"]] into tCurrentProps
    repeat for each key tProperty in pProperties["properties"]
       switch
          case tProperty is "layer"
             if pProperties["class"] is "com.runrev.engine.card" then
-               put pProperties["properties"][tProperty] into sLayersToSet["cardlayers"][uuidForObject(the owner of sIDMap[pProperties["uuid"]])][pProperties["uuid"]]
+               put pProperties["properties"][tProperty] into sLayersToSet["cardlayers"][UUIDForObject(the owner of sIDMap[pProperties["UUID"]])][pProperties["UUID"]]
             else
                if pProperties["properties"][tProperty] is an array then
                   put "" into tFirstCard["layer"]
                   -- it's a background that needs to be placed
                   repeat for each key tCardUUID in pProperties["properties"][tProperty]
-                     put the abbrev id of sIDMap[pProperties["uuid"]]&" of "&sIDMap[tCardUUID] &cr after sLayersToSet["objectlayers"][tCardUUID][pProperties["properties"][tProperty][tCardUUID]]
+                     put the abbrev id of sIDMap[pProperties["UUID"]]&" of "&sIDMap[tCardUUID] &cr after sLayersToSet["objectlayers"][tCardUUID][pProperties["properties"][tProperty][tCardUUID]]
                      try -- throws error if it's already on the card
-                        place sIDMap[pProperties["uuid"]] onto sIDMap[tCardUUID]
+                        place sIDMap[pProperties["UUID"]] onto sIDMap[tCardUUID]
                      end try
                   end repeat
                else
                   -- support calling this command independent of main import for conflict resolution
                   if pCardUUID is empty then
-                     put the long owner of sIDMap[pProperties["uuid"]] into tOwner
+                     put the long owner of sIDMap[pProperties["UUID"]] into tOwner
                      repeat forever
                         if word 1 of tOwner is "card" then
-                           put uuidForObject(tOwner) into pCardUUID
+                           put UUIDForObject(tOwner) into pCardUUID
                            exit repeat
                         end if
                         put the long owner of tOwner into tOwner
                      end repeat
                   end if
-                  put sIDMap[pProperties["uuid"]] into sLayersToSet["objectlayers"][pCardUUID][pProperties["properties"][tProperty]]
+                  put sIDMap[pProperties["UUID"]] into sLayersToSet["objectlayers"][pCardUUID][pProperties["properties"][tProperty]]
                end if
             end if
+            delete variable pProperties["properties"][tProperty]
             break
          case tProperty is among the items of kIconProps,kPatternProps
          case tProperty is "behavior"
          case tProperty is "defaultButton"
             -- store the value 
-            if pProperties["properties"][tProperty] <> "" then
-               put pProperties["properties"][tProperty] into sUUIDsToResolve[sIDMap[pProperties["uuid"]]][tProperty]
+            if pProperties["properties"][tProperty] <> "" and pProperties["properties"][tProperty] <> 0 then
+               put pProperties["properties"][tProperty] into sUUIDsToResolve[sIDMap[pProperties["UUID"]]][tProperty]
             end if
+            delete variable pProperties["properties"][tProperty]
             break
-         case char 8 to -1 of tProperty is among the items of kUnicodeProps -- "unicode"&tProperty
+         case char 1 to 7 of tProperty is "unicode" -- "unicode"&tProperty
             -- utf8 encoded
-            set the tProperty of sIDMap[pProperties["uuid"]] to uniEncode(pProperties["properties"][tProperty],"UTF8")
+            put uniEncode(pProperties["properties"][tProperty],"UTF8") into pProperties["properties"][tProperty]
             break
          case tProperty is among the items of "htmlText,hilite"
             if pProperties["properties"][tProperty] is an array then
-               put the short id of sIDMap[pProperties["uuid"]] into tID
+               put the abbrev id of sIDMap[pProperties["UUID"]] into tAbbrevID
                repeat for each key tUUID in pProperties["properties"][tProperty]
-                  put "control id "&tID&" of "&sIDMap[tUUID] into tControl
-                  set the tProperty of tControl to pProperties["properties"][tProperty][tUUID]
+                  put tAbbrevID&" of "&sIDMap[tUUID] into tControlRef
+                  set the tProperty of tControlRef to pProperties["properties"][tProperty][tUUID]
                end repeat
-               break
             end if
          default
-            try
-               set the tProperty of sIDMap[pProperties["uuid"]] to pProperties["properties"][tProperty]
-            end try
+            if pProperties["properties"][tProperty] is tCurrentProps[tProperty] then
+               delete variable pProperties["properties"][tProperty]
+            end if
             break
       end switch
    end repeat
+   
+   # now we can set the cleaned properties array
+   set the properties of sIDMap[pProperties["UUID"]] to pProperties["properties"]
+   
    repeat for each key tCustomPropertySet in pProperties["customPropertySets"]
       if tCustomPropertySet is "customKeys" then
-         set the customProperties[""] of sIDMap[pProperties["uuid"]] to pProperties["customPropertySets"][tCustomPropertySet]
+         set the customProperties[""] of sIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
       else
-         set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sIDMap[pProperties["uuid"]] to pProperties["customPropertySets"][tCustomPropertySet]
+         set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
       end if
       -- if there are UUIDs to resolve then add the set to sUUIDsToResolve so the plugin can do it
       if sPlugins[tCustomPropertySet]["resolve UUIDs"] then
-         dispatch "lcVCSRegisterUUIDsToResolve" to sPlugins[tCustomPropertySet]["stack"] with sIDMap[pProperties["uuid"]],tUUIDsToResolve
+         dispatch "lcVCSRegisterUUIDsToResolve" to stack sPlugins[tCustomPropertySet]["stack"] with sIDMap[pProperties["UUID"]],tUUIDsToResolve
          if tUUIDsToResolve is not empty then
-            put tUUIDsToResolve into sUUIDsToResolve[sIDMap[pProperties["uuid"]]][tCustomPropertySet]
+            put tUUIDsToResolve into sUUIDsToResolve[sIDMap[pProperties["UUID"]]][tCustomPropertySet]
          end if
          delete variable tUUIDsToResolve
       end if
    end repeat
+   
 end SetObjectProperties
 
 command AddToConflicts pObject,pType,pProperties
@@ -477,27 +511,6 @@ command resolveConflict pObject
    delete variable sConflicts[pObject]
 end resolveConflict
 
-command ArrayDiff @pArray1,@pArray2
-   local tKeys1,tKeys2
-   -- use the list of keys so we make sure we support empty elements
-   put the keys of pArray1 into tKeys1
-   put the keys of pArray2 into tKeys2
-   -- any keys in pArray1 that aren't in pArray2 should stay
-   repeat for each line tKey in tKeys2
-      -- any keys in pArray2 that aren't in pArray1 should stay
-      if tKey is among the lines of tKeys1 then
-         if pArray2[tKey] = pArray1[tKey] then
-            delete variable pArray2[tKey]
-            delete variable pArray1[tKey]
-         end if
-         -- if they are different and only one is an array then keep both
-         if pArray1[tKey] is an array and pArray2[tKey] is an array then
-            ArrayDiff pArray1[tKey],pArray2[tKey]
-         end if
-      end if
-   end repeat
-end ArrayDiff
-
 function UUIDForObject pObject
    if not exists(pObject) then return empty
    put word -2 to -1 of pObject into tStack
@@ -506,8 +519,7 @@ function UUIDForObject pObject
          (the short id of pObject <> tVersion["ID"] and \
          there is a control id tVersion["ID"] of tStack and \
          tVersion["UUID"] = the uVersion["UUID"] of control id tVersion["ID"] of tStack) then
-      _internal call "generate_uuid"
-      put the result into tVersion["UUID"]
+      put UUID() into tVersion["UUID"]
       put the short id of pObject into tVersion["ID"]
       set the customProperties["uVersion"] of pObject to tVersion
    end if
@@ -529,7 +541,7 @@ function ExportStack pStack,tMainstack
       go stack pStack
    end if
    set the defaultStack to pStack
-   put uuidForObject(the long id of stack pStack) into tUUID
+   put UUIDForObject(the long id of stack pStack) into tUUID
    get ExportObject(the long id of stack pStack,,tMainstack)
    if not tIsOpen then
       close stack pStack
@@ -537,44 +549,43 @@ function ExportStack pStack,tMainstack
    return tUUID
 end ExportStack
 
+local sCheck
+
 function ExportObjectProperties pObject,pShared,pMainstack
-   local tImage,tObject,tGroupCardRef
+   local tImage,tObject,tGroupCardRef,tPaintCompression
    unlock messages
    dispatch "lcVCSExport" to pObject
    lock messages
-   put uuidForObject(pObject) into tObject["uuid"]
+   put UUIDForObject(pObject) into tObject["UUID"]
    if not pMainstack then
-      if there is not a folder tObject["uuid"] then
-         create folder tObject["uuid"]
+      if there is not a folder tObject["UUID"] then
+         create folder tObject["UUID"]
       end if
-      set the defaultFolder to tObject["uuid"]
+      set the defaultFolder to tObject["UUID"]
    end if
-   put pObject into sIDMap[tObject["uuid"]]
+   put pObject into sIDMap[tObject["UUID"]]
    -- properties
    put the properties of pObject into tObject["properties"]
-   -- we don't want object names that are really abbrev ids because the id might change
-   if the short name of pObject <> the abbrev id of pObject then
-      put uniDecode(uniEncode(tObject["properties"]["name"],"ANSI"),"UTF8") into tObject["properties"]["name"]
-   else
-      delete variable tObject["properties"]["name"]
-   end if
-   -- colors and patterns better as individual props
-   repeat for each item tProperty in kDeleteProps
-      delete variable tObject["properties"][tProperty]
+   put uniDecode(uniEncode(tObject["properties"]["name"],"ANSI"),"UTF8") into tObject["properties"]["name"]
+   -- unicode properties
+   repeat for each item tProperty in kUnicodeProps
+      if tObject["properties"][tProperty] is not empty then
+         put uniDecode(tObject["properties"][tProperty],"UTF8") into tObject["properties"][tProperty]
+      end if
    end repeat
+   put word 1 of pObject is "button" and the short name of pObject is "tests" into sCheck
    if tObject["properties"]["behavior"] is not empty then
-      put uuidForObject(tObject["properties"]["behavior"]) into tObject["properties"]["behavior"]
+      put UUIDForObject(tObject["properties"]["behavior"]) into tObject["properties"]["behavior"]
    end if
    if the cIDEProperties["cCustomControlID"] of pObject <> "" then
-      put the cIDEProperties["cCustomControlID"] of pObject into tObjectClass
+      put the cIDEProperties["cCustomControlID"] of pObject into tObject["class"]
    else
       if word 1 of pObject is "bkgnd" then
-         put "com.runrev.engine.group" into tObjectClass
+         put "com.runrev.engine.group" into tObject["class"]
       else
-         put "com.runrev.engine."&word 1 of pObject into tObjectClass
+         put "com.runrev.engine."&word 1 of pObject into tObject["class"]
       end if
    end if
-   put tObjectClass into tObject["class"]
    try
       put the script of pObject into tScript
       if tScript <> "" then
@@ -583,33 +594,16 @@ function ExportObjectProperties pObject,pShared,pMainstack
    catch e
       put "-- password protected scripts unspported" into tScript
    end try
-   repeat for each item tProperty in kUnicodeProps
-      if tObject["properties"][tProperty] <> "" then
-         try
-            put "unicode"&tProperty into tUnicodeProperty
-            put uniDecode(the tUnicodeProperty of pObject,"UTF8") into tObject["properties"][tUnicodeProperty]
-            delete variable tObject["properties"][tProperty]
-         end try
-      end if
-   end repeat
-   repeat for each item tProperty in kMissingProps
-      try
-         put the tProperty of pObject into tObject["properties"][tProperty]
-      end try
-   end repeat
    if word 1 of pObject is not "image" then
-      repeat for each item tProperty in kColorProps
-         try
-            put the tProperty of pObject into tObject["properties"][tProperty]
-         end try
-      end repeat
       repeat for each item tProperty in kPatternProps
          try
             put the tProperty of pObject into tID
             if tID <> "" and tID <> 0 then
-               put iconImage(tID,pObject) into tObject["properties"][tProperty]
+               -- if unresolved the property will be cleared
+               _internal resolve image id tID relative to pObject
+               put it into tObject["properties"][tProperty]
                if there is a tObject["properties"][tProperty] then
-                  put uuidForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
+                  put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
                end if
             end if
          end try
@@ -627,13 +621,20 @@ function ExportObjectProperties pObject,pShared,pMainstack
          delete variable tObject["properties"]["id"]
          break
       case "image"
-         put the text of pObject into url ("binfile:image."&tObject["properties"]["paintCompression"])
-         delete variable tObject["properties"]["size"}
+         if tObject["properties"]["filename"] is empty then
+            put the paintCompression of pObject into tObject["properties"]["paintCompression"]
+            if tObject["properties"]["paintCompression"] is "rle" then
+               export pObject to file "image.png" as png with standard palette
+               put "png" into tObject["properties"]["paintCompression"]
+            else
+               put tObject["properties"]["text"] into url ("binfile:image."&tObject["properties"]["paintCompression"])
+            end if
+            delete variable tObject["properties"]["text"]
+         end if
          break
       case "card"
-         delete variable tObject["properties"]["rect"]
          if tObject["properties"]["defaultButton"] <> "" then
-            put uuidForObject(tObject["properties"]["defaultButton"]) into tObject["properties"]["defaultButton"]
+            put UUIDForObject(tObject["properties"]["defaultButton"]) into tObject["properties"]["defaultButton"]
          end if
          break
       case "group"
@@ -642,18 +643,12 @@ function ExportObjectProperties pObject,pShared,pMainstack
          if not the lockLoc of pObject then
             delete variable tObject["properties"]["rect"]
          end if
-         put the sharedBehavior of pObject into tObject["properties"]["sharedBehavior"]
-         put the selectGroupedControls of pObject into tObject["properties"]["selectGroupedControls"]
          if tObject["properties"]["sharedBehavior"] then
             -- get a layer for each card because they can ne different
-            repeat for each line tCardName in the cardNames of pObject
-               try
-                  put the long id of card tCardName into tID
-               catch e
-                  put the long id of tCardName into tID
-               end try
-               put the abbrev name of pObject&" of "&tID into tGroupCardRef
-               put the layer of tGroupCardRef into tObject["properties"]["layer"][uuidForObject(tID)]
+            repeat for each line tCardID in the cardIDs of pObject
+               put the long id of card id tCardID into tCardRef
+               put the abbrev id of pObject&" of "&tCardRef into tGroupCardRef
+               put the layer of tGroupCardRef into tObject["properties"]["layer"][UUIDForObject(tCardRef)]
             end repeat 
          end if
          break
@@ -662,17 +657,21 @@ function ExportObjectProperties pObject,pShared,pMainstack
             put word 3 of pObject into tID
             repeat for each line tCardID in the cardIDs of the defaultStack
                if there is a button id tID of card id tCardID of the defaultStack then
-                  put uuidForObject(the long id of card id tCardID of the defaultStack) into tUUID
+                  put UUIDForObject(the long id of card id tCardID of the defaultStack) into tUUID
                   put the hilite of button id tID of card id tCardID of the defaultStack into tObject["properties"]["hilite"][tUUID]
                end if
             end repeat 
          end if 
+         if "text" is among the lines of the keys of tObject["properties"] then
+            put the text of pObject into tObject["properties"]["text"]
+         end if
          repeat for each item tProperty in kIconProps
             try
                if tObject["properties"][tProperty] <> "" and tObject["properties"][tProperty] <> 0 then
-                  put iconImage(tObject["properties"][tProperty],pObject) into tObject["properties"][tProperty]
-                  if tObject["properties"][tProperty] is not an integer then
-                     put uuidForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
+                  _internal resolve image id tObject["properties"][tProperty] relative to pObject
+                  put it into tObject["properties"][tProperty]
+                  if tObject["properties"][tProperty] is not empty then
+                     put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
                   end if
                end if
             end try
@@ -683,34 +682,22 @@ function ExportObjectProperties pObject,pShared,pMainstack
             put word 3 of pObject into tID
             repeat for each line tCardID in the cardIDs of the defaultStack
                if there is a field id tID of card id tCardID of the defaultStack then
-                  put uuidForObject(the long id of card id tCardID of the defaultStack) into tUUID
+                  put UUIDForObject(the long id of card id tCardID of the defaultStack) into tUUID
                   put the htmlText of field id tID of card id tCardID of the defaultStack into tObject["properties"]["htmlText"][tUUID]
                end if
             end repeat 
          end if
          break
    end switch
-   if there is a stack tObjectClass then
-      put the cControlData of stack tObjectClass into tControlData
-      put tControlData["template_group"] into tTemplateObject
-   else
-      if word 1 of pObject is "bkgnd" then
-         put "the templateGroup" into tTemplateObject
-      else
-         put "the template"&word 1 of pObject into tTemplateObject
-      end if
+   if "label" is among the lines of the keys of tObject["properties"] then
+      put the label of pObject into tObject["properties"]["label"]
    end if
-   repeat for each key tProperty in tObject["properties"]
-      if tProperty is not "layer" then
-         if tObject["properties"][tProperty] is the tProperty of tTemplateObject then
-            -- double check that we are not comparing an array to a simple var
-            if (tObject["properties"][tProperty] is an array and the tProperty of tTemplateObject is an array) or \
-                  (tObject["properties"][tProperty] is not an array and the tProperty of tTemplateObject is not an array) then
-               delete variable tObject["properties"][tProperty]
-            end if
-         end if
-      end if
-   end repeat
+   if "tooltip" is among the lines of the keys of tObject["properties"] then
+      put the tooltip of pObject into tObject["properties"]["tooltip"]
+   end if
+   if "title" is among the lines of the keys of tObject["properties"] then
+      put the title of pObject into tObject["properties"]["title"]
+   end if
    -- custom properties
    if the customKeys of pObject is not empty or the customPropertySets of pObject is not empty then
       repeat for each line tCustomPropertySet in ""&cr&the customPropertySets of pObject
@@ -718,7 +705,6 @@ function ExportObjectProperties pObject,pShared,pMainstack
          if tCustomPropertySet is "uVersion" then
             next repeat
          end if
-         put the customProperties[tCustomPropertySet] of tTemplateObject into tTemplatePropertySetA
          if tCustomPropertySet is "" then 
             put "customKeys" into tCustomPropertySet
          end if
@@ -726,13 +712,6 @@ function ExportObjectProperties pObject,pShared,pMainstack
             dispatch "lcVCSFilterExportedProps" to stack sPlugins[tCustomPropertySet]["stack"] with pObject,tPropertySetA
          end if
          if the number of elements in tPropertySetA > 0 then
-            if tTemplatePropertySetA is an array then
-               repeat for each key tProperty in tPropertySetA
-                  if tPropertySetA[tProperty] = tTemplatePropertySetA[tProperty] then
-                     delete variable tPropertySetA[tProperty]
-                  end if
-               end repeat
-            end if
             put tPropertySetA into tObject["customPropertySets"][uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
          end if
       end repeat
@@ -752,7 +731,7 @@ function ExportObjectProperties pObject,pShared,pMainstack
          delete file "script.utf8"
       end if
    end if
-   return tObject["uuid"]
+   return tObject["UUID"]
 end ExportObjectProperties
 
 function ExportObject pObject,pShared,pMainstack
@@ -794,12 +773,11 @@ function ExportObject pObject,pShared,pMainstack
       case "bkgnd"
          -- only if it's not a cusom control
          if the cIDEProperties["cCustomControlID"] of pObject = "" then
-            repeat with tControl=1 to the number of controls of pObject
-               put the long id of control tControl of pObject into tControlID
-               if the long id of the owner of tControlID is pObject and \
-                     not (word 1 of tControlID is "group" and \
-                     the sharedBehavior of tControlID) then
-                  put tControlID into tObjects[ExportObject(tControlID,pShared,false)]
+            repeat for each line tControlID in the childControlIDs of pObject
+               put the long id of control id tControlID of pObject into tControlRef
+               if not (word 1 of tControlRef is "group" and \
+                     the sharedBehavior of tControlRef) then
+                  put tControlRef into tObjects[ExportObject(tControlRef,pShared,false)]
                end if
             end repeat
          end if
@@ -826,96 +804,11 @@ function q pParam
    return quote&pParam&quote
 end q
 
+# Check to see if the parameter is ASCII or not
+# returns true if it is not ASCII and therefore needs encoding
 function needsEncoding pData
-   if pData contains null then return true
-   repeat for each byte tByte in pData
-      put charToNum(tByte) into tNum
-      if tNum < 9 or (tNum > 13 and tNum < 32) or tNum = 11 or tNum = 12 or tNum > 126 then
-         return true
-      end if
-   end repeat
-   return false
+   return pData is not empty AND (pData is not an ascii string or pData contains null)
 end needsEncoding
-
-function iconImage pID,pObject
-   --1) The stack of the object's behavior (if applicable)
-   --2) The stack of the owner of the object's behavior (if applicable)
-   -- ...
-   --n) The stack of the object's stack's behavior (if applicable)
-   put checkBehaviors(pID,pObject) into tImage
-   if tImage is not empty then
-      return tImage
-   end if
-   --A) The object's stack
-   if word -5 of pObject = "stack" then 
-      -- substack
-      put word -5 to -4 of pObject into tStack
-   else
-      put word -2 to -1 of pObject into tStack
-   end if
-   if there is an image id pID of tStack then
-      return the long id of image id pID of tStack
-   end if
-   --B) The object's stack's mainstack (if a substack)
-   if the short name of tStack is not the mainstack of tStack then
-      if there is an image id pID of stack the mainstack of tStack then
-         return the long id of image id pID of stack the mainstack of tStack
-      end if
-   end if
-   --C) The object's stack's mainstacks substacks
-   repeat for each line tSubstack in the substacks of stack the mainstack of tStack
-      if there is an image id pID of stack tSubstack then
-         return the long id of image id pID of stack tSubstack
-      end if
-   end repeat
-   --D) The list of open stacks, in order they were loaded
-   repeat for each line tMainstack in the mainstacks
-      repeat for each line tStack in tMainstack&cr&the substacks of stack tMainstack
-         if there is an image id pID of stack tStack then
-            return the long id of image id pID of stack tStack
-         end if
-      end repeat
-   end repeat
-   return pID
-end iconImage
-
-function checkBehaviors pID,pObject
-   put word -2 to -1 of the behavior of pObject into tStack
-   if the behavior of pObject <> ""  and \
-         there is an image id pID of tStack then
-      return the long id of image id pID of tStack
-   else
-      if word 1 of pObject = "stack" then
-         return ""
-      else
-         return checkBehaviors(pID,the long id of the owner of pObject)
-      end if
-   end if
-end checkBehaviors
-
-command resetTemplateObjects
-   -- reset template objects
-   repeat for each item tObject in kTemplateObjects
-      put the properties of tObject into sTemplateObjects[tObject]
-   end repeat
-   -- reset command doesn't compile with a variable
-   reset the templateStack
-   reset the templateGroup
-   reset the templateCard
-   reset the templateGraphic
-   reset the templateButton
-   reset the templateScrollbar
-   reset the templateImage
-   reset the templatePlayer
-   reset the templateField
-end resetTemplateObjects
-
-command revertTemplateObjects
-   -- reset template objects to saved props
-   repeat for each item tObject in kTemplateObjects
-      set the properties of tObject to sTemplateObjects[tObject]
-   end repeat
-end revertTemplateObjects
 
 function ParseConflictedFile tFile
    local tState,tReturn
@@ -966,7 +859,7 @@ function pathForObject pObject
    local tPath
    put "/" into tPath
    repeat forever
-      put "/"&uuidForObject(pObject) before tPath
+      put "/"&UUIDForObject(pObject) before tPath
       switch
          case word 1 of pObject is "card"
             put "/cards" before tPath
@@ -992,6 +885,7 @@ command SetDataGridUUIDs
    put the customProperties["uDataGridBehaviors"] of this stack into tVersion
    repeat for each key tID in tVersion
       set the customProperties["uVersion"] of control id tID of stack "revDataGridLibrary" to tVersion[tID]
+      put the long id of  control id tID of stack "revDataGridLibrary" into sIDMap[tVersion[tID]["UUID"]]
    end repeat
    save stack "revDataGridLibrary"
 end SetDataGridUUIDs
@@ -1003,7 +897,7 @@ command LoadPlugins
    put the defaultFolder into tOldDefaultFolder
    put the effective filename of this stack into tPath
    set the itemDel to "/"
-   put "plugins" into item -1 of tPath
+   put "lcVCSPlugins" into item -1 of tPath
    set the defaultFolder to tPath
    repeat for each line tStack in the files
       -- each plugin is named with the custom property set name
@@ -1018,12 +912,12 @@ end LoadPlugins
 -- pArray - array to be encoded
 -- pForceRootType - can force the root to be an object if it looks like an array
 -- pPretty - include whitespace
-function ArrayToJSON pArray,pForceRootType,pPretty
+function ArrayToJSON pArray,pForceRootType,pPretty,pKey
    local tArray,tKeys
    repeat for each line tKey in the keys of pArray
       if pArray[tKey] is an array then
-         put "}"&ArrayToJSON(pArray[tKey],pForceRootType) into tArray[tKey]
-      else if needsEncoding(pArray[tKey]) then
+         put "}"&ArrayToJSON(pArray[tKey],pForceRootType,,tKey) into tArray[tKey]
+      else if pKey is not "properties" and needsEncoding(pArray[tKey]) then
          put "base64Decode("&base64Encode(pArray[tKey])&")" into tArray[tKey]
       else 
          -- force all elements to be strings
