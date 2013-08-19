@@ -1,0 +1,9 @@
+on mouseUp
+   if the dgHilitedIndex of group "projects" is not empty then
+      put the dgHilitedIndex of group "stackFiles" into tIndex
+      if tIndex is not empty then
+         dispatch "DeleteIndex" to group "stackFiles" with tIndex
+      end if
+      SaveProject the dgHilitedIndex of group "projects"
+   end if
+end mouseUp

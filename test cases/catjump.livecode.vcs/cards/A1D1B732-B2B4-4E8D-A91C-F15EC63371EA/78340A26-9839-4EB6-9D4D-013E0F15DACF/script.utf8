@@ -1,4 +1,0 @@
-on mouseUp
-   startGame
-   hide me
-end mouseUp

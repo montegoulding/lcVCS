@@ -1,0 +1,12 @@
+{
+  "build path": "<? return revEnvironmentUserPluginsPath() ?>",
+  "name": "lcVCS",
+  "stackFiles": [
+    "lcVCS.livecode",
+    "lcVCSPlugins/cRevGeneral.livecode",
+    "lcVCSPlugins/cREVGeometryCache.livecode",
+    "lcVCSPlugins/cREVGeometryCacheIDs.livecode",
+    "lcVCSPlugins/dgProps.livecode",
+    "lcVCSPlugins/mAppProps.livecode"
+  ]
+}

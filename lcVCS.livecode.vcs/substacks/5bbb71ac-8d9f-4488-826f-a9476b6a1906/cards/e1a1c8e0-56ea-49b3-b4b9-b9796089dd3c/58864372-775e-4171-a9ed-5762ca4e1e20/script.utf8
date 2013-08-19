@@ -1,0 +1,31 @@
+on dragStart
+   local tIndex
+   if (the dgHeader of the target is empty) then
+      put the dgIndex of the dgDataControl of the target into tIndex
+      set the dgDragImageIndex of me to tIndex
+      set the dragData["private"] to empty
+      set the dgTrackDragReorder[tIndex] of me to true
+   end if
+end dragStart
+
+on DragReorderDrop pOriginatingIndex, pStartLine, pDroppedOnLine
+   if (pStartLine is not pDroppedOnLine) then
+      SetLineOfIndex pOriginatingIndex, pDroppedOnLine
+     send resetIndexes to me in 100 milliseconds
+   end if
+end DragReorderDrop
+
+on resetIndexes
+   put 1 into tNewIndex
+   put the dgData of me into tCurrentData
+   repeat for each item tIndex in the dgIndexes of me
+      put tCurrentData[tIndex] into tData[tNewIndex]
+      add 1 to tNewIndex
+   end repeat
+   set the dgData of me to tData
+   SaveProject the dgHilitedIndex of group "projects"
+end resetIndexes
+
+on dragMove
+   set the dragaction to "move"
+end dragMove

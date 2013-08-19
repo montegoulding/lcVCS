@@ -1,9 +1,0 @@
-{
-  "class": "com.runrev.engine.card",
-  "properties": {
-    "defaultButton": "9A34F467-CEBC-4D58-A95F-DCDC7AF34DDC",
-    "layer": "1",
-    "name": "hello"
-  },
-  "uuid": "5AF245AA-7BBC-4A74-9C48-1E645C8042D0"
-}

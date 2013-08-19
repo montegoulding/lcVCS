@@ -1,9 +1,0 @@
-on mouseDown
-   put the effective filename of this stack into tPath
-   set the itemDel to "/"
-   put "test cases" into item -1 of tPath
-   set the defaultFolder to tPath
-   put "lcVCS.livecode"&cr&the files into tFiles
-   filter tFiles without ".DS_Store"
-   put tFiles into me
-end mouseDown

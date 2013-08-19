@@ -1,0 +1,12 @@
+on selectionChanged pHilitedIndex,pOldHilitedIndex
+   # save last project
+   SaveProject pOldHilitedIndex
+   # display current project
+   put the dgDataOfIndex[pHilitedIndex] of me into tData
+   put tData["build path"] into fld "build path"
+   repeat for each key tIndex in tData["stackFiles"]
+      put tData["stackFiles"][tIndex] into tStacks[tIndex]["file"]
+   end repeat
+   set the dgData of group "stackFiles" to tStacks
+   put pathForProject(pHilitedIndex) into fld "project path"
+end selectionChanged

@@ -1,0 +1,29 @@
+on mouseUp
+   put the dgHilitedIndex of group "projects" into tIndex
+   if tIndex is not empty then
+      put the dgDataOfIndex[tIndex] of group "projects" into tProject
+      put merge(tProject["build path"]) into tPath
+      if there is not a folder tPath then
+         put PathForProject(tIndex) &"/"&tPath into tPath
+      end if
+      if the last char of tPath is not slash then
+         put slash after tPath
+      end if
+      if tPath is not empty then
+         answer file "Choose stackFile" with tPath
+         if it is not empty then
+            put it into tFile
+            if there is a stack tFile then
+               if char 1 to the number of chars of tPath of tFile is not tPath then
+                  answer "Not in project"
+               else
+                  replace tPath with empty in tFile
+                  put tFile into tData["file"]
+                  dispatch "AddData" to group "stackFiles" with tData
+                  SaveProject tIndex
+               end if
+            end if
+         end if
+      end if
+   end if
+end mouseUp

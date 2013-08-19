@@ -1,4 +1,6 @@
 on preOpenStack
    SetDataGridUUIDs
    LoadPlugins
+   modeless "lcVCSProjects"
+   close this stack
 end preOpenStack

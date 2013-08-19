@@ -1,0 +1,6 @@
+on mouseUp
+   put the dgHilitedIndex of group "projects" into tIndex
+   if tIndex is not empty then
+      DeleteProject tIndex
+   end if
+end mouseUp

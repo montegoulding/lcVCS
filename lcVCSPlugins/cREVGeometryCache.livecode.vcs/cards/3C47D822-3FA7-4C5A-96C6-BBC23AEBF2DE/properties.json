@@ -1,8 +1,40 @@
 {
+  "UUID": "3C47D822-3FA7-4C5A-96C6-BBC23AEBF2DE",
   "class": "com.runrev.engine.card",
   "properties": {
+    "altId": "0",
+    "backColor": "",
+    "backPattern": "",
+    "behavior": "",
+    "blendLevel": "0",
+    "borderColor": "",
+    "borderPattern": "",
+    "borderWidth": "2",
+    "bottomColor": "",
+    "bottomPattern": "",
+    "cantDelete": "false",
+    "defaultButton": "",
+    "dontSearch": "false",
+    "focusColor": "",
+    "focusPattern": "",
+    "foreColor": "",
+    "forePattern": "",
+    "hiliteColor": "",
+    "hilitePattern": "",
     "id": "1002",
-    "layer": "1"
-  },
-  "uuid": "3C47D822-3FA7-4C5A-96C6-BBC23AEBF2DE"
+    "ink": "srcCopy",
+    "layer": "1",
+    "mark": "false",
+    "name": "card id 0",
+    "shadowColor": "",
+    "shadowOffset": "4",
+    "shadowPattern": "",
+    "showBorder": "false",
+    "textFont": "",
+    "textSize": "",
+    "textStyle": "",
+    "threeD": "true",
+    "topColor": "",
+    "topPattern": ""
+  }
 }

@@ -8,10 +8,68 @@ constant kExtension = "vcs"
 local sIDMap,sUUIDsToResolve,sTemplateObjects,sLayersToSet,sConflicts,sUUIDCache,sStacksToReopen
 local sPlugins -- an array with loaded plugins for UUID resolution and unnecessary custom property filtering
 
+command ExportProject pFilePath
+   put ResolveProjectFile(pFilePath) into tProject
+   set the itemDel to slash
+   repeat with tIndex = 1 to the number of elements of tProject["stackfiles"]
+      EnsureFolder item 1 to -2 of tProject["exported stackfiles"][tIndex]
+      ExportStackFile tProject["imported stackfiles"][tIndex], tProject["exported stackfiles"][tIndex]
+   end repeat
+end ExportProject
+
+command ImportProject pFilePath
+   put ResolveProjectFile(pFilePath) into tProject
+   set the itemDel to slash
+   repeat with tIndex = the number of elements of tProject["stackfiles"] down to 1
+      EnsureFolder item 1 to -2 of tProject["imported stackfiles"][tIndex]
+      ImportStackFile tProject["exported stackfiles"][tIndex], tProject["imported stackfiles"][tIndex]
+   end repeat
+end ImportProject
+
+command EnsureFolder pFolder
+   set the itemDel to slash
+   repeat with tFolder = 2 to the number of items of pFolder
+      if there is not a folder (item 1 to tFolder of pFolder) then
+         create folder (item 1 to tFolder of pFolder)
+      end if
+   end repeat
+end EnsureFolder
+
+function ResolveProjectFile pFilePath
+   local tProject,tProjectPath
+   
+   put JSONToArray(url ("binfile:"&pFilePath)) into tProject
+   
+   # get project file path for relative path resolution
+   set the itemDelimiter to slash
+   put item 1 to -2 of pFilePath into tProjectPath
+   if char -1 of tProjectPath is not slash then
+      put slash after tProjectPath
+   end if
+   
+   put merge(tProject["build path"]) into tProject["build path"]
+   
+   # resolve relative path
+   if there is not a folder tProject["build path"] then
+      put tProjectPath before tProject["build path"]
+   end if
+   
+   if char -1 of tProject["build path"] is not slash then
+      put slash after tProject["build path"]
+   end if
+   
+   repeat for each key tIndex in tProject["stackfiles"]
+      put tProjectPath & tProject["stackfiles"][tIndex] & "." & kExtension into tProject["exported stackfiles"][tIndex]
+      put tProject["build path"] & tProject["stackfiles"][tIndex] into tProject["imported stackfiles"][tIndex]
+   end repeat
+   
+   return tProject
+end ResolveProjectFile
+
 # Export the stackfile. Creates a directory at the same path as the stackfile&.kExtension
 command ExportStackFile pFilePath,pFolder
    local tFolder,tStacks,tSubstacks,tIndex,tOldDefaultFolder,tRepo
-   start using this stack
+   start using stack "lcVCS"
    lock screen
    put the defaultFolder into tOldDefaultFolder
    if there is a stack pFilePath then
@@ -47,15 +105,14 @@ command ExportStackFile pFilePath,pFolder
          deleteObjectsFromFolder tObjects
       end if
    end if
-   save stack pFilePath
    set the defaultFolder to tOldDefaultFolder
-   stop using this stack
+   stop using stack "lcVCS"
 end ExportStackFile
 
 # Import a stackfile from a folder
 on ImportStackFile pFolder,pFilePath
    local tUUIDSearchDone = "false",tOldDefaultFolder
-   start using this stack
+   start using stack "lcVCS"
    lock screen
    lock messages
    put the defaultFolder into tOldDefaultFolder
@@ -134,12 +191,13 @@ on ImportStackFile pFolder,pFilePath
          set the fileName of stack tMainStack to pFolder&"/"&pFilePath
       end if
    end if
-   go cd 1 of stack tMainStack
-   if sConflicts is an array then
+   --save stack tMainstack
+    if sConflicts is an array then
       modeless "lcVCSConflicts"
    end if
    set the defaultFolder to tOldDefaultFolder
-   stop using this stack
+   stop using stack "lcVCS"
+   unlock messages
    repeat for each key tStack in sStacksToReopen
       set the topLeft of stack tStack to sStacksToReopen[tStack]
       go stack tStack
@@ -513,12 +571,9 @@ end resolveConflict
 
 function UUIDForObject pObject
    if not exists(pObject) then return empty
-   put word -2 to -1 of pObject into tStack
    put the customProperties["uVersion"] of pObject into tVersion
-   if tVersion["UUID"] = ""  or \
-         (the short id of pObject <> tVersion["ID"] and \
-         there is a control id tVersion["ID"] of tStack and \
-         tVersion["UUID"] = the uVersion["UUID"] of control id tVersion["ID"] of tStack) then
+   if tVersion["UUID"] = "" or (word 1 of pObject is not "stack" and \
+         the short id of pObject <> tVersion["ID"]) then
       put UUID() into tVersion["UUID"]
       put the short id of pObject into tVersion["ID"]
       set the customProperties["uVersion"] of pObject to tVersion
@@ -773,13 +828,15 @@ function ExportObject pObject,pShared,pMainstack
       case "bkgnd"
          -- only if it's not a cusom control
          if the cIDEProperties["cCustomControlID"] of pObject = "" then
-            repeat for each line tControlID in the childControlIDs of pObject
-               put the long id of control id tControlID of pObject into tControlRef
-               if not (word 1 of tControlRef is "group" and \
-                     the sharedBehavior of tControlRef) then
-                  put tControlRef into tObjects[ExportObject(tControlRef,pShared,false)]
-               end if
-            end repeat
+            if the number of controls of pObject is not 0 then
+               repeat for each line tControlID in the childControlIDs of pObject
+                  put the long id of control id tControlID of pObject into tControlRef
+                  if not (word 1 of tControlRef is "group" and \
+                        the sharedBehavior of tControlRef) then
+                     put tControlRef into tObjects[ExportObject(tControlRef,pShared,false)]
+                  end if
+               end repeat
+            end if
          end if
          deleteObjectsFromFolder tObjects
          delete variable tObjects

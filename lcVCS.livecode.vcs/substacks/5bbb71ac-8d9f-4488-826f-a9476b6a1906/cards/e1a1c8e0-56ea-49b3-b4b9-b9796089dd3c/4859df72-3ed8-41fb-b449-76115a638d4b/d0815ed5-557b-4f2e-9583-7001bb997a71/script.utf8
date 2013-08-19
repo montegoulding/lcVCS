@@ -1,0 +1,6 @@
+on mouseUp
+   answer folder "Choose Project Path"
+   if it is not empty then
+      AddProject it&"/lcVCSProject.json"
+   end if
+end mouseUp
