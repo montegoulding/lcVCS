@@ -50,8 +50,6 @@
     "minHeight": "32",
     "minWidth": "32",
     "name": "cRevGeneral",
-    "passkey": "true",
-    "password": "",
     "resizable": "true",
     "shadow": "true",
     "shadowColor": "",

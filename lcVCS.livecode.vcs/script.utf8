@@ -26,7 +26,7 @@ command ImportProject pFilePath
    start using stack "lcVCS"
    lock messages
    delete variable sStacksToDelete
-   put the milliseconds into sTempNameSuffix
+   put " "&the milliseconds into sTempNameSuffix
    put ResolveProjectFile(pFilePath) into tProject
    set the itemDel to slash
    repeat with tIndex = 1 to the number of elements of tProject["stackFiles"]
@@ -38,7 +38,7 @@ command ImportProject pFilePath
    end repeat
    unlock messages
    if tProject["name"] = "lcVCS" then
-      send "PostImportStack" to stack ("lcVCS"&sTempNameSuffix) in 0 milliseconds
+      send "PostImportStack sTempNameSuffix" to stack ("lcVCS"&sTempNameSuffix) in 0 milliseconds
    end if
    --   #! TODO deal with the fact that stackFiles are deleted from memory
    --   if sConflicts is an array then
@@ -276,11 +276,11 @@ end SetLayers
 
 -- if the stack gets this message then it just 
 -- imported a version of itself with a temp name
-on PostImportStack
+on PostImportStack pTempNameSuffix
    -- delete stacks (remove stackfile from memory)
    put the short name of this stack into tStack
    put tStack into tStackName
-   replace sTempNameSuffix with empty in tStackName
+   replace pTempNameSuffix with empty in tStackName
    if there is a stack tStackName then
       delete stack tStackName
    end if
@@ -289,7 +289,7 @@ on PostImportStack
    put the substacks of stack tStackName into tSubstacks
    repeat for each line tStack in tSubstacks
       put tStack into tStackName
-      replace sTempNameSuffix with empty in tStackName
+      replace pTempNameSuffix with empty in tStackName
       if there is a stack tStackName then
          delete stack tStackName
       end if
@@ -476,9 +476,9 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                if char 1 of tUUID = "." then next repeat
                set the defaultFolder to tUUID
                if tType = "substacks" then
-                  ImportObject pStackUUID
+                  ImportObject pStackUUID,,,pIslcVCS
                else
-                  ImportObject pStackUUID,pCardUUID
+                  ImportObject pStackUUID,pCardUUID,,pIslcVCS
                end if
                set the defaultFolder to ".."
             end repeat
