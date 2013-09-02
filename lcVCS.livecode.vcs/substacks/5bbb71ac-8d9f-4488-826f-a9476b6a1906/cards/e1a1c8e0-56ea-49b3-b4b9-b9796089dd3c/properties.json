@@ -1,6 +1,12 @@
 {
   "UUID": "e1a1c8e0-56ea-49b3-b4b9-b9796089dd3c",
   "class": "com.runrev.engine.card",
+  "customPropertySets": {
+    "cREVGeometrycache": {
+      "order": "",
+      "total": "148"
+    }
+  },
   "properties": {
     "altId": "0",
     "backColor": "",
@@ -13,7 +19,6 @@
     "bottomColor": "",
     "bottomPattern": "",
     "cantDelete": "false",
-    "defaultButton": "",
     "dontSearch": "false",
     "focusColor": "",
     "focusPattern": "",

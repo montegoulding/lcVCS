@@ -1,0 +1,3 @@
+on menuPick pItemName
+   ResetConflicts
+end menuPick

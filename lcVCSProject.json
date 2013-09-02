@@ -6,6 +6,7 @@
     "lcVCSPlugins/cRevGeneral.livecode",
     "lcVCSPlugins/cREVGeometryCache.livecode",
     "lcVCSPlugins/cREVGeometryCacheIDs.livecode",
+    "lcVCSPlugins/cRevStandaloneSettings.livecode",
     "lcVCSPlugins/dgProps.livecode",
     "lcVCSPlugins/mAppProps.livecode"
   ]

@@ -3,20 +3,28 @@
 
 on FillInData pDataArray
    set the text of field "Label" of me to pDataArray["file"]
+   set the visible of btn "conflict" of me to pDataArray["conflict"]=true
 end FillInData
 
 on mouseDoubleUp
    put the dgDataOfIndex[the dgIndex of me] of me into tData
-   put PathForProject(the dgIndex of me)&"/"&tData["file"] into tStack
+   put PathForProject(the dgHilitedIndex of group "projects")&"/"&tData["file"] into tStack
    if there is a stack tStack then
       go stack tStack
+   end if
+   if tData["conflict"] then
+      -- launch conflict resolution interface
+      modeless "lcVCSConflicts"
    end if
 end mouseDoubleUp
 
 on LayoutControl pControlRect
     local theFieldRect
     
-    set the rect of field "Label" of me to pControlRect
+    set the right of btn "conflict" of me to item 3 of pControlRect
+    put pControlRect into theFieldRect
+    put the left of btn "conflict" of me into item 3 of theFieldRect
+    set the rect of field "Label" of me to theFieldRect
     
     set the rect of graphic "Background" of me to pControlRect
 end LayoutControl

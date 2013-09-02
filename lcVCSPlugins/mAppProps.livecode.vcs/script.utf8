@@ -1,0 +1,56 @@
+on lcVCSFilterExportedProps pObject,@pProps
+   -- translate row template to UUID for export
+   repeat for each key tRuleIndex in pProps["layout"]
+      repeat for each key tObjectIndex in pProps["layout"][tRuleIndex]["objects"]
+         if exists (control id pProps["layout"][tRuleIndex]["objects"][tObjectIndex]["id"] of pObject) then
+            put UUIDForObject(the long id of control id pProps["layout"][tRuleIndex]["objects"][tObjectIndex]["id"] of pObject) into \
+                  pProps["layout"][tRuleIndex]["objects"][tObjectIndex]["id"]
+         end if
+      end repeat
+      repeat for each item tSide in "left,top,right,bottom"
+         if pProps["layout"][tRuleIndex][tSide]["relative object"] is not empty and \
+               pProps["layout"][tRuleIndex][tSide]["relative object"] is not "card" then
+            if exists (control id pProps["layout"][tRuleIndex][tSide]["relative object"] of pObject) then
+               put UUIDForObject(the long id of control id pProps["layout"][tRuleIndex][tSide]["relative object"] of pObject) into \
+                     pProps["layout"][tRuleIndex][tSide]["relative object"]
+            end if
+         end if
+      end repeat
+   end repeat
+end lcVCSFilterExportedProps
+
+on lcVCSRegisterUUIDsToResolve pObject,@pUUIDsToResolve
+   local tProps
+   put the customProperties["mAppProps"] of pObject into tProps
+   repeat for each key tRuleIndex in tProps["layout"]
+      repeat for each key tObjectIndex in tProps["layout"][tRuleIndex]["objects"]
+         put tProps["layout"][tRuleIndex]["objects"][tObjectIndex]["id"]&cr after pUUIDsToResolve
+      end repeat
+      repeat for each item tSide in "left,top,right,bottom"
+         if tProps["layout"][tRuleIndex][tSide]["relative object"] is not empty and \
+               tProps["layout"][tRuleIndex][tSide]["relative object"] is not "card" then
+            put tProps["layout"][tRuleIndex][tSide]["relative object"]&cr after pUUIDsToResolve
+         end if
+      end repeat
+   end repeat
+end lcVCSRegisterUUIDsToResolve
+
+-- translate the row template from a UUID to ID
+on lcVCSResolveUUIDs pObject
+   local tProps
+   put the customProperties["mAppProps"] of pObject into tProps
+   repeat for each key tRuleIndex in tProps["layout"]
+      repeat for each key tObjectIndex in tProps["layout"][tRuleIndex]["objects"]
+         put word 3 of ObjectForUUID(tProps["layout"][tRuleIndex]["objects"][tObjectIndex]["id"]) into \
+               tProps["layout"][tRuleIndex]["objects"][tObjectIndex]["id"]
+      end repeat
+      repeat for each item tSide in "left,top,right,bottom"
+         if tProps["layout"][tRuleIndex][tSide]["relative object"] is not empty and \
+               tProps["layout"][tRuleIndex][tSide]["relative object"] is not "card" then
+            put word 3 of ObjectForUUID(tProps["layout"][tRuleIndex][tSide]["relative object"]) into \
+                  tProps["layout"][tRuleIndex][tSide]["relative object"]
+         end if
+      end repeat
+   end repeat
+   set the customProperties["mAppProps"] of pObject to tProps
+end lcVCSResolveUUIDs

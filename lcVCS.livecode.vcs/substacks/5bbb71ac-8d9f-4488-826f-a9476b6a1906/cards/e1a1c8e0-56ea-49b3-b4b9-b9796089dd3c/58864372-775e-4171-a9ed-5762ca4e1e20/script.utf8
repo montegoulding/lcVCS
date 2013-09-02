@@ -11,7 +11,7 @@ end dragStart
 on DragReorderDrop pOriginatingIndex, pStartLine, pDroppedOnLine
    if (pStartLine is not pDroppedOnLine) then
       SetLineOfIndex pOriginatingIndex, pDroppedOnLine
-     send resetIndexes to me in 100 milliseconds
+      send resetIndexes to me in 100 milliseconds
    end if
 end DragReorderDrop
 

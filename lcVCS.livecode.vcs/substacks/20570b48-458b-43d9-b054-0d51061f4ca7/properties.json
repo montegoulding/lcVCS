@@ -1,6 +1,11 @@
 {
   "UUID": "20570b48-458b-43d9-b054-0d51061f4ca7",
   "class": "com.runrev.engine.stack",
+  "customPropertySets": {
+    "customKeys": {
+      "uSelectedChunk": ""
+    }
+  },
   "properties": {
     "altId": "0",
     "alwaysBuffer": "false",
@@ -58,7 +63,7 @@
     "textFont": "",
     "textSize": "",
     "textStyle": "",
-    "title": "Editing template for group \"Projects\" of card id 1002 of stack \"lcVCSProjects\" of stack \"/Users/montegoulding/Dropbox/lcVCS/lcVCS.livecode\"",
+    "title": "E",
     "topColor": "",
     "topPattern": "",
     "underlineLinks": "",

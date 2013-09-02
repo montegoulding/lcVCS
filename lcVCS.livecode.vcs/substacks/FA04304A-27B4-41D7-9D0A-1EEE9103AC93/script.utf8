@@ -1,0 +1,147 @@
+--on resizeStack pWidth,pHeight
+--   lock screen
+--   set the rect of fld "objects" to 0,0,pWidth,pHeight -40
+--   set the topLeft of group "toolbar" to (pWidth-the width of group "toolbar") div 2,the bottom of fld "objects"
+--end resizeStack
+
+on preOpenCard
+   updateList
+end preOpenCard
+
+on resumeStack
+   updateList
+end resumeStack
+
+on updateList
+   local tConflicts,tKeys,tMax,tCurrentObject
+   put the label of btn "objects" into tCurrentObject
+   put getConflicts() into tConflicts
+   
+   put the effective fileName of the topStack into tPath
+   
+   put the keys of tConflicts[tPath] into tObjects
+   -- sort
+   -- replace "of" with tab (can't just use replacetext as it's unsafe)
+   repeat with X = the number of words in tObjects down to 1
+      if word X of tObjects = "of" then put tab into word X of tObjects
+   end repeat
+   -- get max items
+   set the itemDel to tab
+   put 1 into tMax
+   repeat for each line tObject in tObjects
+      get the number of items of tLine
+      if it > tMax then 
+         put it into tMax
+      end if
+   end repeat
+   -- sort it
+   repeat with X = tMax down to 1
+      sort lines of tObjects by item -X of each
+   end repeat
+   replace tab with "of" in tObjects
+   if tObjects is not empty then
+      put tObjects into button "objects"
+      dispatch "menuPick" to btn "objects" with the lable of btn "objects"
+   else
+      set the label of btn "objects" to " "
+      disable btn "objects"
+   end if
+end updateList
+
+on setProperties pObject,pBranch
+   local tConflicts
+   put getConflicts() into tConflicts
+   -- set the properties
+   SetObjectProperties tConflicts[pObject]["propertiesdata"][pBranch]
+   SetLayers true
+end setProperties
+
+on ResetConflicts
+   local tObject
+   put the label of btn "objects" into tObject
+   put getConflicts() into tConflicts
+   put the effective fileName of the topStack into tPath
+   put tConflicts[tPath][tObject] into tConflict
+   if tConflict is an array then
+      if there is a tObject then
+         local tPropA,tPropB,tKeys
+         local tIndex = 1
+         switch the currentCard of this stack
+            case "Script"
+               local tScript,tFirstChar,tChar,tDummy,tDataA
+               put the script of tObject into tScript
+               local tCharOffset = 0
+               repeat while matchChunk(tScript,"<<<<<<<.*",tChar,tDummy)
+                  add tChar-1 to tCharOffset
+                  delete char 1 to tChar -1 of tScript
+                  if matchChunk(tScript,">>>>>>>.*",tDummy,tChar) then
+                     put char 1 to tChar of tScript into tData[tIndex]["script"]
+                     put tCharOffset into tDataA[tIndex]["charoffset"]
+                     delete char 1 to tChar -1 of tScript
+                     add tChar-1 to tCharOffset
+                     add 1 to tIndex
+                  end if
+               end repeat
+               set the dgData of group "script" to tDataA
+               break
+            case "Properties"
+               -- diff properties
+               put tConflict["propertiesdata"]["A"]["properties"] into tPropA
+               put tConflict["propertiesdata"]["B"]["properties"] into tPropB
+               ArrayDiff tPropA,tPropB
+               set the caseSensitive to true
+               repeat for each key tKey in tPropA
+                  put tPropA[tKey] into tDataA["A"]
+                  put tPropB[tKey] into tDataA["B"]
+                  put true into tKeys[tKey]
+               end repeat
+               repeat for each key tKey in tPropB
+                  if not tKeys[tKey] then
+                     put tPropA[tKey] into tDataA["A"]
+                     put tPropB[tKey] into tDataA["B"]
+                  end if
+               end repeat
+               set the dgData of group "properties" to tDataA
+               break
+            case "Custom Properties"
+               put tConflict["propertiesdata"]["A"]["customPropertySets"] into tPropA
+               put tConflict["propertiesdata"]["B"]["customPropertySets"] into tPropB
+               ArrayDiff tPropA,tPropB
+               set the caseSensitive to true
+               repeat for each key tKey in tPropA
+                  put tKey into tDataA["key"]
+                  put tPropA[tKey] into tDataA[tIndex]["A"]
+                  put tPropB[tKey] into tDataA[tIndex]["B"]
+                  put true into tKeys[tKey]
+                  add 1 to tIndex
+               end repeat
+               repeat for each key tKey in tPropB
+                  if not tKeys[tKey] then
+                     put tKey into tDataA["key"]
+                     put tPropA[tKey] into tDataA[tIndex]["A"]
+                     put tPropB[tKey] into tDataA[tIndex]["B"]
+                     add 1 to tIndex
+                  end if
+               end repeat
+               set the dgData of group "custom properties" to tDataA
+               break
+         end switch
+      end if
+   end if
+end ResetConflicts
+
+on ArrayDiff @pPropA,@pPropB
+   set the caseSensitive to true
+   repeat for each key tKey in pPropA
+      if pPropA[tKey] is pPropB[tKey] then
+         delete variable pPropA[tKey]
+         delete variable pPropB[tKey]
+      else if pPropA[tKey] is an array and pPropB[tKey] is an array then
+         put pPropA[tKey] into tPropA
+         put pPropB[tKey] into tPropB
+         ArrayDiff tPropA,tPropB
+         put tPropA into pPropA[tKey]
+         put tPropB into pPropB[tKey]
+      end if
+   end repeat
+end ArrayDiff

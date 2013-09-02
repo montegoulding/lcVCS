@@ -2,28 +2,49 @@
 constant kUnicodeProps = "unicodeTitle,unicodeLabel,unicodeToolTip,unicodeText"
 constant kIconProps = "icon,hiliteIcon,disabledIcon,visitedIcon,armedIcon,hoverIcon"
 constant kPatternProps = "forePattern,focusPattern,backPattern,borderPattern,bottomPattern,hilitePattern,shadowPattern,topPattern"
-constant kTempNameSuffix = " temp"
 constant kExtension = "vcs"
+constant kPropsToDelete = "defaultButton,armed"
 
-local sIDMap,sUUIDsToResolve,sTemplateObjects,sLayersToSet,sConflicts,sUUIDCache,sStacksToReopen
+local sIDMap,sUUIDsToResolve,sTemplateObjects,sLayersToSet,sConflicts,sUUIDCache,sPropsToSet,sStacksToDelete,sCurrentStackFilePath
 local sPlugins -- an array with loaded plugins for UUID resolution and unnecessary custom property filtering
+local sTempNameSuffix
 
 command ExportProject pFilePath
+   start using stack "lcVCS"
+   lock messages
    put ResolveProjectFile(pFilePath) into tProject
    set the itemDel to slash
-   repeat with tIndex = 1 to the number of elements of tProject["stackfiles"]
-      EnsureFolder item 1 to -2 of tProject["exported stackfiles"][tIndex]
+   repeat with tIndex = 1 to the number of elements of tProject["stackFiles"]
+      EnsureFolder tProject["exported stackfiles"][tIndex]
       ExportStackFile tProject["imported stackfiles"][tIndex], tProject["exported stackfiles"][tIndex]
    end repeat
+   stop using stack "lcVCS"
 end ExportProject
 
 command ImportProject pFilePath
+   local tCaseSensitve,tProject
+   start using stack "lcVCS"
+   lock messages
+   delete variable sStacksToDelete
+   put the milliseconds into sTempNameSuffix
    put ResolveProjectFile(pFilePath) into tProject
    set the itemDel to slash
-   repeat with tIndex = the number of elements of tProject["stackfiles"] down to 1
-      EnsureFolder item 1 to -2 of tProject["imported stackfiles"][tIndex]
-      ImportStackFile tProject["exported stackfiles"][tIndex], tProject["imported stackfiles"][tIndex]
+   repeat with tIndex = 1 to the number of elements of tProject["stackFiles"]
+      EnsureFolder item 1 to -2 of tProject["imported stackFiles"][tIndex]
+      ImportStackFile tProject["exported stackFiles"][tIndex], tProject["imported stackFiles"][tIndex], tProject["name"] = "lcVCS"
    end repeat
+   repeat for each key tStack in sStacksToDelete
+      delete stack tStack
+   end repeat
+   unlock messages
+   if tProject["name"] = "lcVCS" then
+      send "PostImportStack" to stack ("lcVCS"&sTempNameSuffix) in 0 milliseconds
+   end if
+   --   #! TODO deal with the fact that stackFiles are deleted from memory
+   --   if sConflicts is an array then
+   --      modeless "lcVCSConflicts"
+   --   end if
+   stop using stack "lcVCS"
 end ImportProject
 
 command EnsureFolder pFolder
@@ -58,9 +79,9 @@ function ResolveProjectFile pFilePath
       put slash after tProject["build path"]
    end if
    
-   repeat for each key tIndex in tProject["stackfiles"]
-      put tProjectPath & tProject["stackfiles"][tIndex] & "." & kExtension into tProject["exported stackfiles"][tIndex]
-      put tProject["build path"] & tProject["stackfiles"][tIndex] into tProject["imported stackfiles"][tIndex]
+   repeat for each key tIndex in tProject["stackFiles"]
+      put tProjectPath & tProject["stackFiles"][tIndex] & "." & kExtension into tProject["exported stackFiles"][tIndex]
+      put tProject["build path"] & tProject["stackFiles"][tIndex] into tProject["imported stackFiles"][tIndex]
    end repeat
    
    return tProject
@@ -68,13 +89,11 @@ end ResolveProjectFile
 
 # Export the stackfile. Creates a directory at the same path as the stackfile&.kExtension
 command ExportStackFile pFilePath,pFolder
-   local tFolder,tStacks,tSubstacks,tIndex,tOldDefaultFolder,tRepo
-   start using stack "lcVCS"
+   local tFolder,tStacks,tSubstacks,tIndex,tOldDefaultFolder
    lock screen
    put the defaultFolder into tOldDefaultFolder
    if there is a stack pFilePath then
       -- mainstack
-      lock messages
       if pFolder is empty then
          put pFilePath into tFolder
          put "."&kExtension after tFolder
@@ -87,11 +106,11 @@ command ExportStackFile pFilePath,pFolder
             put pFolder into item -1 of tFolder
          end if
       end if
-      if there is not a folder tFolder then
-         create folder tFolder
-      end if
+      revDeleteFolder tFolder
+      create folder tFolder
       set the defaultFolder to tFolder
-      get ExportStack(the mainstack of stack pFilePath,true)
+      -- load into memory
+      ExportStack the mainstack of stack pFilePath,true
       -- substacks
       if the substacks of stack pFilePath is not empty then
          set the defaultFolder to tFolder
@@ -100,28 +119,27 @@ command ExportStackFile pFilePath,pFolder
          end if
          set the defaultFolder to "substacks"
          repeat for each line tStack in the substacks of stack pFilePath
-            put tStack into tObjects[ExportStack(tStack)]
+            ExportStack tStack
          end repeat
-         deleteObjectsFromFolder tObjects
       end if
+      save stack pFilePath
    end if
    set the defaultFolder to tOldDefaultFolder
-   stop using stack "lcVCS"
 end ExportStackFile
 
 # Import a stackfile from a folder
-on ImportStackFile pFolder,pFilePath
-   local tUUIDSearchDone = "false",tOldDefaultFolder
-   start using stack "lcVCS"
-   lock screen
+on ImportStackFile pFolder,pFilePath,pIslcVCS
+   local tUUIDSearchDone = "false",tOldDefaultFolder,tStackFileMainstack
+   --lock screen
    lock messages
+   put pFilePath into sCurrentStackFilePath
    put the defaultFolder into tOldDefaultFolder
    delete variable sUUIDsToResolve
    delete variable sLayersToSet
-   delete variable sStacksToReopen
+   delete variable sPropsToSet
    set the defaultFolder to pFolder
-   ImportObject
-   put the short name of sIDMap[the result] into tMainstack
+   ImportObject "","","",pIslcVCS
+   put the short name of sIDMap[the result] into tStackFileMainstack
    -- only load UUIDs from all mainstacks if necessary
    repeat for each key tObject in sUUIDsToResolve
       repeat for each key tProperty in sUUIDsToResolve[tObject] 
@@ -129,6 +147,7 @@ on ImportStackFile pFolder,pFilePath
             -- resolve UUID references (icons, patterns, behaviors)
             -- load UUIDs from all mainstacks only if required
             if not tUUIDSearchDone and there is not a sIDMap[tUUID] then
+               put tStackFileMainstack&tab&tObject&tab&tProperty&tab&sIDMap[tUUID]&tab&tUUID&cr after msg
                put true into tUUIDSearchDone
                repeat for each line tMainstack in the mainstacks
                   repeat for each line tStack in tMainstack&cr&the substacks of stack tMainstack
@@ -158,7 +177,11 @@ on ImportStackFile pFolder,pFilePath
                   set the tProperty of tObject to sIDMap[tUUID]
                   break
                case tProperty is "defaultButton"
-                  set the default of sIDMap[tUUID] to true
+                  --                  -- need to open the card
+                  --                  put FindParent(sIDMap[tUUID],"card") into tCard
+                  --                  go tCard
+                  --                  set the default of sIDMap[tUUID] to true
+                  --                  close the owner of tCard
                   break
                default
                   set the tProperty of tObject to the short id of sIDMap[tUUID]
@@ -173,45 +196,58 @@ on ImportStackFile pFolder,pFilePath
          end if
       end repeat
    end repeat
+   
    SetLayers
+   
    if pFilePath is empty then
       set the itemDel to "."
       if item -1 of pFolder = "vcs" then
          delete item -1 of pFolder
       end if
-      set the fileName of stack tMainStack to pFolder
+      set the fileName of stack tStackFileMainstack to pFolder
    else
       set the itemDel to slash
       if there is a folder (item 1 to -2 of pFilePath) then
-         set the fileName of stack tMainStack to pFilePath
+         set the fileName of stack tStackFileMainstack to pFilePath
       else -- relative path
          if char -1 of pFolder is "/" then
             delete char -1 of pFolder
          end if
-         set the fileName of stack tMainStack to pFolder&"/"&pFilePath
+         set the fileName of stack tStackFileMainstack to pFolder&"/"&pFilePath
       end if
    end if
-   --save stack tMainstack
-    if sConflicts is an array then
-      modeless "lcVCSConflicts"
-   end if
-   set the defaultFolder to tOldDefaultFolder
-   stop using stack "lcVCS"
-   unlock messages
-   repeat for each key tStack in sStacksToReopen
-      set the topLeft of stack tStack to sStacksToReopen[tStack]
-      go stack tStack
+   
+   -- set cant modify
+   repeat for each key tProperty in sPropsToSet
+      repeat for each key tObject in sPropsToSet[tProperty]
+         set the tProperty of tObject to sPropsToSet[tProperty][tObject]
+      end repeat
    end repeat
-   if tMainStack = ("lcVCS"&kTempNameSuffix) then
-      send "PostImportStack" to stack tMainStack in 0 milliseconds
+   save stack tStackFileMainstack
+   if not pIslcVCS then
+      put "" into sStacksToDelete[tStackFileMainstack]
    end if
+   
+   set the defaultFolder to tOldDefaultFolder
 end ImportStackFile
 
 # Set the layers of controls
-command SetLayers pDontClose
-   local tLayers,tCardUUID,tObject,tCards
-   -- interleave conflicted card layers
+command SetLayers
+   local tLayers,tCardUUID,tObject,tCards,tSharedGroupUUID,tStackUUID
+   repeat for each key tSharedGroupUUID in sLayersToSet["sharedobjectlayers"]
+      put the keys of sLayersToSet["sharedobjectlayers"][tSharedGroupUUID] into tLayers
+      sort tLayers numeric
+      repeat for each line tLayer in tLayers
+         try
+            -- interleave conflicted layers
+            repeat for each line tObject in sLayersToSet["sharedobjectlayers"][tSharedGroupUUID][tLayer]
+               relayer tObject to front of owner
+            end repeat
+         end try
+      end repeat
+   end repeat
    repeat for each key tStackUUID in sLayersToSet["cardlayers"]
+      -- interleave conflicted card layers
       repeat for each key tCardUUID in sLayersToSet["cardlayers"][tStackUUID]
          put tCardUUID,sLayersToSet["cardlayers"][tStackUUID][tCardUUID] &cr after tCards
       end repeat
@@ -219,7 +255,6 @@ command SetLayers pDontClose
       repeat for each line tCard in tCards
          put item 1 of tCard into tCardUUID
          if tCardUUID = "" then next repeat
-         go sIDMap[tCardUUID]
          put the keys of sLayersToSet["objectlayers"][tCardUUID] into tLayers
          sort tLayers numeric
          repeat for each line tLayer in tLayers
@@ -232,8 +267,10 @@ command SetLayers pDontClose
          end repeat
          set the layer of sIDMap[tCardUUID] to sLayersToSet["cardlayers"][tStackUUID][tCardUUID]
       end repeat
-      if not pDontClose then close sIDMap[tStackUUID]
       delete variable tCards
+   end repeat
+   repeat for each key tGroup in sLayersToSet["hilitedbutton"]
+      set the hilitedButton of tGroup to sLayersToSet["hilitedbutton"][tGroup]
    end repeat
 end SetLayers
 
@@ -243,7 +280,7 @@ on PostImportStack
    -- delete stacks (remove stackfile from memory)
    put the short name of this stack into tStack
    put tStack into tStackName
-   replace kTempNameSuffix with empty in tStackName
+   replace sTempNameSuffix with empty in tStackName
    if there is a stack tStackName then
       delete stack tStackName
    end if
@@ -252,7 +289,7 @@ on PostImportStack
    put the substacks of stack tStackName into tSubstacks
    repeat for each line tStack in tSubstacks
       put tStack into tStackName
-      replace kTempNameSuffix with empty in tStackName
+      replace sTempNameSuffix with empty in tStackName
       if there is a stack tStackName then
          delete stack tStackName
       end if
@@ -261,8 +298,8 @@ on PostImportStack
 end PostImportStack
 
 
-on ImportObject pStackUUID,pCardUUID,pParentUUID
-   local tObject,tSetName,tType,tError,tConflict=false
+on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
+   local tObject,tSetName,tType,tError,tConflict=false,tHilitedButton,tResize
    put url ("binfile:properties.json") into tObject
    try
       put JSONToArray(tObject) into tObject["A"]
@@ -272,34 +309,43 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
       try
          put JSONToArray(tObject["A"]) into tObject["A"]
          put JSONToArray(tObject["B"]) into tObject["B"]
-         -- make sure it's a real difference in an element value not 
-         -- just the two branches adding to the last item of the same JSON object (trailing comma issue)
-         -- union will add elements from one object to another but won't mess with existing elements
-         union tObject["A"] with tObject["B"]
-         union tObject["B"] with tObject["A"]
-         -- if the arrays are now the same then we know it was just a trailing comma issue
-         if tObject["A"] is tObject["B"] then
-            delete variable tObject["B"]
-         end if
+         #! reinstate when union recursively is released
+         --         -- make sure it's a real difference in an element value not 
+         --         -- just the two branches adding to the last item of the same JSON object (trailing comma issue)
+         --         -- union will add elements from one object to another but won't mess with existing elements
+         --         union tObject["A"] with tObject["B"] recursively
+         --         union tObject["B"] with tObject["A"] recursively
+         --         -- if the arrays are now the same then we know it was just a trailing comma issue
+         --         if tObject["A"] is tObject["B"] then
+         --            delete variable tObject["B"]
+         --         end if
       catch tError
          answer "There was an error decoding properties file:"&cr&the defaultFolder&"/properties.json"&cr&tError
          exit to top
       end try
    end try
+   if there is a file "userstate.json" then
+      try
+         #! modify when union recursively is released
+         put JSONToArray(url ("userstate.json")) into tUserState
+         repeat for each key tCustomPropertySet in tUserState
+            union tObject["A"]["customPropertySets"][tCustomPropertySet] with tUserState[tCustomPropertySet] 
+         end repeat
+         if tObject["B"] is an array then
+            repeat for each key tCustomPropertySet in tUserState
+               union tObject["B"]["customPropertySets"][tCustomPropertySet] with tUserState[tCustomPropertySet] 
+            end repeat
+         end if
+      end try
+   end if
    put uniDecode(uniEncode(tObject["A"]["properties"]["name"],"UTF8"),"ANSI") into tObject["A"]["properties"]["name"]
    switch tObject["A"]["class"]
       case "com.runrev.engine.stack"
          -- support VCS on self
-         if tObject["A"]["properties"]["name"] = "lcVCS" or \
-               (pStackUUID is not empty and the short name of sIDMap[pStackUUID] = ("lcVCS"&kTempNameSuffix))  then
-            create stack (tObject["A"]["properties"]["name"]&kTempNameSuffix)
+         if pIslcVCS then
+            create stack (tObject["A"]["properties"]["name"]&sTempNameSuffix)
          else
             if there is a stack tObject["A"]["properties"]["name"] then
-               repeat for each line tStack in the mainstack of stack tObject["A"]["properties"]["name"]&cr & the substacks of stack the mainstack of stack tObject["A"]["properties"]["name"]
-                  if tStack is among the lines of the openStacks then
-                     put the topLeft of stack tStack into  sStacksToReopen[tStack]
-                  end if
-               end repeat
                delete stack tObject["A"]["properties"]["name"]
             end if
             create stack tObject["A"]["properties"]["name"]
@@ -416,7 +462,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID
       repeat for each line tUUID in the folders
          if char 1 of tUUID = "." then next repeat
          set the defaultFolder to tUUID
-         ImportObject pStackUUID,pCardUUID,tObject["A"]["UUID"]
+         ImportObject pStackUUID,pCardUUID,tObject["A"]["UUID"],pIslcVCS
          set the defaultFolder to ".."
       end repeat
    else
@@ -461,19 +507,39 @@ end ImportObject
 
 command SetObjectProperties pProperties,pCardUUID,pDontSetNames
    local tOwner,tUUIDsToResolve,tCurrentProps
+   set the caseSensitive to true
    if pDontSetNames then
       delete variable pProperties["properties"]["name"]
    end if
    # clean the properties array
    -- set id first so it's already set when working out the UUIDs to resolve
    try
-      set the id of sIDMap[pProperties["UUID"]] to pProperties["properties"]["id"]
-      put pProperties["properties"]["id"] into word 3 of sIDMap[pProperties["UUID"]]
+      if pProperties["properties"]["id"] is not empty then
+         set the id of sIDMap[pProperties["UUID"]] to pProperties["properties"]["id"]
+         put pProperties["properties"]["id"] into word 3 of sIDMap[pProperties["UUID"]]
+      end if
+   catch e
+      put the long name of control id pProperties["properties"]["id"]&cr& \
+            the long name of sIDMap[pProperties["UUID"]]&cr after msg
    end try
    delete variable pProperties["properties"]["id"]
    put the properties of sIDMap[pProperties["UUID"]] into tCurrentProps
    repeat for each key tProperty in pProperties["properties"]
       switch
+         case tProperty is "resizable"
+         case tProperty is "cantModify"
+            put pProperties["properties"][tProperty] into sPropsToSet[tProperty][sIDMap[pProperties["UUID"]]]
+            if tProperty is "resizable" then
+               set the resizable of sIDMap[pProperties["UUID"]] to false
+            end if
+            delete variable pProperties["properties"][tProperty]
+            break
+         case tProperty is "hilitedButton"
+            if pProperties["properties"][tProperty] is an integer then
+               put pProperties["properties"][tProperty] into sLayersToSet["hilitedbuttons"][sIDMap[pProperties["UUID"]]]
+            end if
+            delete variable pProperties["properties"][tProperty]
+            break
          case tProperty is "layer"
             if pProperties["class"] is "com.runrev.engine.card" then
                put pProperties["properties"][tProperty] into sLayersToSet["cardlayers"][UUIDForObject(the owner of sIDMap[pProperties["UUID"]])][pProperties["UUID"]]
@@ -488,18 +554,16 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
                      end try
                   end repeat
                else
-                  -- support calling this command independent of main import for conflict resolution
-                  if pCardUUID is empty then
-                     put the long owner of sIDMap[pProperties["UUID"]] into tOwner
-                     repeat forever
-                        if word 1 of tOwner is "card" then
-                           put UUIDForObject(tOwner) into pCardUUID
-                           exit repeat
-                        end if
-                        put the long owner of tOwner into tOwner
-                     end repeat
+                  put FindParent(sIDMap[pProperties["UUID"]],"group",true) into tSharedGroup
+                  if tSharedGroup is not empty then
+                     put sIDMap[pProperties["UUID"]]&cr after sLayersToSet["sharedobjectlayers"][UUIDForObject(tSharedGroup)][pProperties["properties"][tProperty]]
+                  else
+                     -- support calling this command independent of main import for conflict resolution
+                     if pCardUUID is empty then
+                        put UUIDForObject(FindParent(sIDMap[pProperties["UUID"]],"card")) into pCardUUID
+                     end if
+                     put sIDMap[pProperties["UUID"]]&cr after sLayersToSet["objectlayers"][pCardUUID][pProperties["properties"][tProperty]]
                   end if
-                  put sIDMap[pProperties["UUID"]] into sLayersToSet["objectlayers"][pCardUUID][pProperties["properties"][tProperty]]
                end if
             end if
             delete variable pProperties["properties"][tProperty]
@@ -525,6 +589,9 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
                   set the tProperty of tControlRef to pProperties["properties"][tProperty][tUUID]
                end repeat
             end if
+         case tProperty is "repeatCount" -- possible side effects of deleting
+         case tProperty is "showBorder" -- side effects of deleting
+            break
          default
             if pProperties["properties"][tProperty] is tCurrentProps[tProperty] then
                delete variable pProperties["properties"][tProperty]
@@ -532,6 +599,23 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
             break
       end switch
    end repeat
+   
+   #! workaround lockLocation precedence on groups
+   if pProperties["properties"]["lockLoc"] then
+      set the lockLoc of sIDMap[pProperties["UUID"]] to true
+   end if
+   #! workaround innerShaddow typo
+   if pProperties["properties"]["innerShaddow"] is an array then
+      set the innerShadow of sIDMap[pProperties["UUID"]] to pProperties["properties"]["innerShaddow"]
+   end if
+   #! workaround for button text precedence
+   if pProperties["properties"]["text"] is not empty then
+      set the text of sIDMap[pProperties["UUID"]] to pProperties["properties"]["text"]
+   end if
+   #! workaround for button menuHistory precedence
+   if pProperties["properties"]["menuHistory"] is not empty then
+      set the menuHistory of sIDMap[pProperties["UUID"]] to pProperties["properties"]["menuHistory"]
+   end if
    
    # now we can set the cleaned properties array
    set the properties of sIDMap[pProperties["UUID"]] to pProperties["properties"]
@@ -555,9 +639,9 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
 end SetObjectProperties
 
 command AddToConflicts pObject,pType,pProperties
-   put true into sConflicts[pObject][pType] 
+   put true into sConflicts[sCurrentStackFilePath][pObject][pType] 
    if pType = "properties" then
-      put pProperties into sConflicts[pObject]["propertiesdata"]
+      put pProperties into sConflicts[sCurrentStackFilePath][pObject]["propertiesdata"]
    end if
 end AddToConflicts
 
@@ -565,8 +649,8 @@ function getConflicts
    return sConflicts
 end getConflicts
 
-command resolveConflict pObject
-   delete variable sConflicts[pObject]
+command resolveConflict pStackFilePath,pObject
+   delete variable sConflicts[pStackFilePath][pObject]
 end resolveConflict
 
 function UUIDForObject pObject
@@ -589,28 +673,27 @@ function ObjectForUUID pUUID
    end if
 end ObjectForUUID
 
-function ExportStack pStack,tMainstack
+command ExportStack pStack,tMainstack
    local tIndex,tIsOpen
-   put pStack is among the lines of the openstacks into tIsOpen
-   if not tIsOpen then
-      go stack pStack
-   end if
+   --   put pStack is among the lines of the openstacks into tIsOpen
+   --   if not tIsOpen then
+   --      go stack pStack
+   --   end if
    set the defaultStack to pStack
-   put UUIDForObject(the long id of stack pStack) into tUUID
-   get ExportObject(the long id of stack pStack,,tMainstack)
-   if not tIsOpen then
-      close stack pStack
-   end if
-   return tUUID
+   ExportObject the long id of stack pStack,,tMainstack
+   --   if not tIsOpen then
+   --      close stack pStack
+   --   end if
 end ExportStack
 
 local sCheck
 
 function ExportObjectProperties pObject,pShared,pMainstack
-   local tImage,tObject,tGroupCardRef,tPaintCompression
+   local tImage,tObject,tGroupCardRef,tPaintCompression,tPropertySetA,tUserStateSetA,tUserState,tSharedObject,tCardIDs,tObjectFirstCardRef
    unlock messages
    dispatch "lcVCSExport" to pObject
    lock messages
+   set the caseSensitive to true
    put UUIDForObject(pObject) into tObject["UUID"]
    if not pMainstack then
       if there is not a folder tObject["UUID"] then
@@ -621,6 +704,20 @@ function ExportObjectProperties pObject,pShared,pMainstack
    put pObject into sIDMap[tObject["UUID"]]
    -- properties
    put the properties of pObject into tObject["properties"]
+   if "icon" is among the lines of the keys of tObject["properties"] and \
+         tObject["properties"]["icon"] is empty then
+      set the icon of pObject to 0
+   end if
+   #! workaround innerShaddow
+   if "innerShaddow" is among the lines of the keys of tObject["properties"] then
+      put tObject["properties"]["innerShaddow"] into tObject["properties"]["innerShadow"]
+      delete variable tObject["properties"]["innerShaddow"]
+   end if
+   
+   -- delete some props
+   repeat for each item tProperty in kPropsToDelete
+      delete variable tObject["properties"][tProperty]
+   end repeat
    put uniDecode(uniEncode(tObject["properties"]["name"],"ANSI"),"UTF8") into tObject["properties"]["name"]
    -- unicode properties
    repeat for each item tProperty in kUnicodeProps
@@ -647,7 +744,7 @@ function ExportObjectProperties pObject,pShared,pMainstack
          put uniDecode(uniEncode(tScript,"ANSI"),"UTF8") into tScript
       end if
    catch e
-      put "-- password protected scripts unspported" into tScript
+      throw "password protected scripts unspported: "&the long name of pObject
    end try
    if word 1 of pObject is not "image" then
       repeat for each item tProperty in kPatternProps
@@ -667,7 +764,7 @@ function ExportObjectProperties pObject,pShared,pMainstack
    switch word 1 of pObject
       case "stack"
          -- should be saved next to the folder
-         delete variable tObject["properties"]["filename"]
+         delete variable tObject["properties"]["fileName"]
          -- only want conflict on width and height difference not stack location
          delete variable tObject["properties"]["rect"]
          put the width of pObject into tObject["properties"]["width"]
@@ -676,7 +773,7 @@ function ExportObjectProperties pObject,pShared,pMainstack
          delete variable tObject["properties"]["id"]
          break
       case "image"
-         if tObject["properties"]["filename"] is empty then
+         if tObject["properties"]["fileName"] is empty then
             put the paintCompression of pObject into tObject["properties"]["paintCompression"]
             if tObject["properties"]["paintCompression"] is "rle" then
                export pObject to file "image.png" as png with standard palette
@@ -699,7 +796,7 @@ function ExportObjectProperties pObject,pShared,pMainstack
             delete variable tObject["properties"]["rect"]
          end if
          if tObject["properties"]["sharedBehavior"] then
-            -- get a layer for each card because they can ne different
+            -- get a layer for each card because they can be different
             repeat for each line tCardID in the cardIDs of pObject
                put the long id of card id tCardID into tCardRef
                put the abbrev id of pObject&" of "&tCardRef into tGroupCardRef
@@ -727,6 +824,8 @@ function ExportObjectProperties pObject,pShared,pMainstack
                   put it into tObject["properties"][tProperty]
                   if tObject["properties"][tProperty] is not empty then
                      put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
+                  else
+                     put 0 into tObject["properties"][tProperty]
                   end if
                end if
             end try
@@ -744,14 +843,13 @@ function ExportObjectProperties pObject,pShared,pMainstack
          end if
          break
    end switch
-   if "label" is among the lines of the keys of tObject["properties"] then
-      put the label of pObject into tObject["properties"]["label"]
-   end if
-   if "tooltip" is among the lines of the keys of tObject["properties"] then
-      put the tooltip of pObject into tObject["properties"]["tooltip"]
-   end if
-   if "title" is among the lines of the keys of tObject["properties"] then
-      put the title of pObject into tObject["properties"]["title"]
+   if not (word 1 of pObject is "group" and the sharedBehavior of pObject) and pShared then
+      -- use layer from a consistent card
+      put FindParent(pObject,"group",true) into tSharedObject
+      put the cardIDs of tSharedObject into tCardIDs
+      sort tCardIDs numeric
+      put the abbrev id of pObject & " of card id " & line 1 of tCardIDs & " of " & the long name of the defaultStack into tObjectFirstCardRef
+      put the layer of tObjectFirstCardRef into tObject["properties"]["layer"]
    end if
    -- custom properties
    if the customKeys of pObject is not empty or the customPropertySets of pObject is not empty then
@@ -764,11 +862,15 @@ function ExportObjectProperties pObject,pShared,pMainstack
             put "customKeys" into tCustomPropertySet
          end if
          if there is a stack sPlugins[tCustomPropertySet]["stack"] then
-            dispatch "lcVCSFilterExportedProps" to stack sPlugins[tCustomPropertySet]["stack"] with pObject,tPropertySetA
+            dispatch "lcVCSFilterExportedProps" to stack sPlugins[tCustomPropertySet]["stack"] with pObject,tPropertySetA,tWorkspaceSetA
          end if
          if the number of elements in tPropertySetA > 0 then
             put tPropertySetA into tObject["customPropertySets"][uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
          end if
+         if the number of elements in tUserStateSetA > 0 then
+            put tUserStateSetA into tUserState[uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
+         end if
+         delete variable tUserStateSetA
       end repeat
    end if
    if the number of elements of tObject["customPropertySets"] is 0 then
@@ -779,6 +881,14 @@ function ExportObjectProperties pObject,pShared,pMainstack
    end if
    put ArrayToJSON(tObject,,true) into tJSON
    put tJSON into url ("binfile:properties.json")
+   if the number of elements of tUserState is not 0 then
+      put ArrayToJSON(tUserState,,true) into tJSON
+      put tJSON into url ("binfile:userstate.json")
+   else
+      if there is a file "userstate.json" then
+         delete file "userstate.json"
+      end if
+   end if
    if tScript is not empty then 
       put tScript into url ("binfile:script.utf8")
    else
@@ -789,7 +899,7 @@ function ExportObjectProperties pObject,pShared,pMainstack
    return tObject["UUID"]
 end ExportObjectProperties
 
-function ExportObject pObject,pShared,pMainstack
+command ExportObject pObject,pShared,pMainstack
    local tObjects
    -- properties of stack
    put ExportObjectProperties(pObject,pShared,pMainstack) into tUUID
@@ -804,10 +914,8 @@ function ExportObject pObject,pShared,pMainstack
          end if
          set the defaultFolder to "cards"
          repeat for each line tID in the cardIDs of pObject
-            put the long id of card id tID of pObject into tObjects[ExportObject(the long id of card id tID of pObject,,false)]
+            ExportObject the long id of card id tID of pObject,,false
          end repeat
-         deleteObjectsFromFolder tObjects
-         delete variable tObjects
          -- shared groups
          if the sharedGroupIDs of pObject is not empty then
             set the defaultFolder to tFolder
@@ -816,10 +924,8 @@ function ExportObject pObject,pShared,pMainstack
             end if
             set the defaultFolder to "sharedGroups"
             repeat for each line tID in the sharedGroupIDs of pObject
-               put the long id of background id tID of pObject into tObjects[ExportObject(the long id of background id tID of pObject,true,false)]
+               ExportObject the long id of background id tID of pObject,true,false
             end repeat
-            deleteObjectsFromFolder tObjects
-            delete variable tObjects
          end if
          set the defaultFolder to tFolder
          break
@@ -833,19 +939,16 @@ function ExportObject pObject,pShared,pMainstack
                   put the long id of control id tControlID of pObject into tControlRef
                   if not (word 1 of tControlRef is "group" and \
                         the sharedBehavior of tControlRef) then
-                     put tControlRef into tObjects[ExportObject(tControlRef,pShared,false)]
+                     ExportObject tControlRef,pShared,false
                   end if
                end repeat
             end if
          end if
-         deleteObjectsFromFolder tObjects
-         delete variable tObjects
          break
    end switch
    if not pMainstack then
       set the defaultFolder to ".."
    end if
-   return tUUID
 end ExportObject
 
 on deleteObjectsFromFolder tObjects
@@ -950,6 +1053,7 @@ end SetDataGridUUIDs
 -- load plugins
 command LoadPlugins
    local tOldDefaultFolder,tPath
+   set the caseSensitive to true
    delete variable sPlugins -- just incase someone is reloading and has removed a plugin
    put the defaultFolder into tOldDefaultFolder
    put the effective filename of this stack into tPath
@@ -960,7 +1064,9 @@ command LoadPlugins
       -- each plugin is named with the custom property set name
       if there is a stack tStack then 
          put the uResolveUUIDs of stack tStack into sPlugins[the uCustomPropertySet of stack tStack]["resolve UUIDs"]
-         put the short name of stack tStack into sPlugins[the uCustomPropertySet of stack tStack]["stack"]
+         repeat for each line tCustomPropertySet in the uCustomPropertySet of stack tStack
+            put the short name of stack tStack into sPlugins[tCustomPropertySet]["stack"]
+         end repeat
       end if
    end repeat
    set the defaultFolder to tOldDefaultFolder
@@ -971,6 +1077,7 @@ end LoadPlugins
 -- pPretty - include whitespace
 function ArrayToJSON pArray,pForceRootType,pPretty,pKey
    local tArray,tKeys
+   set the caseSensitive to true
    repeat for each line tKey in the keys of pArray
       if pArray[tKey] is an array then
          put "}"&ArrayToJSON(pArray[tKey],pForceRootType,,tKey) into tArray[tKey]
@@ -987,6 +1094,7 @@ end ArrayToJSON
 function JSONToArray pJSON
    local tArray,tKeys
    if pJSON = "" then return ""
+   set the caseSensitive to true
    put mergJSONDecode(pJSON,"tArray") into tKeys
    repeat for each line tKey in the keys of tArray
       if tKey is among the lines of tKeys then
@@ -999,3 +1107,34 @@ function JSONToArray pJSON
    end repeat
    return tArray
 end JSONToArray
+
+function FindParent pObject,pType,pShared
+   local tStat = "true",tType
+   
+   put word 1 of pObject into tType
+   if tType is "bkgnd" then
+      put "group" into tType
+   end if
+   
+   if pShared then
+      if tType is "group" then
+         put the sharedBehavior of pObject into tStat
+      else if word 1 of pObject is "card" then
+         return empty
+      end if
+   end if
+   
+   if word 1 of pObject is pType and tStat then
+      return pObject
+   else
+      return FindParent(the long owner of pObject,pType,pShared)
+   end if
+end FindParent
+
+private command ClearMessages
+   local tMessage
+   get flushEvents("all")
+   repeat for each line tMessage in the pendingMessages
+      cancel item 1 of tMessage
+   end repeat
+end ClearMessages

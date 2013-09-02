@@ -1,0 +1,15 @@
+on lcVCSFilterExportedProps pObject,@pProps,@pWorkspaceProps
+   put pProps["defaultBuildFolder"] into pWorkspaceProps["defaultBuildFolder"]
+   put pProps["automaticallyBuildInDefaultFolder"] into pWorkspaceProps["automaticallyBuildInDefaultFolder"]
+   delete variable pProps["defaultBuildFolder"]
+   delete variable pProps["automaticallyBuildInDefaultFolder"]
+end lcVCSFilterExportedProps
+
+--on lcVCSRegisterUUIDsToResolve pObject,@pUUIDsToResolve
+--   put the dgProps["row template"] of pObject into pUUIDsToResolve
+--end lcVCSRegisterUUIDsToResolve
+
+---- translate the row template from a UUID to a rugged ID
+--on lcVCSResolveUUIDs pObject
+--   set the dgProps["row template"] of pObject to word 1 to -4 of ObjectForUUID(the dgProps["row template"] of pObject)
+--end lcVCSResolveUUIDs

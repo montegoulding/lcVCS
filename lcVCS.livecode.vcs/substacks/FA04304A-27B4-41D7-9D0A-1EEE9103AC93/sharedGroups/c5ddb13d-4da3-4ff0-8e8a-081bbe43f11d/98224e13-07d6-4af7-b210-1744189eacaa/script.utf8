@@ -1,0 +1,4 @@
+on menuPick pItemName
+   go cd pItemName
+   ResetConflicts
+end menuPick

@@ -1,8 +1,8 @@
-on resizeStack pWidth,pHeight
-   lock screen
-   set the rect of fld "objects" to 0,0,pWidth,pHeight -40
-   set the topLeft of group "toolbar" to (pWidth-the width of group "toolbar") div 2,the bottom of fld "objects"
-end resizeStack
+--on resizeStack pWidth,pHeight
+--   lock screen
+--   set the rect of fld "objects" to 0,0,pWidth,pHeight -40
+--   set the topLeft of group "toolbar" to (pWidth-the width of group "toolbar") div 2,the bottom of fld "objects"
+--end resizeStack
 
 on preOpenCard
    updateList
@@ -13,14 +13,17 @@ on resumeStack
 end resumeStack
 
 on updateList
-   local tConflicts,tKeys,tMax,tHilitedText
-   put the hilitedText of fld "objects" into tHilitedText
+   local tConflicts,tKeys,tMax,tCurrentObject
+   put the label of btn "objects" into tCurrentObject
    put getConflicts() into tConflicts
-   put the keys of tConflicts into tObjects
+   
+   put the effective fileName of the topStack into tPath
+   
+   put the keys of tConflicts[tPath] into tObjects
    -- sort
    -- replace "of" with tab (can't just use replacetext as it's unsafe)
    repeat with X = the number of words in tObjects down to 1
-      if word X of tObject = "of" then put tab into word X of tObjects
+      if word X of tObjects = "of" then put tab into word X of tObjects
    end repeat
    -- get max items
    set the itemDel to tab
@@ -36,14 +39,17 @@ on updateList
       sort lines of tObjects by item -X of each
    end repeat
    replace tab with "of" in tObjects
-   put tObjects into fld "objects"
    if tObjects is not empty then
-      set the hilitedLine of fld "objects" to max(1,lineOffset(tHilitedText,tObjects))
+      put tObjects into button "objects"
+      dispatch "menuPick" to btn "objects" with the lable of btn "objects"
+   else
+      set the label of btn "objects" to " "
+      disable btn "objects"
    end if
-   send "mouseUp" to fld "objects"
 end updateList
 
 on setProperties pObject,pBranch
+   local tConflicts
    put getConflicts() into tConflicts
    -- set the properties
    SetObjectProperties tConflicts[pObject]["propertiesdata"][pBranch]

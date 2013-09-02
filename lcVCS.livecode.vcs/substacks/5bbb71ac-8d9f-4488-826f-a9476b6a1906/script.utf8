@@ -9,16 +9,33 @@ function ProjectsFile
 end ProjectsFile
 
 on preOpenStack
-   try
-      put JSONToArray(url ("binfile:"&ProjectsFile())) into sProjects
-   end try
-   repeat with tIndex = 1 to the number of elements of sProjects
-      try
-         put JSONToArray(url ("binfile:"&sProjects[tIndex])) into tData[tIndex]
-      end try
-   end repeat
-   set the dgData of group "projects" to tData
+   ResetProjects
 end preOpenStack
+
+on resumeStack
+  ResetProjects
+end resumeStack
+
+on ResetProjects
+   put the dgHilitedIndex of group "projects" into tOrigIndex
+   try
+      put JSONToArray(url ("binfile:"&ProjectsFile())) into sProjects
+   end try
+   repeat with tIndex = 1 to the number of elements of sProjects
+      try
+         put JSONToArray(url ("binfile:"&sProjects[tIndex])) into tData[tIndex]
+      end try
+   end repeat
+   set the dgData of group "projects" to tData
+   
+   set the dgHilitedIndex of group "projects" to tOrigIndex
+   if the dgHilitedIndex of group "projects" is empty AND tIndex > 0 then
+      put 1 into tOrigIndex
+      set the dgHilitedIndex of group "projects" to tOrigIndex
+   end if
+   
+   dispatch "selectionChanged" to group "projects" with tOrigIndex
+end ResetProjects
 
 on AddProject pPath
    repeat for each key tIndex in sProjects
@@ -50,7 +67,7 @@ on DeleteProject pIndex
       put sProjects[tIndex+1] into sProjects[tIndex]
    end repeat
    delete variable sProjects[the number of elements of sProjects]
-   dispatch "DeleteIndex" to group "projects" with pIndex
+   set the dgData of group "projects" to sProjects
    if sProjects is an array then
       set the dgHilitedIndex of group "projects" to max(1,pIndex-1)
       dispatch "ScrollIndexIntoView" to group "projects" with tIndex
@@ -62,16 +79,17 @@ on DeleteProject pIndex
 end DeleteProject
 
 on SaveProject pIndex
-   if pIndex is not empty then
-      put the dgDataOfIndex[pIndex] of group "projects" into tData
-      put fld "build path" into tData["build path"]
-      put the dgData of group "stackFiles" into tStacks
-      repeat with tIndex = 1 to the number of elements of tStacks
-         put tStacks[tIndex]["file"] into tData["stackFiles"][tIndex]
-      end repeat
-      put ArrayToJSON(tData,,true) into url ("binfile:"&sProjects[pIndex])
-      set the dgDataOfIndex[pIndex] of group "projects" to tData
-   end if
+   if pIndex is not empty then
+      put the dgDataOfIndex[pIndex] of group "projects" into tData
+      put fld "build path" into tData["build path"]
+      put the dgData of group "stackFiles" into tStacks
+      repeat for each item tIndex in the dgIndexes of group "stackFiles"
+         add 1 to i
+         put tStacks[tIndex]["file"] into tData["stackFiles"][i]
+      end repeat
+      put ArrayToJSON(tData,,true) into url ("binfile:"&sProjects[pIndex])
+      set the dgDataOfIndex[pIndex] of group "projects" to tData
+   end if
 end SaveProject
 
 on ClearAndDisable
@@ -99,5 +117,6 @@ on lcVCSExport
       set the dgData of group "stackfiles" to empty
       set the text of fld "project path" to empty
       set the text of fld "build path" to empty
+      set the height of me to 400
    end if
 end lcVCSExport
