@@ -1,5 +1,0 @@
-on mouseUp
-   resolveConflict the hilitedText of fld "objects"
-   delete line (the hilitedLine of fld "objects") of fld "objects"
-   updateList
-end mouseUp

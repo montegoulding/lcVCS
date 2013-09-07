@@ -200,8 +200,35 @@ end ArrayDiff
 
 on lcVCSExport
    if the target is me then
+      set the width of me to 400
+      set the height of me to 300
+      set the style of me to "modeless"
       set the dgData of group "script" of card "script" to empty
       set the dgData of group "properties" of card "properties" to empty
       set the dgData of group "custom properties" of card "custom properties" to empty
    end if
 end lcVCSExport
+
+on resizeStack pWidth,pHeight
+   UpdateGeometry pWidth,pHeight
+end resizeStack
+
+on preOpenCard
+   UpdateGeometry the width of this stack,the height of this stack
+end preOpenCard
+
+on UpdateGeometry pWidth,pHeight
+   lock screen
+   put the currentCard of me into tGroup
+   get the rect of group tGroup
+   put pHeight - 26 into item 4 of it
+   put pWidth into item 3 of it
+   set the rect of group tGroup to it
+   get the rect of btn "ConflictType"
+   put pHeight into item 4 of it
+   put pWidth+5 into item 3 of it
+   set the rect of btn "ConflictType" to it
+   get the rect of btn "objects"
+   put pWidth - 8 into item 3 of it
+   set the rect of btn "objects" to it
+end UpdateGeometry
