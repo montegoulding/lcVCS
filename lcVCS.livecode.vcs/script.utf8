@@ -25,6 +25,7 @@ command ImportProject pFilePath
    local tCaseSensitve,tProject
    start using stack "lcVCS"
    lock messages
+   delete variable sConflicts
    delete variable sStacksToDelete
    put " "&the milliseconds into sTempNameSuffix
    put ResolveProjectFile(pFilePath) into tProject
@@ -380,9 +381,6 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
          end if
          break
       case "com.runrev.engine.button"
-         ##! workaround bug http://quality.runrev.com/show_bug.cgi?id=10696
-         set the style of the templateButton to tObject["A"]["properties"]["style"]
-         delete variable tObject["A"]["properties"]["style"]
          if word 1 of sIDMap[pParentUUID] is "group" then
             create button tObject["A"]["properties"]["name"] in sIDMap[pParentUUID]
          else

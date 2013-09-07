@@ -42,19 +42,39 @@ on updateList
    if tObjects is not empty then
       put tObjects into button "objects"
       dispatch "menuPick" to btn "objects" with the lable of btn "objects"
+      enable btn "objects"
    else
       set the label of btn "objects" to " "
       disable btn "objects"
    end if
 end updateList
 
-on setProperties pObject,pBranch
-   local tConflicts
+--on setProperties pObject,pBranch
+--   local tConflicts
+--   put getConflicts() into tConflicts
+--   -- set the properties
+--   SetObjectProperties tConflicts[pObject]["propertiesdata"][pBranch]
+--   SetLayers true
+--end setProperties
+
+on SetProperty pBranch,pRootKey,pKey
    put getConflicts() into tConflicts
-   -- set the properties
-   SetObjectProperties tConflicts[pObject]["propertiesdata"][pBranch]
-   SetLayers true
-end setProperties
+   
+   put the effective fileName of the topStack into tPath
+   put the label of btn "objects" into tObject
+   
+   put tConflicts[tPath][tObject]["propertiesdata"][pBranch][pRootKey][pKey] into tProps
+   
+   if pRootKey is "properties" then
+      set the pKey of tObject to tProps
+   else
+      if pKey is "customKeys" then
+         set the customProperties[""] of tObject to tProps
+      else
+         set the customProperties[pKey] of tObject to tProps
+      end if
+   end if
+end SetProperty
 
 on ResetConflicts
    local tObject
@@ -71,11 +91,11 @@ on ResetConflicts
                local tScript,tFirstChar,tChar,tDummy,tDataA
                put the script of tObject into tScript
                local tCharOffset = 0
-               repeat while matchChunk(tScript,"<<<<<<<.*",tChar,tDummy)
+               repeat while matchChunk(tScript,"(<<<<<<<.*)",tChar,tDummy)
                   add tChar-1 to tCharOffset
                   delete char 1 to tChar -1 of tScript
-                  if matchChunk(tScript,">>>>>>>.*",tDummy,tChar) then
-                     put char 1 to tChar of tScript into tData[tIndex]["script"]
+                  if matchChunk(tScript,">>>>>>>(.*)",tDummy,tChar) then
+                     put char 1 to tChar of tScript into tDataA[tIndex]["script"]
                      put tCharOffset into tDataA[tIndex]["charoffset"]
                      delete char 1 to tChar -1 of tScript
                      add tChar-1 to tCharOffset
@@ -91,14 +111,32 @@ on ResetConflicts
                ArrayDiff tPropA,tPropB
                set the caseSensitive to true
                repeat for each key tKey in tPropA
-                  put tPropA[tKey] into tDataA["A"]
-                  put tPropB[tKey] into tDataA["B"]
+                  put tKey into tDataA[tIndex]["key"]
+                  put tPropA[tKey] into tDataA[tIndex]["A"]
+                  put tPropB[tKey] into tDataA[tIndex]["B"]
+                  put the tKey of tObject into tValue
+                  if tValue is tConflict["propertiesdata"]["A"]["properties"][tKey] then
+                     put "A" into tDataA[tIndex]["hilite"]
+                  end if
+                  if tValue is tConflict["propertiesdata"]["B"]["properties"][tKey] then
+                     put "B" into tDataA[tIndex]["hilite"]
+                  end if
+                  add 1 to tIndex
                   put true into tKeys[tKey]
                end repeat
                repeat for each key tKey in tPropB
                   if not tKeys[tKey] then
-                     put tPropA[tKey] into tDataA["A"]
-                     put tPropB[tKey] into tDataA["B"]
+                     put tKey into tDataA[tIndex]["key"]
+                     put tPropA[tKey] into tDataA[tIndex]["A"]
+                     put tPropB[tKey] into tDataA[tIndex]["B"]
+                     put the tKey of tObject into tValue
+                     if tValue is tConflict["propertiesdata"]["A"]["properties"][tKey] then
+                        put "A" into tDataA[tIndex]["hilite"]
+                     end if
+                     if tValue is tConflict["propertiesdata"]["B"]["properties"][tKey] then
+                        put "B" into tDataA[tIndex]["hilite"]
+                     end if
+                     add 1 to tIndex
                   end if
                end repeat
                set the dgData of group "properties" to tDataA
@@ -109,17 +147,31 @@ on ResetConflicts
                ArrayDiff tPropA,tPropB
                set the caseSensitive to true
                repeat for each key tKey in tPropA
-                  put tKey into tDataA["key"]
+                  put tKey into tDataA[tIndex]["key"]
                   put tPropA[tKey] into tDataA[tIndex]["A"]
                   put tPropB[tKey] into tDataA[tIndex]["B"]
+                  put the customProperties[tKey] of tObject into tValue
+                  if tValue is tConflict["propertiesdata"]["A"]["customPropertySets"][tKey] then
+                     put "A" into tDataA[tIndex]["hilite"]
+                  end if
+                  if tValue is tConflict["propertiesdata"]["B"]["customPropertySets"][tKey] then
+                     put "B" into tDataA[tIndex]["hilite"]
+                  end if
                   put true into tKeys[tKey]
                   add 1 to tIndex
                end repeat
                repeat for each key tKey in tPropB
                   if not tKeys[tKey] then
-                     put tKey into tDataA["key"]
+                     put tKey into tDataA[tIndex]["key"]
                      put tPropA[tKey] into tDataA[tIndex]["A"]
                      put tPropB[tKey] into tDataA[tIndex]["B"]
+                     put the customProperties[tKey] of tObject into tValue
+                     if tValue is tConflict["propertiesdata"]["A"]["customPropertySets"][tKey] then
+                        put "A" into tDataA[tIndex]["hilite"]
+                     end if
+                     if tValue is tConflict["propertiesdata"]["B"]["customPropertySets"][tKey] then
+                        put "B" into tDataA[tIndex]["hilite"]
+                     end if
                      add 1 to tIndex
                   end if
                end repeat
@@ -145,3 +197,11 @@ on ArrayDiff @pPropA,@pPropB
       end if
    end repeat
 end ArrayDiff
+
+on lcVCSExport
+   if the target is me then
+      set the dgData of group "script" of card "script" to empty
+      set the dgData of group "properties" of card "properties" to empty
+      set the dgData of group "custom properties" of card "custom properties" to empty
+   end if
+end lcVCSExport
