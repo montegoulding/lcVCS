@@ -1,0 +1,3 @@
+on mouseUp
+   sheet "lcVCSSearchGitHub"
+end mouseUp

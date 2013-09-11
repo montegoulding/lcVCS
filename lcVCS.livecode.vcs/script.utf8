@@ -1136,3 +1136,11 @@ private command ClearMessages
       cancel item 1 of tMessage
    end repeat
 end ClearMessages
+
+function ProjectsFile
+   put specialFolderPath("support")&"/lcVCS" into tFolder
+   if there is not a folder tFolder then
+      create folder tFolder
+   end if
+   return tFolder&"/lcVCSProjects.json"
+end ProjectsFile

@@ -3,7 +3,7 @@
   "class": "com.runrev.engine.card",
   "customPropertySets": {
     "cREVGeometrycache": {
-      "order": "\n",
+      "order": "",
       "total": "10"
     }
   },
@@ -28,7 +28,7 @@
     "hilitePattern": "",
     "id": "1028",
     "ink": "srcCopy",
-    "layer": "6",
+    "layer": "7",
     "mark": "false",
     "name": "",
     "shadowColor": "",

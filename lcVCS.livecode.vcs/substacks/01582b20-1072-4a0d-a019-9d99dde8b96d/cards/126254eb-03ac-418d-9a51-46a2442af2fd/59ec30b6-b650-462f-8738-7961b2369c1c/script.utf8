@@ -1,0 +1,47 @@
+on mouseUp
+   local tHilite,tDataA,tClone,tOldDefaultFolder
+   put the dgHilitedLine of group "search" into tHilite
+   if tHilite is empty then
+      answer information "Choose a project to add"
+   else
+      put the dgDataOfIndex[tHilite] of group "search" into tDataA
+      answer folder "Choose folder to clone into:"
+      if it is not empty then
+         put the defaultFolder into tOldDefaultFolder
+         set the defaultFolder to it
+         if tDataA["repository"]["name"] is among the lines of the folders then
+            answer error "There is already a folder named "&tDataA["repository"]["name"]
+            set the defaultFolder to tOldDefaultFolder
+            exit mouseUp
+         end if
+         if the platform is "Win32" then
+            #! TODO work out Windows clone command
+         else
+            put "git clone --progress --verbose --recursive "&tDataA["repository"]["html_url"]&".git" into tClone
+         end if
+         put empty into fld "progress"
+         open process tClone for update
+         lock screen for visual effect in rect the rect of fld "progress"
+         show field "progress"
+         unlock screen with visual effect "scroll down fast"
+         repeat 
+            read from process tClone until linefeed
+            replace numToChar(13) with empty in it
+            if it is empty or the result is "eof" then exit repeat
+            put it after fld "progress"
+            set the scroll of fld "progress" to the formattedHeight of fld "progress" - the height of field "progress"
+         end repeat
+         close process tClone
+         wait 300 milliseconds
+         lock screen for visual effect in rect the rect of fld "progress"
+         hide field "progress"
+         unlock screen with visual effect "reveal up fast"
+         try
+            put JSONToArray(url ("binfile:"&ProjectsFile())) into tProjects
+         end try
+         put the defaultFolder&"/"&tDataA["repository"]["name"]&"/lcVCSProject.json" into tProjects[max(replaceText(the keys of tProjects,cr,comma)) + 1]
+         put ArrayToJSON(tProjects) into url ("binfile:"&ProjectsFile())
+         set the defaultFolder to tOldDefaultFolder
+      end if
+   end if
+end mouseUp

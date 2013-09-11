@@ -1,6 +1,68 @@
+local sProjects
+
 on preOpenStack
    SetDataGridUUIDs
    LoadPlugins
-   modeless "lcVCSProjects"
+   if "revMenubar" is in the executionContexts then
+      modeless "lcVCSProjects"
+   else
+      try
+         put JSONToArray(url ("binfile:"&ProjectsFile())) into sProjects
+      end try
+      # asynchronously fetch current projects
+      send "FetchProject" to me in 20 milliseconds
+   end if
    close this stack
 end preOpenStack
+
+on FetchProject
+   put line 1 of the keys of sProjects into tIndex
+   put sProjects[tIndex] into tPath
+   set the itemDel to slash
+   delete item -1 of tPath
+   put the defaultFolder into tOldDefaultFolder
+   set the defaultFolder to tPath
+   put "git fetch --all" into tProcess
+   open process tProcess for update
+   set the defaultFolder to tOldDefaultFolder
+   repeat 
+      read from process tProcess until linefeed
+      wait 20 milliseconds with messages
+      replace numToChar(13) with empty in it
+      if it is empty or the result is "eof" then exit repeat
+   end repeat
+   close process tProcess
+   put shell("git tag") into tTags
+   put shell("git describe") into tCurrent
+   if not tCurrent contains "cannont describe" then
+      set the itemDel to "-"
+      if the number of items of tCurrent > 1 then
+         put item 1 to -3 of tCurrent into tCurrent
+      end if
+      put tCurrent into tNewTag
+      repeat for each line tTag in tTags
+         if NewerVersion(tTag,tNewTag) then
+            put tTag into tNewTag
+         end if
+      end repeat
+      if tNewTag is not tCurrent then
+         put shell(merge("git cat-file -p `git rev-parse [[ tNewTag ]]`")) into tMessage
+      end if
+   end if
+   delete variable sProjects[tIndex]
+   if the number of elements of sProjects > 0 then
+      send "FetchProject" to me in 20 milliseconds
+   end if
+end FetchProject
+
+function NewerVersion pV1,pV2
+   set the itemDel to "."
+   repeat with tItem = 1 to 3
+      if item tItem of pV1 > item tItem of pV2 then
+         return true
+      else if item tItem of pV1 < item tItem of pV2 then
+         return false
+      end if
+   end repeat
+   return false
+end NewerVersion

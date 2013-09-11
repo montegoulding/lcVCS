@@ -1,0 +1,3 @@
+on mouseUp
+   close this stack
+end mouseUp

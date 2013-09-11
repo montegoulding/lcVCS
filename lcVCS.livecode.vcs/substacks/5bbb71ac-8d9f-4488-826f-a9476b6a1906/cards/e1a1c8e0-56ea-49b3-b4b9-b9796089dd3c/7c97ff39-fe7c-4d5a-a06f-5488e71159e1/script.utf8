@@ -1,0 +1,6 @@
+on menuPick pTag
+   put the dgHilitedIndex of group "projects" into tIndex
+   if tIndex is not empty then
+      Checkout tIndex,pTag
+   end if
+end menuPick

@@ -2,8 +2,8 @@ on selectionChanged pHilitedIndex,pOldHilitedIndex
    local tPath,tConflicts
    # save last project
    if pOldHilitedIndex is not empty AND pHilitedIndex is not pOldHilitedIndex then
-          SaveProject pOldHilitedIndex
-    end if
+      SaveProject pOldHilitedIndex
+   end if
    # display current project
    put the dgDataOfIndex[pHilitedIndex] of me into tData
    put tData["build path"] into fld "build path"
@@ -17,4 +17,7 @@ on selectionChanged pHilitedIndex,pOldHilitedIndex
       put tData["stackFiles"][tIndex] into tStacks[tIndex]["file"]
    end repeat
    set the dgData of group "stackFiles" to tStacks
+   
+   UpdateTags pHilitedIndex
 end selectionChanged
+
