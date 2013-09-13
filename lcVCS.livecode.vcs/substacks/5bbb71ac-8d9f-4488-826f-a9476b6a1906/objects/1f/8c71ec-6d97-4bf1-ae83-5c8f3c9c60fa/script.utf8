@@ -1,0 +1,4 @@
+on mouseUp
+   ExportProjectAtIndex the dgHilitedIndex of group "projects"
+   get flushEvents("all")
+end mouseUp

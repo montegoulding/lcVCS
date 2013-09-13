@@ -1,0 +1,55 @@
+{
+  "UUID": "298da95c-3fb8-4e1c-a1a9-1851b065ae6f",
+  "class": "com.runrev.engine.card",
+  "customPropertySets": {
+    "cREVGeometryCacheIDs": {
+      "1236088553682": "1011",
+      "1236188559392": "1012",
+      "1236188559393": "1013",
+      "1236872189019": "1004",
+      "1236872508693": "1003",
+      "1377755091980": "1015",
+      "1377755111284": "1017",
+      "1377755185071": "1014"
+    },
+    "cREVGeometrycache": {
+      "order": "",
+      "total": "8"
+    }
+  },
+  "properties": {
+    "altId": "0",
+    "backColor": "",
+    "backPattern": "",
+    "behavior": "",
+    "blendLevel": "0",
+    "borderColor": "",
+    "borderPattern": "",
+    "borderWidth": "2",
+    "bottomColor": "",
+    "bottomPattern": "",
+    "cantDelete": "false",
+    "dontSearch": "false",
+    "focusColor": "",
+    "focusPattern": "",
+    "foreColor": "",
+    "forePattern": "",
+    "hiliteColor": "",
+    "hilitePattern": "",
+    "id": "1010",
+    "ink": "srcCopy",
+    "layer": "4",
+    "mark": "false",
+    "name": "",
+    "shadowColor": "",
+    "shadowOffset": "4",
+    "shadowPattern": "",
+    "showBorder": "false",
+    "textFont": "",
+    "textSize": "",
+    "textStyle": "",
+    "threeD": "true",
+    "topColor": "",
+    "topPattern": ""
+  }
+}

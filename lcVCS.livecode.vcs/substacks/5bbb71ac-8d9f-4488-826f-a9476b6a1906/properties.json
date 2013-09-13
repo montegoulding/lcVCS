@@ -2,6 +2,16 @@
   "UUID": "5bbb71ac-8d9f-4488-826f-a9476b6a1906",
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
+    "cREVGeneral": {
+      "breakpointconditions": "",
+      "breakpoints": "",
+      "breakpointstates": "",
+      "scripteditorselection": "294",
+      "scripteditorvscroll": "2405"
+    },
+    "cREVGeometryCache": {
+      "stackID": "105333"
+    },
     "customKeys": {
       "uSelectedChunk": ""
     }
