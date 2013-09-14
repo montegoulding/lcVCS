@@ -1,12 +1,6 @@
 {
   "UUID": "83210d91-f77e-49d7-a2ac-789f24dc1357",
   "class": "com.runrev.engine.button",
-  "customPropertySets": {
-    "cREVGeneral": {
-      "scripteditorselection": "2117",
-      "scripteditorvscroll": "268"
-    }
-  },
   "properties": {
     "accelKey": "",
     "accelMods": "",

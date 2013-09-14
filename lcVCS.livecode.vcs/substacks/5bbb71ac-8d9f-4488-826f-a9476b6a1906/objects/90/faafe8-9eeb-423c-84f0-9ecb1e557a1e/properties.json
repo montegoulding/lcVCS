@@ -6,9 +6,7 @@
       "checksum": "base64Decode(1B2M2Y8AsgTpgAmY7PhCfg==)"
     },
     "cREVGeneral": {
-      "revUniqueID": "1376539206463",
-      "scripteditorselection": "0",
-      "scripteditorvscroll": "0"
+      "revUniqueID": "1376539206463"
     }
   },
   "properties": {
@@ -19,7 +17,7 @@
     "blendLevel": "0",
     "borderColor": "",
     "borderPattern": "",
-    "borderWidth": "2",
+    "borderWidth": "0",
     "bottomColor": "",
     "bottomPattern": "",
     "cantSelect": "false",

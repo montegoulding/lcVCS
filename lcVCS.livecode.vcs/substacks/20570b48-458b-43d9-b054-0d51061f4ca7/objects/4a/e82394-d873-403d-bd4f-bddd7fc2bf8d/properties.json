@@ -1,11 +1,6 @@
 {
   "UUID": "4ae82394-d873-403d-bd4f-bddd7fc2bf8d",
   "class": "com.runrev.engine.card",
-  "customPropertySets": {
-    "cREVGeometryCache": {
-      "order": ""
-    }
-  },
   "properties": {
     "altId": "0",
     "backColor": "",

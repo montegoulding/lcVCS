@@ -2,14 +2,6 @@
   "UUID": "3254403A-FAD4-4CCF-8D84-8957E9D73077",
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
-    "cREVGeneral": {
-      "breakpointconditions": "",
-      "breakpoints": "",
-      "breakpointstates": "",
-      "scripteditorselection": "14",
-      "scripteditorvscroll": "0",
-      "stackfileversion": "5.5"
-    },
     "customKeys": {
       "uCustomPropertySet": "cREVGeometryCacheIDs",
       "uResolveUUIDs": "false"

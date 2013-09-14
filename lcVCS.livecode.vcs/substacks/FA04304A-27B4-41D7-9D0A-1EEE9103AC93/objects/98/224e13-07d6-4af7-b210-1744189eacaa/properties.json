@@ -3,9 +3,7 @@
   "class": "com.runrev.engine.button",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": "1377757043805",
-      "scripteditorselection": "58",
-      "scripteditorvscroll": "0"
+      "revUniqueID": "1377757043805"
     }
   },
   "properties": {

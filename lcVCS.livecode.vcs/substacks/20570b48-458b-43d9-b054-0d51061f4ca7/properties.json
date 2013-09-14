@@ -2,14 +2,6 @@
   "UUID": "20570b48-458b-43d9-b054-0d51061f4ca7",
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
-    "cREVGeneral": {
-      "breakpointconditions": "",
-      "breakpoints": "",
-      "breakpointstates": ""
-    },
-    "cREVGeometryCache": {
-      "stackID": "1063"
-    },
     "customKeys": {
       "uSelectedChunk": ""
     }

@@ -1,12 +1,6 @@
 {
   "UUID": "126254eb-03ac-418d-9a51-46a2442af2fd",
   "class": "com.runrev.engine.card",
-  "customPropertySets": {
-    "cREVGeneral": {
-      "scripteditorselection": "580",
-      "scripteditorvscroll": "0"
-    }
-  },
   "properties": {
     "altId": "0",
     "backColor": "",

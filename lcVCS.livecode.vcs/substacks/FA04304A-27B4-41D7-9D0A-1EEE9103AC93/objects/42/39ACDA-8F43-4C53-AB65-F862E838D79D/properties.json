@@ -2,10 +2,6 @@
   "UUID": "4239ACDA-8F43-4C53-AB65-F862E838D79D",
   "class": "com.runrev.engine.card",
   "customPropertySets": {
-    "cREVGeneral": {
-      "scripteditorselection": "0",
-      "scripteditorvscroll": "0"
-    },
     "customKeys": {
       "kColorProps": "",
       "kMissingProps": ""

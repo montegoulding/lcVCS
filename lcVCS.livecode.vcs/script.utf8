@@ -1001,30 +1001,6 @@ function sharedObject pObject
    end repeat
 end sharedObject
 
---function pathForObject pObject
---   local tPath
---   put "/" into tPath
---   repeat forever
---      put "/"&UUIDForObject(pObject) before tPath
---      switch
---         case word 1 of pObject is "card"
---            put "/cards" before tPath
---            break
---         case (word 1 of pObject is "group" and the sharedBehavior of pObject) or word 1 of pObject = "bkgnd"
---            put "/sharedGroups" before tPath
---            break
---         case word 1 of pObject is "stack" and the number of words of pObject is 5 
---            put "/substacks" before tPath
---            break
---      end switch
---      put the long owner of pObject into pObject
---      if the number of words of pObject is 2 then
---         exit repeat
---      end if
---   end repeat
---   return the effective filename of pObject&"."&kExtension&tPath 
---end pathForObject
-
 -- this makes sure the datagrid behaviors have the same UUID on everyone's version of the IDE
 command SetDataGridUUIDs
    local tVersion
@@ -1050,6 +1026,7 @@ command LoadPlugins
       -- each plugin is named with the custom property set name
       if there is a stack tStack then 
          put the uResolveUUIDs of stack tStack into sPlugins[the uCustomPropertySet of stack tStack]["resolve UUIDs"]
+         # case sensitive is on so use multiple lines to give the possible different case versions
          repeat for each line tCustomPropertySet in the uCustomPropertySet of stack tStack
             put the short name of stack tStack into sPlugins[tCustomPropertySet]["stack"]
          end repeat

@@ -6,9 +6,7 @@
       "checksum": "base64Decode(1B2M2Y8AsgTpgAmY7PhCfg==)"
     },
     "cREVGeneral": {
-      "revUniqueID": "1377766701228",
-      "scripteditorselection": "9010",
-      "scripteditorvscroll": "5303"
+      "revUniqueID": "1377766701228"
     },
     "dgCache": {
       "data": "",
@@ -42,7 +40,7 @@
       "persistent data": "true",
       "row color": "",
       "row height": "21",
-      "row template": "group id 1029 of card id 1028 of stack \"Data Grid Templates 1376537700946\"",
+      "row template": "fdafbe2e-3ab5-4697-9844-07f980284d92",
       "scroll selections into view": "true",
       "scroll when hscrollbar is hidden": "false",
       "scroll when vscrollbar is hidden": "false",
