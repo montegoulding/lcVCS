@@ -5,11 +5,17 @@ constant kPatternProps = "forePattern,focusPattern,backPattern,borderPattern,bot
 constant kExtension = "vcs"
 constant kPropsToDelete = "defaultButton,armed"
 
-local sUUIDMap,sUUIDsToResolve,sTemplateObjects,sLayersToSet,sConflicts,sPropsToSet,sStacksToDelete,sCurrentStackFilePath
+local sUUIDMap -- an array with UUIDs as keys and object references as values
+local sUUIDsToResolve -- object references are resolved once the stackFile is fully imported
+local sLayersToSet -- layers are set once a stack is fully imported
+local sConflicts -- conflict markers are parsed and the plugin assists resolution
+local sPropsToSet -- properties that need to be set right at the end eg cantModify of stack
+local sStacksToDelete -- stacks to delete after the import
+local sCurrentStackFilePath -- the path to the stackFile currently being imported
 local sPlugins -- an array with loaded plugins for UUID resolution and unnecessary custom property filtering
-local sTempNameSuffix
+local sTempNameSuffix -- a suffix (uuid) used when lcVCS is importing itself
 local sStackPath -- the path to the stack being imported
-local sMainstackPath
+local sMainstackPath -- the path to the mainstack being imported
 
 command ExportProject pFilePath
    start using stack "lcVCS"
@@ -29,6 +35,7 @@ command ImportProject pFilePath
    start using stack "lcVCS"
    lock messages
    delete variable sUUIDMap
+   LoadDataGridUUIDs
    delete variable sConflicts
    delete variable sStacksToDelete
    put uuid() into sTempNameSuffix
@@ -155,7 +162,7 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
             -- resolve UUID references (icons, patterns, behaviors)
             -- load UUIDs from all mainstacks only if required
             if not tUUIDSearchDone and there is not a sUUIDMap[tUUID] then
-               put tStackFileMainstack&tab&tObject&tab&tProperty&tab&sUUIDMap[tUUID]&tab&tUUID&cr after msg
+               put "searching for: "&tStackFileMainstack&tab&tObject&tab&tProperty&tab&sUUIDMap[tUUID]&tab&tUUID&cr after msg
                put true into tUUIDSearchDone
                repeat for each line tMainstack in the mainstacks
                   repeat for each line tStack in tMainstack&cr&the substacks of stack tMainstack
@@ -184,13 +191,6 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
                case tProperty is "behavior"
                   replace sTempNameSuffix with empty in sUUIDMap[tUUID]
                   set the tProperty of tObject to sUUIDMap[tUUID]
-                  break
-               case tProperty is "defaultButton"
-                  --                  -- need to open the card
-                  --                  put FindParent(sUUIDMap[tUUID],"card") into tCard
-                  --                  go tCard
-                  --                  set the default of sUUIDMap[tUUID] to true
-                  --                  close the owner of tCard
                   break
                default
                   set the tProperty of tObject to the short id of sUUIDMap[tUUID]
@@ -543,11 +543,9 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
    repeat for each key tProperty in pProperties["properties"]
       switch
          case tProperty is "resizable"
+            set the resizable of sUUIDMap[pProperties["UUID"]] to false
          case tProperty is "cantModify"
             put pProperties["properties"][tProperty] into sPropsToSet[tProperty][sUUIDMap[pProperties["UUID"]]]
-            if tProperty is "resizable" then
-               set the resizable of sUUIDMap[pProperties["UUID"]] to false
-            end if
             delete variable pProperties["properties"][tProperty]
             break
          case tProperty is "hilitedButton"
@@ -586,7 +584,6 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
             break
          case tProperty is among the items of kIconProps,kPatternProps
          case tProperty is "behavior"
-         case tProperty is "defaultButton"
             -- store the value 
             if pProperties["properties"][tProperty] <> "" and pProperties["properties"][tProperty] <> 0 then
                put pProperties["properties"][tProperty] into sUUIDsToResolve[sUUIDMap[pProperties["UUID"]]][tProperty]
@@ -766,11 +763,6 @@ function ExportObjectProperties pObject,pShared
                put tObject["properties"]["text"] into url ("binfile:image."&tObject["properties"]["paintCompression"])
             end if
             delete variable tObject["properties"]["text"]
-         end if
-         break
-      case "card"
-         if tObject["properties"]["defaultButton"] <> "" then
-            put UUIDForObject(tObject["properties"]["defaultButton"]) into tObject["properties"]["defaultButton"]
          end if
          break
       case "group"
@@ -993,10 +985,18 @@ command SetDataGridUUIDs
    put the customProperties["uDataGridBehaviors"] of this stack into tVersion
    repeat for each key tID in tVersion
       set the customProperties["uVersion"] of control id tID of stack "revDataGridLibrary" to tVersion[tID]
-      put the long id of  control id tID of stack "revDataGridLibrary" into sUUIDMap[tVersion[tID]["UUID"]]
    end repeat
    save stack "revDataGridLibrary"
 end SetDataGridUUIDs
+
+-- this loads the datagrid's uuids so se don't go searching for them
+command LoadDataGridUUIDs
+   local tVersion
+   put the customProperties["uDataGridBehaviors"] of this stack into tVersion
+   repeat for each key tID in tVersion
+      put the long id of  control id tID of stack "revDataGridLibrary" into sUUIDMap[tVersion[tID]["UUID"]]
+   end repeat
+end LoadDataGridUUIDs
 
 -- load plugins
 command LoadPlugins
