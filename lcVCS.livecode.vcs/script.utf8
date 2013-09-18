@@ -616,23 +616,6 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
       end switch
    end repeat
    
-   #! workaround lockLocation precedence on groups
-   if pProperties["properties"]["lockLoc"] then
-      set the lockLoc of sUUIDMap[pProperties["UUID"]] to true
-   end if
-   #! workaround innerShaddow typo
-   if pProperties["properties"]["innerShaddow"] is an array then
-      set the innerShadow of sUUIDMap[pProperties["UUID"]] to pProperties["properties"]["innerShaddow"]
-   end if
-   #! workaround for button text precedence
-   if pProperties["properties"]["text"] is not empty then
-      set the text of sUUIDMap[pProperties["UUID"]] to pProperties["properties"]["text"]
-   end if
-   #! workaround for button menuHistory precedence
-   if pProperties["properties"]["menuHistory"] is not empty then
-      set the menuHistory of sUUIDMap[pProperties["UUID"]] to pProperties["properties"]["menuHistory"]
-   end if
-   
    # now we can set the cleaned properties array
    set the properties of sUUIDMap[pProperties["UUID"]] to pProperties["properties"]
    
