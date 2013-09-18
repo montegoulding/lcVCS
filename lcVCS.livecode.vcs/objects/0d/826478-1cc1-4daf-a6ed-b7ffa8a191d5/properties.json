@@ -8,6 +8,53 @@
     "cREVGeneral": {
       "revUniqueID": "1376537701011"
     },
+    "customKeys": {
+      "dgData": [
+        {
+          "build path": "",
+          "name": "Clarify",
+          "stackFiles": [
+            "launcher.livecode",
+            "components/glxapp_framework.livecode",
+            "components/application.livecode",
+            "components/shared controls.livecode",
+            "components/shared libraries.livecode",
+            "components/libraries.livecode",
+            "components/standard libraries.livecode",
+            "components/controls.livecode",
+            "components/article editor.livecode"
+          ]
+        },
+        {
+          "build path": "",
+          "name": "Clarify Capture Helper",
+          "stackFiles": [
+            "Clarify Capture Helper.livecode"
+          ]
+        },
+        {
+          "build path": "<? return revEnvironmentUserPluginsPath() ?>",
+          "name": "lcVCS",
+          "stackFiles": [
+            "lcVCS.livecode",
+            "lcVCSPlugins/cRevGeneral.livecode",
+            "lcVCSPlugins/cREVGeometryCache.livecode",
+            "lcVCSPlugins/cREVGeometryCacheIDs.livecode",
+            "lcVCSPlugins/cRevStandaloneSettings.livecode",
+            "lcVCSPlugins/dgProps.livecode",
+            "lcVCSPlugins/mAppProps.livecode"
+          ]
+        },
+        {
+          "build path": "",
+          "name": "lcVCSDemo",
+          "stackFiles": [
+            "demo.livecode"
+          ]
+        }
+      ],
+      "dgHilitedIndex": "tOrigIndex"
+    },
     "dgCache": {
       "data": "",
       "sequencing": ""

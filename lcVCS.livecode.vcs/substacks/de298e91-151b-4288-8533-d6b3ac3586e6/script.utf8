@@ -8,8 +8,10 @@ on resumeStack
   ResetProjects
 end resumeStack
 
-on ResetProjects
-   put the dgHilitedIndex of group "projects" into tOrigIndex
+on ResetProjects pIndex
+   if pIndex is not a number then
+      put the dgHilitedIndex of group "projects" into pIndex
+   end if
    try
       put JSONToArray(url ("binfile:"&ProjectsFile())) into sProjects
    end try
@@ -30,10 +32,7 @@ on ResetProjects
       set the dgHilitedIndex of group "projects" to tOrigIndex
    end if
       
-   dispatch "selectionChanged" to group "projects" with tOrigIndex
-   
-   # save again incase some projects were deleted
-   --put ArrayToJSON(sProjects) into url ("binfile:"&ProjectsFile())
+   dispatch "selectionChanged" to group "projects" with pIndex
 end ResetProjects
 
 on AddProject pPath
@@ -103,6 +102,8 @@ end PathForProject
 
 on ExportProjectAtIndex pIndex
    ExportProject sProjects[pIndex]
+   set the defaultStack to the short name of me
+   ResetProjects pIndex
 end ExportProjectAtIndex
 
 on ImportProjectAtIndex pIndex

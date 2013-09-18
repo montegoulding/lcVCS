@@ -1,4 +1,5 @@
 on mouseUp
+   set the cursor to watch
    ImportProjectAtIndex the dgHilitedIndex of group "projects"
    get flushEvents("all")
 end mouseUp
