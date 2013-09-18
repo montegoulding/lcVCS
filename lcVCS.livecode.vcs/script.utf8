@@ -699,12 +699,6 @@ function ExportObjectProperties pObject,pShared
          tObject["properties"]["icon"] is empty then
       set the icon of pObject to 0
    end if
-   #! workaround innerShaddow
-   if "innerShaddow" is among the lines of the keys of tObject["properties"] then
-      put tObject["properties"]["innerShaddow"] into tObject["properties"]["innerShadow"]
-      delete variable tObject["properties"]["innerShaddow"]
-   end if
-   
    -- delete some props
    repeat for each item tProperty in kPropsToDelete
       delete variable tObject["properties"][tProperty]

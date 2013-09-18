@@ -20,4 +20,3 @@ on selectionChanged pHilitedIndex,pOldHilitedIndex
    
    UpdateTags pHilitedIndex
 end selectionChanged
-

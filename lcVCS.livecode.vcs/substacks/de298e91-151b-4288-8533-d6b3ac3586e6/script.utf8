@@ -26,10 +26,10 @@ on ResetProjects pIndex
    end repeat
    set the dgData of group "projects" to tData
    
-   set the dgHilitedIndex of group "projects" to tOrigIndex
+   set the dgHilitedIndex of group "projects" to pIndex
    if the dgHilitedIndex of group "projects" is empty AND tIndex > 0 then
-      put 1 into tOrigIndex
-      set the dgHilitedIndex of group "projects" to tOrigIndex
+      put 1 into pIndex
+      set the dgHilitedIndex of group "projects" to pIndex
    end if
       
    dispatch "selectionChanged" to group "projects" with pIndex
@@ -102,8 +102,6 @@ end PathForProject
 
 on ExportProjectAtIndex pIndex
    ExportProject sProjects[pIndex]
-   set the defaultStack to the short name of me
-   ResetProjects pIndex
 end ExportProjectAtIndex
 
 on ImportProjectAtIndex pIndex
@@ -112,8 +110,8 @@ end ImportProjectAtIndex
 
 on lcVCSExport
    if the target is me then
-      set the dgData of group "projects" to empty
-      set the dgData of group "stackfiles" to empty
+      set the dgData of group "Projects" to empty
+      set the dgData of group "Stackfiles" to empty
       set the text of fld "project path" to empty
       set the text of fld "build path" to empty
       set the height of me to 400
