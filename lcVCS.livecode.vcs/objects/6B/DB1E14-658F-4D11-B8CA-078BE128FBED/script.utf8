@@ -3,7 +3,8 @@ local sProjects
 on preOpenStack
    SetDataGridUUIDs
    LoadPlugins
-   if "revMenubar" is in the executionContexts then
+   if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
+      send "DeleteLoader" to me in 0 milliseconds
       modeless "lcVCSProjects"
    else
       try
@@ -14,6 +15,13 @@ on preOpenStack
    end if
    close this stack
 end preOpenStack
+
+-- funky stuff to reload lcVCS after it imports itself
+on DeleteLoader
+   if there is a stack "lcVCSLoader" then
+      delete stack "lcVCSLoader"
+   end if
+end DeleteLoader
 
 on FetchProject
    put line 1 of the keys of sProjects into tIndex

@@ -1,10 +1,9 @@
 {
-  "UUID": "66563a7f-2cb1-4113-b9a9-566878e8129b",
+  "UUID": "64801fc4-de0c-4383-b9bd-78cb045910f5",
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
     "customKeys": {
-      "uCustomPropertySet": "mAppProps",
-      "uResolveUUIDs": "true"
+      "uSelectedChunk": ""
     }
   },
   "properties": {
@@ -21,7 +20,7 @@
     "cantAbort": "false",
     "cantDelete": "false",
     "cantModify": "false",
-    "decorations": "title,menu,minimize,maximize,close",
+    "decorations": "default",
     "destroyStack": "false",
     "destroyWindow": "false",
     "dynamicPaths": "false",
@@ -49,7 +48,7 @@
     "metal": "false",
     "minHeight": "32",
     "minWidth": "32",
-    "name": "mAppProps",
+    "name": "Data Grid Templates 1376537700946",
     "resizable": "true",
     "shadow": "true",
     "shadowColor": "",
@@ -62,12 +61,12 @@
     "textFont": "",
     "textSize": "",
     "textStyle": "",
-    "title": "",
+    "title": "Editing template for group \"search\" of card id 1002 of stack \"/Users/montegoulding/Desktop/githubapi.livecode\"",
     "topColor": "",
     "topPattern": "",
     "underlineLinks": "",
     "visible": "true",
-    "width": "400",
+    "width": "600",
     "windowManagerPlace": "false",
     "windowShape": "0"
   }

@@ -1,12 +1,6 @@
 {
-  "UUID": "66563a7f-2cb1-4113-b9a9-566878e8129b",
+  "UUID": "e9a76b10-4bed-44ab-ac1b-1759749ba414",
   "class": "com.runrev.engine.stack",
-  "customPropertySets": {
-    "customKeys": {
-      "uCustomPropertySet": "mAppProps",
-      "uResolveUUIDs": "true"
-    }
-  },
   "properties": {
     "altId": "0",
     "alwaysBuffer": "false",
@@ -21,7 +15,7 @@
     "cantAbort": "false",
     "cantDelete": "false",
     "cantModify": "false",
-    "decorations": "title,menu,minimize,maximize,close",
+    "decorations": "default",
     "destroyStack": "false",
     "destroyWindow": "false",
     "dynamicPaths": "false",
@@ -49,7 +43,7 @@
     "metal": "false",
     "minHeight": "32",
     "minWidth": "32",
-    "name": "mAppProps",
+    "name": "lcVCSSearchGitHub",
     "resizable": "true",
     "shadow": "true",
     "shadowColor": "",
@@ -62,7 +56,7 @@
     "textFont": "",
     "textSize": "",
     "textStyle": "",
-    "title": "",
+    "title": "Search GitHub",
     "topColor": "",
     "topPattern": "",
     "underlineLinks": "",

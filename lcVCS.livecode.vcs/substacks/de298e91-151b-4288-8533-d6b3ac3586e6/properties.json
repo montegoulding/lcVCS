@@ -1,10 +1,9 @@
 {
-  "UUID": "66563a7f-2cb1-4113-b9a9-566878e8129b",
+  "UUID": "de298e91-151b-4288-8533-d6b3ac3586e6",
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
     "customKeys": {
-      "uCustomPropertySet": "mAppProps",
-      "uResolveUUIDs": "true"
+      "uSelectedChunk": ""
     }
   },
   "properties": {
@@ -21,7 +20,7 @@
     "cantAbort": "false",
     "cantDelete": "false",
     "cantModify": "false",
-    "decorations": "title,menu,minimize,maximize,close",
+    "decorations": "default",
     "destroyStack": "false",
     "destroyWindow": "false",
     "dynamicPaths": "false",
@@ -44,12 +43,12 @@
     "linkVisitedColor": "",
     "liveResizing": "false",
     "maxHeight": "65535",
-    "maxWidth": "65535",
+    "maxWidth": "800",
     "menubar": "",
     "metal": "false",
-    "minHeight": "32",
-    "minWidth": "32",
-    "name": "mAppProps",
+    "minHeight": "300",
+    "minWidth": "800",
+    "name": "lcVCSProjects",
     "resizable": "true",
     "shadow": "true",
     "shadowColor": "",
@@ -62,12 +61,12 @@
     "textFont": "",
     "textSize": "",
     "textStyle": "",
-    "title": "",
+    "title": "lcVCSProjects",
     "topColor": "",
     "topPattern": "",
     "underlineLinks": "",
     "visible": "true",
-    "width": "400",
+    "width": "800",
     "windowManagerPlace": "false",
     "windowShape": "0"
   }
