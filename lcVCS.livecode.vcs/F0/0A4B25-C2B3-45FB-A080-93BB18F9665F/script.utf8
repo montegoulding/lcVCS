@@ -118,24 +118,8 @@ command ExportStackFile pFilePath,pFolder
       create folder tFolder
       set the defaultFolder to tFolder
       put tFolder into sMainstackPath
+      put empty into url ("file:"&UUIDForObject(the long id of stack the mainstack of stack pFilePath))
       ExportStack the mainstack of stack pFilePath
-      -- substacks
-      if the substacks of stack pFilePath is not empty then
-         set the defaultFolder to tFolder
-         if there is not a folder "substacks" then
-            create folder "substacks"
-         end if
-         set the defaultFolder to "substacks"
-         repeat for each line tStack in the substacks of stack pFilePath
-            put UUIDForObject(the long id of stack tStack) into tUUID
-            if there is not a folder tUUID then
-               create folder tUUID
-            end if
-            set the defaultFolder to tUUID
-            ExportStack tStack
-            set the defaultFolder to ".."
-         end repeat
-      end if
       save stack pFilePath
    end if
    set the defaultFolder to tOldDefaultFolder
@@ -143,7 +127,7 @@ end ExportStackFile
 
 # Import a stackfile from a folder
 on ImportStackFile pFolder,pFilePath,pIslcVCS
-   local tUUIDSearchDone = "false",tOldDefaultFolder,tStackFileMainstack
+   local tUUIDSearchDone = "false",tOldDefaultFolder,tStackFileMainstack,tUUIDs
    --lock screen
    lock messages
    put pFilePath into sCurrentStackFilePath
@@ -153,6 +137,9 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
    delete variable sPropsToSet
    set the defaultFolder to pFolder
    put pFolder into sMainstackPath
+   put the files into tUUIDs
+   filter tUUIDs without "*.*"
+   set the defaultFolder to UUIDToObjectPath(line 1 of tUUIDs)
    ImportObject "","","",pIslcVCS
    put the short name of sUUIDMap[the result] into tStackFileMainstack
    -- only load UUIDs from all mainstacks if necessary
@@ -474,29 +461,19 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
             ImportObject pStackUUID,pCardUUID,tObject["A"]["UUID"],pIslcVCS
          end repeat
       else
+         put the defaultFolder into tOriginalDefaultFolder
          repeat for each item tType in "cards,sharedGroups,substacks"
             if there is a folder tType then
-               set the defaultFolder to sStackPath & slash & tType
-               if tType is not "substacks" then
-                  put the files into tUUIDs
-                  filter tUUIDs without "*.*"
-                  repeat for each line tUUID in tUUIDs
-                     if tType = "sharedGroups" then
-                        go ("cd 1 of "&sUUIDMap[pStackUUID])
-                     end if
-                     set the defaultFolder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
-                     ImportObject pStackUUID,pCardUUID,,pIslcVCS
-                  end repeat
-               else
-                  put the folders into tSubstacks
-                  filter tSubstacks without "*.*"
-                  put sStackPath into tStackPath
-                  repeat for each line tStack in tSubstacks
-                     set the defaultFolder to tStackPath & slash & "substacks" & slash & tStack
-                     ImportObject pStackUUID,,,pIslcVCS
-                  end repeat
-                  put tStackPath into sStackPath
-               end if
+               set the defaultFolder to tType
+               put the files into tUUIDs
+               filter tUUIDs without "*.*"
+               repeat for each line tUUID in tUUIDs
+                  if tType = "sharedGroups" then
+                     go ("cd 1 of "&sUUIDMap[pStackUUID])
+                  end if
+                  set the defaultFolder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
+                  ImportObject pStackUUID,pCardUUID,,pIslcVCS
+               end repeat
             end if
             switch tType
                case "cards"
@@ -511,7 +488,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                   close this stack
                   break
             end switch
-            set the defaultFolder to sStackPath
+            set the defaultFolder to tOriginalDefaultFolder
          end repeat
       end if
       if tObject["A"]["class"] is "com.runrev.engine.group" then
@@ -684,11 +661,9 @@ function ExportObjectProperties pObject,pShared
    lock messages
    set the caseSensitive to true
    put UUIDForObject(pObject) into tObject["UUID"]
-   if word 1 of pObject is not "stack" then
-      put sMainstackPath & slash & UUIDToObjectPath(tObject["UUID"]) into tObjectPath
-      EnsureFolder tObjectPath
-      set the defaultFolder to tObjectPath
-   end if
+   put sMainstackPath & slash & UUIDToObjectPath(tObject["UUID"]) into tObjectPath
+   EnsureFolder tObjectPath
+   set the defaultFolder to tObjectPath
    put pObject into sUUIDMap[tObject["UUID"]]
    -- properties
    put the properties of pObject into tObject["properties"]
@@ -891,21 +866,31 @@ command ExportObject pObject,pShared,pType
    switch word 1 of pObject
       case "stack"
          -- cards
-         if there is not a folder "cards" then
-            create folder "cards"
+         if there is not a folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards") then
+            create folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards")
          end if
          repeat for each line tID in the cardIDs of pObject
-            put empty into url ("file:cards/"&UUIDForObject(the long id of card id tID of pObject))
+            put empty into url ("file:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards/"&UUIDForObject(the long id of card id tID of pObject))
             ExportObject the long id of card id tID of pObject,,false
          end repeat
          -- shared groups
          if the sharedGroupIDs of pObject is not empty then
-            if there is not a folder "sharedGroups" then
-               create folder "sharedGroups"
+            if there is not a folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups") then
+               create folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups")
             end if
             repeat for each line tID in the sharedGroupIDs of pObject
-               put empty into url ("file:sharedGroups/"&UUIDForObject(the long id of background id tID of pObject))
+               put empty into url ("file:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups/"&UUIDForObject(the long id of background id tID of pObject))
                ExportObject the long id of background id tID of pObject,true,false
+            end repeat
+         end if
+         -- substacks
+         if the substacks of pObject is not empty then
+            if there is not a folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/substacks") then
+               create folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/substacks")
+            end if
+            repeat for each line tStack in the substacks of pObject
+               put empty into url ("file:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/substacks/"&UUIDForObject(the long id of stack tStack))
+               ExportStack tStack
             end repeat
          end if
          break
@@ -1095,14 +1080,14 @@ end ProjectsFile
 
 // Return a path relative to the stack directory for an object
 // Note stacks are treated differently and their data is in the stack directory
-// objects/c0/63d56b-c5b3-429e-af00-5a6f97d7464d
+// c0/63d56b-c5b3-429e-af00-5a6f97d7464d
 private function UUIDToObjectPath pUUID
-   return "objects/" & char 1 to 2 of pUUID & slash & char 3 to -1 of pUUID
+   return char 1 to 2 of pUUID & slash & char 3 to -1 of pUUID
 end UUIDToObjectPath
 
 // Return a uuid for an object given the path relative to the stack directory
 // Note stacks are treated differently and their data is in the stack directory
 private function ObjectPathToUUID pObjectPath
    set the itemDelimiter to slash
-   return item 2 of pObjectPath & item 3 of pObjectPath
+   return item 1 of pObjectPath & item 2 of pObjectPath
 end ObjectPathToUUID
