@@ -1,0 +1,22 @@
+on selectionChanged pHilitedIndex,pOldHilitedIndex
+   local tPath,tConflicts
+   # save last project
+   if pOldHilitedIndex is not empty AND pHilitedIndex is not pOldHilitedIndex then
+      SaveProject pOldHilitedIndex
+   end if
+   # display current project
+   put the dgDataOfIndex[pHilitedIndex] of me into tData
+   put tData["build path"] into fld "build path"
+   
+   put PathForProject(pHilitedIndex) into tPath
+   put tPath into fld "project path"
+   put getConflicts() into tConflicts
+   
+   repeat for each key tIndex in tData["stackFiles"]
+      put tConflicts[tPath & slash & tData["stackFiles"][tIndex]] is an array into tStacks[tIndex]["conflict"]
+      put tData["stackFiles"][tIndex] into tStacks[tIndex]["file"]
+   end repeat
+   set the dgData of group "stackFiles" to tStacks
+   
+   UpdateTags pHilitedIndex
+end selectionChanged

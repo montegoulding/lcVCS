@@ -1,0 +1,30 @@
+on preOpenCard
+   set the dgData of group "search" to empty
+   send "Search" to me in 0 milliseconds
+end preOpenCard
+
+on Search
+   set the httpHeaders to "Accept: application/vnd.github.preview"
+   # fork:true doesn't return anything for some reason
+   # ideally we would list all forks
+   load url "https://api.github.com/search/code?q=path:lcVCSProject.json&sort=indexed" with message "SearchComplete"
+   show image "loading"
+end Search
+
+on SearchComplete pURL
+   hide image "loading"
+   put url pURL into tJSON
+   put JSONToArray(tJSON) into tArray
+   set the dgData of group "search" to tArray["items"]
+end SearchComplete
+
+on escapeKey
+   close this stack
+end escapeKey
+
+on lcVCSExport
+   if the target is me then
+      put empty into fld "progress"
+      set the dgData of group "search" to empty
+   end if
+end lcVCSExport

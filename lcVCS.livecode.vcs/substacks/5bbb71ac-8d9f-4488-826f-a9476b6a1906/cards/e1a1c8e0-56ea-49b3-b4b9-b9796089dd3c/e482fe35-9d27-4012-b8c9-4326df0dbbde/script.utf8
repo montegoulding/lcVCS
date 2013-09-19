@@ -1,3 +1,0 @@
-on mouseUp
-   ImportProjectAtIndex the dgHilitedIndex of group "projects"
-end mouseUp

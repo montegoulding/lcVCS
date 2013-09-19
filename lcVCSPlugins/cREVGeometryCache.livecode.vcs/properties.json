@@ -3,7 +3,7 @@
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
     "customKeys": {
-      "uCustomPropertySet": "cREVGeometryCache",
+      "uCustomPropertySet": "cREVGeometryCache\ncREVGeometrycache",
       "uResolveUUIDs": "false"
     }
   },
