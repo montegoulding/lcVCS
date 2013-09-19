@@ -982,7 +982,7 @@ end sharedObject
 -- this makes sure the datagrid behaviors have the same UUID on everyone's version of the IDE
 command SetDataGridUUIDs
    local tVersion
-   put the customProperties["uDataGridBehaviors"] of this stack into tVersion
+   put the customProperties["uDataGridBehaviors"] of me into tVersion
    repeat for each key tID in tVersion
       set the customProperties["uVersion"] of control id tID of stack "revDataGridLibrary" to tVersion[tID]
    end repeat
@@ -992,9 +992,9 @@ end SetDataGridUUIDs
 -- this loads the datagrid's uuids so se don't go searching for them
 command LoadDataGridUUIDs
    local tVersion
-   put the customProperties["uDataGridBehaviors"] of this stack into tVersion
+   put the customProperties["uDataGridBehaviors"] of me into tVersion
    repeat for each key tID in tVersion
-      put the long id of  control id tID of stack "revDataGridLibrary" into sUUIDMap[tVersion[tID]["UUID"]]
+      put the long id of control id tID of stack "revDataGridLibrary" into sUUIDMap[tVersion[tID]["UUID"]]
    end repeat
 end LoadDataGridUUIDs
 
@@ -1004,7 +1004,7 @@ command LoadPlugins
    set the caseSensitive to true
    delete variable sPlugins -- just incase someone is reloading and has removed a plugin
    put the defaultFolder into tOldDefaultFolder
-   put the effective filename of this stack into tPath
+   put the effective filename of me into tPath
    set the itemDel to "/"
    put "lcVCSPlugins" into item -1 of tPath
    set the defaultFolder to tPath
