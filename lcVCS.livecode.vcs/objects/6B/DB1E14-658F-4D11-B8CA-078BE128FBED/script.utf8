@@ -1,19 +1,21 @@
 local sProjects
 
 on preOpenStack
-   SetDataGridUUIDs
-   LoadPlugins
-   if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
-      send "DeleteLoader" to me in 0 milliseconds
-      modeless "lcVCSProjects"
-   else
-      try
-         put JSONToArray(url ("binfile:"&ProjectsFile())) into sProjects
-      end try
-      # asynchronously fetch current projects
-      send "FetchProject" to me in 20 milliseconds
+   if the target is me then
+      SetDataGridUUIDs
+      LoadPlugins
+      if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
+         send "DeleteLoader" to me in 0 milliseconds
+         modeless "lcVCSProjects"
+      else
+         try
+            put JSONToArray(url ("binfile:"&ProjectsFile())) into sProjects
+         end try
+         # asynchronously fetch current projects
+         send "FetchProject" to me in 20 milliseconds
+      end if
+      close this stack
    end if
-   close this stack
 end preOpenStack
 
 -- funky stuff to reload lcVCS after it imports itself

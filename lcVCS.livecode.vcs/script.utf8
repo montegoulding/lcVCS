@@ -1073,7 +1073,7 @@ function FindParent pObject,pType,pShared
       end if
    end if
    
-   if word 1 of pObject is pType and tStat then
+   if tType is pType and tStat then
       return pObject
    else
       return FindParent(the long owner of pObject,pType,pShared)

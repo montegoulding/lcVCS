@@ -4,11 +4,20 @@ on preOpenCard
 end preOpenCard
 
 on Search
+   local tOriginalHeaders
+   put the httpHeaders into tOriginalHeaders
    set the httpHeaders to "Accept: application/vnd.github.preview"
+   
+   # unfortunately there appears to be no way to get the current
+   # ssl verification so it can't be set back to it's current state
+   libURLSetSSLVerification false
+   
    # fork:true doesn't return anything for some reason
    # ideally we would list all forks
    load url "https://api.github.com/search/code?q=path:lcVCSProject.json&sort=indexed" with message "SearchComplete"
    show image "loading"
+   
+   set the httpHeaders to tOriginalHeaders
 end Search
 
 on SearchComplete pURL
