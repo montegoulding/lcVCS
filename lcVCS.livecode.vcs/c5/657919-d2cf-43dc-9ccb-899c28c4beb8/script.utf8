@@ -206,6 +206,9 @@ on lcVCSExport
       set the dgData of group "script" of card "script" to empty
       set the dgData of group "properties" of card "properties" to empty
       set the dgData of group "custom properties" of card "custom properties" to empty
+      set the label of btn "objects" to " "
+      disable btn "objects"
+      set the menuHistory of btn "ConflictType" to 1
    end if
 end lcVCSExport
 
