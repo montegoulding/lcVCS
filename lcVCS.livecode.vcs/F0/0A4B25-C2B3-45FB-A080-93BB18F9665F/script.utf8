@@ -935,6 +935,7 @@ function ParseConflictedFile tFile
             break
          case "|||||||" -- Original starts on next line
             put "O" into tState
+            break
          case "=======" -- B starts on next line
             put "B" into tState
             break
@@ -1020,7 +1021,7 @@ function ArrayToJSON pArray,pForceRootType,pPretty,pKey
    repeat for each line tKey in the keys of pArray
       if pArray[tKey] is an array then
          put "}"&ArrayToJSON(pArray[tKey],pForceRootType,,tKey) into tArray[tKey]
-      else if pKey is not "properties" and needsEncoding(pArray[tKey]) then
+      else if (pKey is not "properties" or tKey is "text") and needsEncoding(pArray[tKey]) then
          put "base64Decode("&base64Encode(pArray[tKey])&")" into tArray[tKey]
       else 
          -- force all elements to be strings

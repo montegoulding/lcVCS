@@ -45,7 +45,7 @@
     "outerGlow": "",
     "paintCompression": "png",
     "palindromeFrames": "false",
-    "rect": "114,308,132,326",
+    "rect": "114,91,132,109",
     "repeatCount": "-1",
     "resizeQuality": "normal",
     "shadowColor": "",
@@ -58,7 +58,7 @@
     "topColor": "",
     "topPattern": "",
     "traversalOn": "false",
-    "visible": "true",
+    "visible": "false",
     "xHot": "1",
     "yHot": "1"
   }

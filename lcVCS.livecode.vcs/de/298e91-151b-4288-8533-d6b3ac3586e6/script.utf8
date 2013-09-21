@@ -56,7 +56,7 @@ on AddProject pPath
    dispatch "ScrollIndexIntoView" to group "projects" with tIndex
    dispatch "selectionChanged" to group "projects" with tIndex,tOldIndex
    SaveProject tIndex
-   put pPath into sProjects[max(replaceText(the keys of tProjects,cr,comma)) + 1]
+   put pPath into sProjects[tIndex]
    put ArrayToJSON(sProjects) into url ("binfile:"&ProjectsFile())
 end AddProject
 

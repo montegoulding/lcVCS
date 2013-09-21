@@ -6,7 +6,7 @@
       "revUniqueID": "1376538871069"
     },
     "cREVTable": {
-      "currentview": "<p>The build path the stackfiles should be imported to and exported from. The merge function is run on the path so you can use the following for the user extensions/Plugins directory: </p>\n<p>&lt;? return revEnvironmentUserPluginsPath() ?&gt;</p>"
+      "currentview": "<p>The build path the stackfiles should be imported to and exported from. Relative paths are are relative to the project path. The merge function is run on the path so you can use the following for the user extensions/Plugins directory: &lt;? return revEnvironmentUserPluginsPath() ?&gt;</p>"
     }
   },
   "properties": {
@@ -40,7 +40,7 @@
     "hiliteColor": "",
     "hilitePattern": "",
     "hilitedLines": "",
-    "htmlText": "<p>The build path the stackfiles should be imported to and exported from. The merge function is run on the path so you can use the following for the user extensions/Plugins directory: </p>\n<p>&lt;? return revEnvironmentUserPluginsPath() ?&gt;</p>",
+    "htmlText": "<p>The build path the stackfiles should be imported to and exported from. Relative paths are are relative to the project path. The merge function is run on the path so you can use the following for the user extensions/Plugins directory: &lt;? return revEnvironmentUserPluginsPath() ?&gt;</p>",
     "id": "1094",
     "ink": "srcCopy",
     "innerGlow": "",
