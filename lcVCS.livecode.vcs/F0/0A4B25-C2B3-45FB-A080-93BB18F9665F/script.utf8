@@ -479,7 +479,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                case "cards"
                   -- find card layer 1 and put it's UUID into 
                   repeat with X=1 to the number of cards of sUUIDMap[pStackUUID]
-                     put UUIDForObject(the long id of card X of sUUIDMap[pStackUUID]) into pCardUUID
+                     put sUUIDMap[the long id of card X of sUUIDMap[pStackUUID]] into pCardUUID
                      if sLayersToSet["cardlayers"][pCardUUID] is 1 then exit repeat
                   end repeat
                   break
@@ -533,7 +533,7 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
             break
          case tProperty is "layer"
             if pProperties["class"] is "com.runrev.engine.card" then
-               put pProperties["properties"][tProperty] into sLayersToSet["cardlayers"][UUIDForObject(the owner of sUUIDMap[pProperties["UUID"]])][pProperties["UUID"]]
+               put pProperties["properties"][tProperty] into sLayersToSet["cardlayers"][sUUIDMap[the owner of sUUIDMap[pProperties["UUID"]]]][pProperties["UUID"]]
             else
                if pProperties["properties"][tProperty] is an array then
                   put "" into tFirstCard["layer"]
@@ -547,7 +547,8 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
                else
                   put FindParent(sUUIDMap[pProperties["UUID"]],"group",true) into tSharedGroup
                   if tSharedGroup is not empty then
-                     put the abbrev id of sUUIDMap[pProperties["UUID"]] && "of" && the abbrev id of the defaultStack &cr after sLayersToSet["sharedobjectlayers"][UUIDForObject(tSharedGroup)][pProperties["properties"][tProperty]]
+                     put the abbrev id of tSharedGroup&" of "&the abbrev id of the defaultStack into tSharedGroup
+                     put the abbrev id of sUUIDMap[pProperties["UUID"]] && "of" && the abbrev id of the defaultStack &cr after sLayersToSet["sharedobjectlayers"][sUUIDMap[tSharedGroup]][pProperties["properties"][tProperty]]
                   else
                      -- support calling this command independent of main import for conflict resolution
                      if pCardUUID is empty then
@@ -708,12 +709,18 @@ function ExportObjectProperties pObject,pShared
             put the tProperty of pObject into tID
             if tID <> "" and tID <> 0 then
                -- if unresolved the property will be cleared
-               _internal resolve image id tID relative to pObject
+               --_internal resolve image id tID relative to pObject
+               --resolve image id tID relative to pObject
+               #! Workaround using behavior heirarchy until resolve image syntax accepted
+               get ResolveImage(tID,pObject)
                put it into tObject["properties"][tProperty]
+               
                if there is a tObject["properties"][tProperty] then
                   put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
                end if
             end if
+         catch e
+            write e&cr to stdout
          end try
       end repeat
    end if
@@ -776,7 +783,8 @@ function ExportObjectProperties pObject,pShared
          repeat for each item tProperty in kIconProps
             try
                if tObject["properties"][tProperty] <> "" and tObject["properties"][tProperty] <> 0 then
-                  _internal resolve image id tObject["properties"][tProperty] relative to pObject
+                  get ResolveImage(tObject["properties"][tProperty],pObject)
+                  --_internal resolve image id tObject["properties"][tProperty] relative to pObject
                   put it into tObject["properties"][tProperty]
                   if tObject["properties"][tProperty] is not empty then
                      put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
@@ -1072,12 +1080,21 @@ function FindParent pObject,pType,pShared
 end FindParent
 
 function ProjectsFile
-   put specialFolderPath("support")&"/lcVCS" into tFolder
-   if there is not a folder tFolder then
-      create folder tFolder
-   end if
-   return tFolder&"/lcVCSProjects.json"
+   return PreferencePath()&"/lcVCSProjects.json"
 end ProjectsFile
+
+function PreferencePath
+   local tFolder
+   
+   if the platform is "Linux" then
+      put "~/.lcVCS" into tFolder
+   else
+      put specialFolderPath("support")&"/lcVCS" into tFolder
+   end if
+   EnsureFolder tFolder
+   
+   return tFolder
+end PreferencePath
 
 // Return a path relative to the stack directory for an object
 // Note stacks are treated differently and their data is in the stack directory

@@ -1,0 +1,4 @@
+function ResolveImage pID,pObject
+   resolve image id pID relative to pObject
+   return it
+end ResolveImage
