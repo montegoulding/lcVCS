@@ -17,6 +17,9 @@ local sTempNameSuffix -- a suffix (uuid) used when lcVCS is importing itself
 local sStackPath -- the path to the stack being imported
 local sMainstackPath -- the path to the mainstack being imported
 
+# Use the optional pStackFile parameter to export only one stackFile from
+# a project. This should only be done if there is a plugin resetting
+# the UUIDs of objects after a stack clone (and ideally after other object copies).
 command ExportProject pFilePath,pStackFile
    start using stack "lcVCS"
    delete variable sUUIDMap
