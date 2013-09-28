@@ -17,15 +17,17 @@ local sTempNameSuffix -- a suffix (uuid) used when lcVCS is importing itself
 local sStackPath -- the path to the stack being imported
 local sMainstackPath -- the path to the mainstack being imported
 
-command ExportProject pFilePath
+command ExportProject pFilePath,pStackFile
    start using stack "lcVCS"
    delete variable sUUIDMap
    lock messages
    put ResolveProjectFile(pFilePath) into tProject
    set the itemDel to slash
    repeat with tIndex = 1 to the number of elements of tProject["stackFiles"]
-      EnsureFolder tProject["exported stackfiles"][tIndex]
-      ExportStackFile tProject["imported stackfiles"][tIndex], tProject["exported stackfiles"][tIndex]
+      if pStackFile is empty or tProject["imported stackfiles"][tIndex] is pStackFile then
+         EnsureFolder tProject["exported stackfiles"][tIndex]
+         ExportStackFile tProject["imported stackfiles"][tIndex], tProject["exported stackfiles"][tIndex]
+      end if
    end repeat
    stop using stack "lcVCS"
 end ExportProject
