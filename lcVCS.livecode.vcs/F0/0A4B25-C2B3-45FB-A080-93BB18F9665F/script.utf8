@@ -16,12 +16,13 @@ local sPlugins -- an array with loaded plugins for UUID resolution and unnecessa
 local sTempNameSuffix -- a suffix (uuid) used when lcVCS is importing itself
 local sStackPath -- the path to the stack being imported
 local sMainstackPath -- the path to the mainstack being imported
+local sPrefA -- lcVCS preferences
 
 # Use the optional pStackFile parameter to export only one stackFile from
 # a project. This should only be done if there is a plugin resetting
 # the UUIDs of objects after a stack clone (and ideally after other object copies).
 command ExportProject pFilePath,pStackFile
-   start using stack "lcVCS"
+   start using me
    delete variable sUUIDMap
    lock messages
    put ResolveProjectFile(pFilePath) into tProject
@@ -32,32 +33,42 @@ command ExportProject pFilePath,pStackFile
          ExportStackFile tProject["imported stackfiles"][tIndex], tProject["exported stackfiles"][tIndex]
       end if
    end repeat
-   stop using stack "lcVCS"
+   stop using me
 end ExportProject
 
 command ImportProject pFilePath
-   local tCaseSensitve,tProject
-   start using stack "lcVCS"
+   local tCaseSensitve,tProject,tIsLcVCS
+   
+   start using me
+   
    lock messages
+   
    delete variable sUUIDMap
    LoadDataGridUUIDs
    delete variable sConflicts
    delete variable sStacksToDelete
    put uuid() into sTempNameSuffix
+   
    put ResolveProjectFile(pFilePath) into tProject
    set the itemDel to slash
+   put tProject["name"] = "lcVCS" and the environment is "development" into tIsLcVCS
+   
    repeat with tIndex = 1 to the number of elements of tProject["stackFiles"]
       EnsureFolder item 1 to -2 of tProject["imported stackFiles"][tIndex]
-      ImportStackFile tProject["exported stackFiles"][tIndex], tProject["imported stackFiles"][tIndex], tProject["name"] = "lcVCS"
+      ImportStackFile tProject["exported stackFiles"][tIndex], tProject["imported stackFiles"][tIndex], tIsLcVCS
    end repeat
+   
    repeat for each key tStack in sStacksToDelete
       delete stack tStack
    end repeat
+   
    unlock messages
-   if tProject["name"] = "lcVCS" then
+   
+   if tIsLcVCS then
       send "PostImportStack sTempNameSuffix" to stack ("lcVCS"&sTempNameSuffix) in 0 milliseconds
    end if
-   stop using stack "lcVCS"
+   
+   stop using me
 end ImportProject
 
 command EnsureFolder pFolder
@@ -989,10 +1000,10 @@ command LoadPlugins
    set the caseSensitive to true
    delete variable sPlugins -- just incase someone is reloading and has removed a plugin
    put the defaultFolder into tOldDefaultFolder
-   put the effective filename of me into tPath
-   set the itemDel to "/"
-   put "lcVCSPlugins" into item -1 of tPath
+   
+   put revEnvironmentUserPluginsPath()&"/lcVCSPlugins" into tPath
    set the defaultFolder to tPath
+   
    repeat for each line tStack in the files
       -- each plugin is named with the custom property set name
       if there is a stack tStack then 
@@ -1003,6 +1014,7 @@ command LoadPlugins
          end repeat
       end if
    end repeat
+   
    set the defaultFolder to tOldDefaultFolder
 end LoadPlugins
 
@@ -1065,10 +1077,6 @@ function FindParent pObject,pType,pShared
    end if
 end FindParent
 
-function ProjectsFile
-   return PreferencePath()&"/lcVCSProjects.json"
-end ProjectsFile
-
 function PreferencePath
    local tFolder
    
@@ -1081,6 +1089,37 @@ function PreferencePath
    
    return tFolder
 end PreferencePath
+
+command LoadPreferences
+   local tFile
+   
+   put PreferencePath() & slash & "preferences.dat" into tFile
+   
+   if there is a file tFile then
+      try
+         put arrayDecode(url ("binfile:"&tFile)) into sPrefA
+      end try
+   end if
+end LoadPreferences
+
+command SavePreferences
+   local tFile
+   
+   put PreferencePath() & slash & "preferences.dat" into tFile
+   
+   try
+      put arrayEncode(sPrefA) into url ("binfile:"&tFile)
+   end try
+end SavePreferences
+
+command SetPreference pPreference,pValue
+   put pValue into sPrefA[pPreference]
+   SavePreferences
+end SetPreference
+
+function GetPreference pPreference
+   return sPrefA[pPreference]
+end GetPreference
 
 // Return a path relative to the stack directory for an object
 // Note stacks are treated differently and their data is in the stack directory
@@ -1095,3 +1134,66 @@ private function ObjectPathToUUID pObjectPath
    set the itemDelimiter to slash
    return item 1 of pObjectPath & item 2 of pObjectPath
 end ObjectPathToUUID
+
+on savingStandalone
+   local tInProject = false
+   
+   put the folder into tOldFolder
+   
+   put the effective filename of me into tStackFile
+   
+   LoadPreferences
+   put GetPreference("Projects") into tProjects
+   
+   -- resolve all project files
+   repeat for each key tIndex in tProjects
+      put ResolveProjectFile(tProjects[tIndex]) into tProjectA
+      repeat for each key tFileIndex in tProjectA["imported stackFiles"]
+         if tProjectA["imported stackFiles"][tFileIndex] is tStackFile then
+            put true into tInProject
+            exit repeat
+         end if
+      end repeat
+      if tInProject then
+         exit repeat
+      end if
+   end repeat
+   if tInProject then
+      set the folder to tProjectA["exported stackFiles"][1]
+      set the uVersionNumber of me to line 1 of shell("git describe")
+   end if
+   
+   set the folder to tOldFolder
+end savingStandalone
+
+on standaloneSaved pPath
+   lock messages
+   switch the platform
+      case  "Linux"
+         if there is a folder pPath&"lcvcs/Linux" then
+            put "cp "&quote&pPath&"lcvcs/Linux/lcvcs"&quote&&"/usr/bin" into tProcess
+         else
+            put "cp "&quote&pPath&"lcvcs/lcvcs"&quote&&"/usr/bin" into tProcess
+         end if
+         break
+      case "MacOS"
+         if there is a folder pPath&"lcvcs/MacOSX" then
+            put "cp "&quote&pPath&"lcvcs/MacOSX/lcvcs.app/Contents/MacOS/lcvcs"&quote&&"/usr/bin" into tProcess
+         else
+            put "cp "&quote&pPath&"lcvcs/lcvcs.app/Contents/MacOS/lcvcs"&quote&&"/usr/bin" into tProcess
+         end if
+         break
+      case "Win32"
+         #! TODO work out where to save the file on windows
+         #! set registry so the $PATH is right
+         if there is a folder pPath&"lcvcs/Windows" then
+            --put "cp "&quote&pPath&"Windows/lcvcs.exe"&quote&&"/usr/bin" into tProcess
+         else
+            --put "cp "&quote&pPath&"lcvcs.exe"&quote&&"/usr/bin" into tProcess
+         end if
+         break
+   end switch
+   open elevated process tProcess for neither
+   revDeleteFolder pPath&"lcvcs"
+   
+end standaloneSaved

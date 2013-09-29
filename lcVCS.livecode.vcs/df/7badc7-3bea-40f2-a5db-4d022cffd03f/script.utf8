@@ -36,11 +36,9 @@ on mouseUp
          lock screen for visual effect in rect the rect of fld "progress"
          hide field "progress"
          unlock screen with visual effect "reveal up fast"
-         try
-            put JSONToArray(url ("binfile:"&ProjectsFile())) into tProjects
-         end try
+         put GetPreference("Projects") into tProjects
          put the defaultFolder&"/"&tDataA["repository"]["name"]&"/lcVCSProject.json" into tProjects[max(replaceText(the keys of tProjects,cr,comma)) + 1]
-         put ArrayToJSON(tProjects) into url ("binfile:"&ProjectsFile())
+         SetPreference "Projects",sProjects
          set the defaultFolder to tOldDefaultFolder
       end if
    end if

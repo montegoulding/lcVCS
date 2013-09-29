@@ -12,9 +12,7 @@ on ResetProjects pIndex
    if pIndex is not a number then
       put the dgHilitedIndex of group "projects" into pIndex
    end if
-   try
-      put JSONToArray(url ("binfile:"&ProjectsFile())) into sProjects
-   end try
+   put GetPreference("Projects") into sProjects
    repeat for each key tIndex in sProjects
       if there is not a file sProjects[tIndex] then
          delete variable sProjects[tIndex]
@@ -57,7 +55,7 @@ on AddProject pPath
    dispatch "selectionChanged" to group "projects" with tIndex,tOldIndex
    SaveProject tIndex
    put pPath into sProjects[tIndex]
-   put ArrayToJSON(sProjects) into url ("binfile:"&ProjectsFile())
+   SetPreference "Projects",sProjects
 end AddProject
 
 on DeleteProject pIndex
@@ -72,7 +70,7 @@ on DeleteProject pIndex
    else
       ClearAndDisable
    end if
-   put ArrayToJSON(sProjects) into url ("binfile:"&ProjectsFile())
+   SetPreference "Projects",sProjects
 end DeleteProject
 
 on SaveProject pIndex

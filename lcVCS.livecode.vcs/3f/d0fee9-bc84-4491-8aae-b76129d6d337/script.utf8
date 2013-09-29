@@ -1,0 +1,105 @@
+on revHookPostSaveStack pStack
+   local tInProject = false
+   # work out if stack is in a lcVCS project
+   put GetPreference("Projects") into tProjects
+   put the effective fileName of pStack into tStackFile
+   -- resolve all project files
+   repeat for each key tIndex in tProjects
+      put ResolveProjectFile(tProjects[tIndex]) into tProjectA
+      repeat for each key tFileIndex in tProjectA["imported stackFiles"]
+         if tProjectA["imported stackFiles"][tFileIndex] is tStackFile then
+            put true into tInProject
+            exit repeat
+         end if
+      end repeat
+      if tInProject then
+         exit repeat
+      end if
+   end repeat
+   if tInProject then
+      put "lcvcs export -file "&quote&tProjects[tIndex]&quote& " -stackfile "&quote&tStackFile&quote into tProcess
+      open process tProcess for neither
+   end if
+   pass revHookPostSaveStack
+end revHookPostSaveStack
+
+on newStack
+   if the uVersion["UUID"] of the target is not empty then
+      ResetUUIDs the long id of the target
+   end if
+   pass newStack
+end newStack
+
+on newCard
+   if the uVersion["UUID"] of the target is not empty then
+      ResetUUIDs the long id of the target
+   end if
+   pass newCard
+end newCard
+
+on newGroup
+   if the uVersion["UUID"] of the target is not empty then
+      ResetUUIDs the long id of the target
+   end if
+   pass newGroup
+end newGroup
+
+on newField
+   if the uVersion["UUID"] of the target is not empty then
+      ResetUUIDs the long id of the target
+   end if
+   pass newField
+end newField
+
+on newButton
+   if the uVersion["UUID"] of the target is not empty then
+      ResetUUIDs the long id of the target
+   end if
+   pass newButton
+end newButton
+
+on newPlayer
+   if the uVersion["UUID"] of the target is not empty then
+      ResetUUIDs the long id of the target
+   end if
+   pass newPlayer
+end newPlayer
+
+on newGraphic
+   if the uVersion["UUID"] of the target is not empty then
+      ResetUUIDs the long id of the target
+   end if
+   pass newGraphic
+end newGraphic
+
+on newImage
+   if the uVersion["UUID"] of the target is not empty then
+      ResetUUIDs the long id of the target
+   end if
+   pass newImage
+end newImage
+
+private command ResetUUIDs pObject
+   put the short id of pObject into tVersion["ID"]
+   put UUID() into tVersion["UUID"]
+   set the customProperties["uVersion"] of pObject to tVersion
+   
+   switch word 1 of pObject
+      case "stack"
+         repeat for each line tID in the cardIDs of pObject
+            ResetUUIDs "card id "&tID&" of "&pObject
+         end repeat
+         repeat for each line tID in the sharedGroupIDs of pObject
+            ResetUUIDs "bkgnd id "&tID&" of "&pObject
+         end repeat
+         break
+      case "card"
+      case "group"
+      case "bkgnd"
+         repeat for each line tID in the childControlIDs of pObject
+            ResetUUIDs the long id of "control id "&tID&" of "&pObject
+         end repeat
+         break
+   end switch
+end ResetUUIDs
+
