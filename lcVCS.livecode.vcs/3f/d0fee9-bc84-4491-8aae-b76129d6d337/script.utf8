@@ -6,6 +6,7 @@ on revHookPostSaveStack pStack
    if tProjectFile is not empty then
       # appending uuid to ensure each process has a unique name so multiple saves
       # of the same stackfile rapidly always open a new process
+      local tProcess
       put "lcvcs export -file "&q(tProjectFile)&" -stackfile "&q(tStackFile)&&uuid() into tProcess
       open process tProcess for neither
    end if
@@ -69,6 +70,7 @@ on newImage
 end newImage
 
 private command ResetUUIDs pObject
+   local tVersion
    put the short id of pObject into tVersion["ID"]
    put UUID() into tVersion["UUID"]
    set the customProperties["uVersion"] of pObject to tVersion

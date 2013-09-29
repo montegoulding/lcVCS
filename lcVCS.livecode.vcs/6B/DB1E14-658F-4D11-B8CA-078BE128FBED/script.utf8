@@ -272,12 +272,14 @@ on ParseArgs
          repeat for each line tProject in tProjects
             put ResolveProjectFile(tProject) into tProjectA
             put "Project "&tProjectA["name"]&cr&cr after tOut
+            local tProjectClean=true
             repeat for each key tIndex in tProjectA["exported stackFiles"]
                put tStatus into tFilteredStatus
                put tProjectA["exported stackFiles"][tIndex] into tStackFile
                replace tOptionA["repo"] with empty in tStackFile
                filter tFilteredStatus with "* "&tStackFile&"/*"
                if tFilteredStatus is not empty then
+                  put false into tProjectClean
                   delete char -4 to -1 of tStackFile
                   put "StackFile: "&tStackFile&cr&cr after tOut
                   repeat for each line tObject in tFilteredStatus
@@ -370,10 +372,14 @@ on ParseArgs
                         put tType & cr & tResults[tType] after tOut
                      end if
                   end repeat
+                  
                   delete variable tResults
+                  delete variable sTreeA
                end if
             end repeat
-            delete variable sTreeA
+            if tProjectClean then
+               put "Clean" & cr after tOut
+            end if
          end repeat
          break
       case "name"

@@ -22,6 +22,7 @@ local sPrefA -- lcVCS preferences
 # a project. This should only be done if there is a plugin resetting
 # the UUIDs of objects after a stack clone (and ideally after other object copies).
 command ExportProject pFilePath,pStackFile
+   local tProject
    start using me
    delete variable sUUIDMap
    lock messages
@@ -113,9 +114,9 @@ end ResolveProjectFile
 
 # Export the stackfile. Creates a directory at the same path as the stackfile&.kExtension
 command ExportStackFile pFilePath,pFolder
-   local tFolder,tStacks,tSubstacks,tIndex,tOldDefaultFolder
+   local tFolder,tStacks,tSubstacks,tIndex,tOriginalFolder
    lock screen
-   put the defaultFolder into tOldDefaultFolder
+   put the folder into tOriginalFolder
    if there is a stack pFilePath then
       -- mainstack
       if pFolder is empty then
@@ -132,30 +133,30 @@ command ExportStackFile pFilePath,pFolder
       end if
       revDeleteFolder tFolder
       create folder tFolder
-      set the defaultFolder to tFolder
+      set the folder to tFolder
       put tFolder into sMainstackPath
       put empty into url ("file:"&UUIDForObject(the long id of stack the mainstack of stack pFilePath))
       ExportStack the mainstack of stack pFilePath
       save stack pFilePath
    end if
-   set the defaultFolder to tOldDefaultFolder
+   set the folder to tOriginalFolder
 end ExportStackFile
 
 # Import a stackfile from a folder
 on ImportStackFile pFolder,pFilePath,pIslcVCS
-   local tUUIDSearchDone = "false",tOldDefaultFolder,tStackFileMainstack,tUUIDs
+   local tUUIDSearchDone = "false",tOriginalFolder,tStackFileMainstack,tUUIDs
    --lock screen
    lock messages
    put pFilePath into sCurrentStackFilePath
-   put the defaultFolder into tOldDefaultFolder
+   put the folder into tOriginalFolder
    delete variable sUUIDsToResolve
    delete variable sLayersToSet
    delete variable sPropsToSet
-   set the defaultFolder to pFolder
+   set the folder to pFolder
    put pFolder into sMainstackPath
    put the files into tUUIDs
    filter tUUIDs without "*.*"
-   set the defaultFolder to UUIDToObjectPath(line 1 of tUUIDs)
+   set the folder to UUIDToObjectPath(line 1 of tUUIDs)
    ImportObject "","","",pIslcVCS
    put the short name of sUUIDMap[the result] into tStackFileMainstack
    -- only load UUIDs from all mainstacks if necessary
@@ -240,7 +241,7 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
       put "" into sStacksToDelete[tStackFileMainstack]
    end if
    
-   set the defaultFolder to tOldDefaultFolder
+   set the folder to tOriginalFolder
 end ImportStackFile
 
 # Set the layers of controls
@@ -314,7 +315,7 @@ end PostImportStack
 
 
 on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
-   local tObject,tSetName,tType,tError,tConflict=false,tHilitedButton,tResize,tUUIDS,tStackPath
+   local tObject,tSetName,tType,tError,tConflict="false",tHilitedButton,tResize,tUUIDS,tStackPath,tUserState,tScript,tVersion,tOriginalFolder
    put url ("binfile:properties.json") into tObject
    if tObject is not empty then
       try
@@ -336,7 +337,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
             --            delete variable tObject["B"]
             --         end if
          catch tError
-            answer "There was an error decoding properties file:"&cr&the defaultFolder&"/properties.json"&cr&tError
+            answer "There was an error decoding properties file:"&cr&the folder&"/properties.json"&cr&tError
             exit to top
          end try
       end try
@@ -357,7 +358,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
       put uniDecode(uniEncode(tObject["A"]["properties"]["name"],"UTF8"),"ANSI") into tObject["A"]["properties"]["name"]
       switch tObject["A"]["class"]
          case "com.runrev.engine.stack"
-            put the defaultFolder into sStackPath
+            put the folder into sStackPath
             -- support VCS on self
             if pIslcVCS then
                create stack (tObject["A"]["properties"]["name"]&sTempNameSuffix)
@@ -473,21 +474,21 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
          put the files into tUUIDs
          filter tUUIDs without "*.*"
          repeat for each line tUUID in tUUIDs
-            set the defaultFolder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
+            set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
             ImportObject pStackUUID,pCardUUID,tObject["A"]["UUID"],pIslcVCS
          end repeat
       else
-         put the defaultFolder into tOriginalDefaultFolder
+         put the folder into tOriginalFolder
          repeat for each item tType in "cards,sharedGroups,substacks"
             if there is a folder tType then
-               set the defaultFolder to tType
+               set the folder to tType
                put the files into tUUIDs
                filter tUUIDs without "*.*"
                repeat for each line tUUID in tUUIDs
                   if tType = "sharedGroups" then
                      go ("cd 1 of "&sUUIDMap[pStackUUID])
                   end if
-                  set the defaultFolder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
+                  set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
                   ImportObject pStackUUID,pCardUUID,,pIslcVCS
                end repeat
             end if
@@ -504,7 +505,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                   close this stack
                   break
             end switch
-            set the defaultFolder to tOriginalDefaultFolder
+            set the folder to tOriginalFolder
          end repeat
       end if
       if tObject["A"]["class"] is "com.runrev.engine.group" then
@@ -515,7 +516,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
 end ImportObject
 
 command SetObjectProperties pProperties,pCardUUID,pDontSetNames
-   local tOwner,tUUIDsToResolve,tCurrentProps
+   local tOwner,tUUIDsToResolve,tCurrentProps,tFirstCard,tSharedGroup,tAbbrevID,tControlRef
    set the caseSensitive to true
    if pDontSetNames then
       delete variable pProperties["properties"]["name"]
@@ -640,6 +641,7 @@ function GetConflicts
 end GetConflicts
 
 function UUIDForObject pObject
+   local tVersion
    # ensure uniqueness of UUID in project
    if not exists(pObject) then return empty
    put the customProperties["uVersion"] of pObject into tVersion
@@ -671,8 +673,8 @@ command ExportStack pStack
 end ExportStack
 
 function ExportObjectProperties pObject,pShared
-   local tImage,tObject,tGroupCardRef,tPaintCompression,tPropertySetA,tUserStateSetA,tUserState,tSharedObject,tCardIDs,tObjectFirstCardRef,tOldDefaultFolder
-   put the defaultFolder into tOldDefaultFolder
+   local tImage,tObject,tGroupCardRef,tPaintCompression,tPropertySetA,tUserStateSetA,tUserState,tSharedObject,tCardIDs,tObjectFirstCardRef,tOriginalFolder,tObjectPath,tScript,tID,tCardRef
+   put the folder into tOriginalFolder
    unlock messages
    dispatch "lcVCSExport" to pObject
    lock messages
@@ -680,7 +682,7 @@ function ExportObjectProperties pObject,pShared
    put UUIDForObject(pObject) into tObject["UUID"]
    put sMainstackPath & slash & UUIDToObjectPath(tObject["UUID"]) into tObjectPath
    EnsureFolder tObjectPath
-   set the defaultFolder to tObjectPath
+   set the folder to tObjectPath
    put pObject into sUUIDMap[tObject["UUID"]]
    -- properties
    put the properties of pObject into tObject["properties"]
@@ -780,6 +782,7 @@ function ExportObjectProperties pObject,pShared
       case "button"
          if not the sharedHilite of pObject and pShared then
             put word 3 of pObject into tID
+            local tUUID
             repeat for each line tCardID in the cardIDs of the defaultStack
                if there is a button id tID of card id tCardID of the defaultStack then
                   put UUIDForObject(the long id of card id tCardID of the defaultStack) into tUUID
@@ -850,6 +853,7 @@ function ExportObjectProperties pObject,pShared
    if the number of elements of tObject["customPropertySets"] is 0 then
       delete variable tObject["customPropertySets"]
    end if
+   local tJSON
    put ArrayToJSON(tObject,,true) into tJSON
    put tJSON into url ("binfile:properties.json")
    if the number of elements of tUserState is not 0 then
@@ -867,17 +871,18 @@ function ExportObjectProperties pObject,pShared
          delete file "script.utf8"
       end if
    end if
-   set the defaultFolder to tOldDefaultFolder
+   set the folder to tOriginalFolder
    return tObject["UUID"]
 end ExportObjectProperties
 
 command ExportObject pObject,pShared,pType
-   local tObjects,tOldDefaultFolder
-   put the defaultFolder into tOldDefaultFolder
+   local tObjects,tOriginalFolder
+   put the folder into tOriginalFolder
    -- properties of stack
+   local tUUID
    put ExportObjectProperties(pObject,pShared) into tUUID
    -- child objects
-   put 1 into tIndex
+   local tIndex="1"
    switch word 1 of pObject
       case "stack"
          -- cards
@@ -915,6 +920,7 @@ command ExportObject pObject,pShared,pType
          -- only if it's not a cusom control
          if the cIDEProperties["cCustomControlID"] of pObject = "" then
             if the number of controls of pObject is not 0 then
+               local tControlRef
                repeat for each line tControlID in the childControlIDs of pObject
                   put the long id of control id tControlID of pObject into tControlRef
                   if not (word 1 of tControlRef is "group" and \
@@ -993,13 +999,13 @@ end LoadDataGridUUIDs
 
 -- load plugins
 command LoadPlugins
-   local tOldDefaultFolder,tPath
+   local tOriginalFolder,tPath
    set the caseSensitive to true
    delete variable sPlugins -- just incase someone is reloading and has removed a plugin
-   put the defaultFolder into tOldDefaultFolder
+   put the folder into tOriginalFolder
    
    put revEnvironmentUserPluginsPath()&"/lcVCSPlugins" into tPath
-   set the defaultFolder to tPath
+   set the folder to tPath
    
    repeat for each line tStack in the files
       -- each plugin is named with the custom property set name
@@ -1012,7 +1018,7 @@ command LoadPlugins
       end if
    end repeat
    
-   set the defaultFolder to tOldDefaultFolder
+   set the folder to tOriginalFolder
 end LoadPlugins
 
 -- pArray - array to be encoded
@@ -1136,14 +1142,15 @@ on savingStandalone
    local tProjectA
    
    put ProjectForStackFile(the effective filename of me,true) into tProjectA
-   put the folder into tOldFolder
+   local tOriginalFolder
+   put the folder into tOriginalFolder
    
    if tProjectA is an array then
       set the folder to tProjectA["exported stackFiles"][1]
       set the uVersionNumber of me to line 1 of shell("git describe")
    end if
    
-   set the folder to tOldFolder
+   set the folder to tOriginalFolder
 end savingStandalone
 
 function ProjectForStackFile pStackFile,pResolved
@@ -1172,6 +1179,7 @@ end ProjectForStackFile
 
 on standaloneSaved pPath
    lock messages
+   local tProcess
    switch the platform
       case  "Linux"
          if there is a folder pPath&"lcvcs/Linux" then
