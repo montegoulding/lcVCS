@@ -1194,8 +1194,10 @@ on standaloneSaved pPath
          constant kRegistryPath = "HKEY_LOCAL_MACHINE\CurrentControlSet\Control\Session Manager\Environment\Path"
          put queryRegistry(kRegistryPath) into tPath
          set the itemDel to ";"
-         if PreferencePath() is not among the items of tPath then
-            put ";"&PreferencePath() after tPath
+         local tPrefPath
+         put replaceText(PreferencePath(),"/","\") into tPrefPath
+         if tPrefPath is not among the items of tPath then
+            put ";"&tPrefPath after tPath
             get setRegistry(kRegistryPath,tPath)
          end if
          break
