@@ -836,7 +836,7 @@ function ExportObjectProperties pObject,pShared
             put "customKeys" into tCustomPropertySet
          end if
          if there is a stack sPlugins[tCustomPropertySet]["stack"] then
-            dispatch "lcVCSFilterExportedProps" to stack sPlugins[tCustomPropertySet]["stack"] with pObject,tPropertySetA,tWorkspaceSetA
+            dispatch "lcVCSFilterExportedProps" to stack sPlugins[tCustomPropertySet]["stack"] with pObject,tPropertySetA,tUserStateSetA
          end if
          if the number of elements in tPropertySetA > 0 then
             put tPropertySetA into tObject["customPropertySets"][uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
@@ -849,9 +849,6 @@ function ExportObjectProperties pObject,pShared
    end if
    if the number of elements of tObject["customPropertySets"] is 0 then
       delete variable tObject["customPropertySets"]
-   end if
-   if the number of elements of tObject["properties"] is 0 then
-      delete variable tObject["properties"]
    end if
    put ArrayToJSON(tObject,,true) into tJSON
    put tJSON into url ("binfile:properties.json")
