@@ -1171,25 +1171,32 @@ on standaloneSaved pPath
    switch the platform
       case  "Linux"
          if there is a folder pPath&"lcvcs/Linux" then
-            put "cp "&quote&pPath&"lcvcs/Linux/lcvcs"&quote&&"/usr/bin" into tProcess
+            put "cp "&q(pPath&"lcvcs/Linux/lcvcs")&&"/usr/bin" into tProcess
          else
-            put "cp "&quote&pPath&"lcvcs/lcvcs"&quote&&"/usr/bin" into tProcess
+            put "cp "&q(pPath&"lcvcs/lcvcs")&&"/usr/bin" into tProcess
          end if
          break
       case "MacOS"
          if there is a folder pPath&"lcvcs/MacOSX" then
-            put "cp "&quote&pPath&"lcvcs/MacOSX/lcvcs.app/Contents/MacOS/lcvcs"&quote&&"/usr/bin" into tProcess
+            put "cp "&q(pPath&"lcvcs/MacOSX/lcvcs.app/Contents/MacOS/lcvcs")&&"/usr/bin" into tProcess
          else
-            put "cp "&quote&pPath&"lcvcs/lcvcs.app/Contents/MacOS/lcvcs"&quote&&"/usr/bin" into tProcess
+            put "cp "&q(pPath&"lcvcs/lcvcs.app/Contents/MacOS/lcvcs")&&"/usr/bin" into tProcess
          end if
          break
       case "Win32"
-         #! TODO work out where to save the file on windows
-         #! set registry so the $PATH is right
          if there is a folder pPath&"lcvcs/Windows" then
-            --put "cp "&quote&pPath&"Windows/lcvcs.exe"&quote&&"/usr/bin" into tProcess
+            put "cp "&q(pPath&"Windows/lcvcs.exe")&&q(PreferencePath()) into tProcess
          else
-            --put "cp "&quote&pPath&"lcvcs.exe"&quote&&"/usr/bin" into tProcess
+            put "cp "&q(pPath&"lcvcs.exe")&&q(PreferencePath()) into tProcess
+         end if
+         # set %PATH%
+         local tPath
+         constant kRegistryPath = "HKEY_LOCAL_MACHINE\CurrentControlSet\Control\Session Manager\Environment\Path"
+         put queryRegistry(kRegistryPath) into tPath
+         set the itemDel to ";"
+         if PreferencePath() is not among the items of tPath then
+            put ";"&PreferencePath() after tPath
+            get setRegistry(kRegistryPath,tPath)
          end if
          break
    end switch

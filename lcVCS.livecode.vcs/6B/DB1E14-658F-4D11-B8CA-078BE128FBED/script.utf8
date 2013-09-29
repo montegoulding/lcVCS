@@ -8,19 +8,22 @@ on preOpenCard
       LoadPreferences
       SetDataGridUUIDs
       LoadPlugins
+      accept datagram connections on port 10000 with message "NewMessage"
+      insert the script of btn "lcVCS FrontScript" into front
+      
+      put GetPreference("Projects") into sProjects
       
       if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
          send "DeleteLoader" to me in 0 milliseconds
          modeless "lcVCSProjects"
       else
-         accept datagram connections on port 10000 with message "NewMessage"
+         if GetPreference("User Extensions") is not revEnvironmentCustomizationPath() then
+            SetPreference "User Extensions",revEnvironmentCustomizationPath()
+         end if
+         if GetPreference("DataGrid Library Path") is not the effective filename of stack "revDataGridLibrary" then
+            SetPreference "DataGrid Library Path", the effective filename of stack "revDataGridLibrary"
+         end if
          
-         SetPreference "User Extensions",revEnvironmentCustomizationPath()
-         SetPreference "DataGrid Library Path", the effective filename of stack "revDataGridLibrary"
-         
-         insert the script of btn "lcVCS FrontScript" into front
-         
-         put GetPreference("Projects") into sProjects
          # asynchronously fetch current projects
          send "FetchProject" to me in 20 milliseconds
       end if
@@ -28,6 +31,7 @@ on preOpenCard
    else
       local tOut,tStack
       
+      # we do this so we can import and export lcVCS using the CLI
       repeat for each line tStack in the mainstack of this stack&cr&the substacks of this stack
          set the name of stack tStack to uuid()
       end repeat
