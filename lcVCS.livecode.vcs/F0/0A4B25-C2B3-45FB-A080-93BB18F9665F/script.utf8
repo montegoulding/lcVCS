@@ -1136,11 +1136,21 @@ private function ObjectPathToUUID pObjectPath
 end ObjectPathToUUID
 
 on savingStandalone
-   local tInProject = false
+   local tProjectA
    
+   put ProjectForStackFile(the effective filename of me,true) into tProjectA
    put the folder into tOldFolder
    
-   put the effective filename of me into tStackFile
+   if tProjectA is an array then
+      set the folder to tProjectA["exported stackFiles"][1]
+      set the uVersionNumber of me to line 1 of shell("git describe")
+   end if
+   
+   set the folder to tOldFolder
+end savingStandalone
+
+function ProjectForStackFile pStackFile,pResolved
+   local tProjects,tIndex,tProjectA
    
    LoadPreferences
    put GetPreference("Projects") into tProjects
@@ -1149,22 +1159,19 @@ on savingStandalone
    repeat for each key tIndex in tProjects
       put ResolveProjectFile(tProjects[tIndex]) into tProjectA
       repeat for each key tFileIndex in tProjectA["imported stackFiles"]
-         if tProjectA["imported stackFiles"][tFileIndex] is tStackFile then
-            put true into tInProject
-            exit repeat
+         if tProjectA["imported stackFiles"][tFileIndex] is pStackFile then
+            if pResolved then
+               return tProjectA
+            else
+               return tProjects[tIndex]
+            end if
          end if
       end repeat
-      if tInProject then
-         exit repeat
-      end if
    end repeat
-   if tInProject then
-      set the folder to tProjectA["exported stackFiles"][1]
-      set the uVersionNumber of me to line 1 of shell("git describe")
-   end if
    
-   set the folder to tOldFolder
-end savingStandalone
+   return empty
+   
+end ProjectForStackFile
 
 on standaloneSaved pPath
    lock messages

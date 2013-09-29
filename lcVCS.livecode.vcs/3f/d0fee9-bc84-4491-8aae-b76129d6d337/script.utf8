@@ -1,23 +1,12 @@
 on revHookPostSaveStack pStack
-   local tInProject = false
-   # work out if stack is in a lcVCS project
-   put GetPreference("Projects") into tProjects
+   local tProjectFile,tStackFile
    put the effective fileName of pStack into tStackFile
-   -- resolve all project files
-   repeat for each key tIndex in tProjects
-      put ResolveProjectFile(tProjects[tIndex]) into tProjectA
-      repeat for each key tFileIndex in tProjectA["imported stackFiles"]
-         if tProjectA["imported stackFiles"][tFileIndex] is tStackFile then
-            put true into tInProject
-            exit repeat
-         end if
-      end repeat
-      if tInProject then
-         exit repeat
-      end if
-   end repeat
-   if tInProject then
-      put "lcvcs export -file "&quote&tProjects[tIndex]&quote& " -stackfile "&quote&tStackFile&quote into tProcess
+   put ProjectForStackFile(tStackFile,false) into tProjectFile
+  
+   if tProjectFile is not empty then
+      # appending uuid to ensure each process has a unique name so multiple saves
+      # of the same stackfile rapidly always open a new process
+      put "lcvcs export -file "&q(tProjectFile)&" -stackfile "&q(tStackFile)&&uuid() into tProcess
       open process tProcess for neither
    end if
    pass revHookPostSaveStack
