@@ -13,84 +13,83 @@ on revHookPostSaveStack pStack
    pass revHookPostSaveStack
 end revHookPostSaveStack
 
+-- if a stack is cloned set all uuids
 on newStack
-   if the uVersion["UUID"] of the target is not empty then
-      ResetUUIDs the long id of the target
-   end if
+   SetUUIDs the long id of the target,true
    pass newStack
 end newStack
 
+-- if a card or group is copied set all child uuids
 on newCard
-   if the uVersion["UUID"] of the target is not empty then
-      ResetUUIDs the long id of the target
-   end if
+   SetUUIDs the long id of the target,true
    pass newCard
 end newCard
 
+-- check IDs are different before setting
 on newGroup
-   if the uVersion["UUID"] of the target is not empty then
-      ResetUUIDs the long id of the target
-   end if
+   SetUUIDs the long id of the target,false
    pass newGroup
 end newGroup
 
+-- for all individual objects set uuids
+
 on newField
-   if the uVersion["UUID"] of the target is not empty then
-      ResetUUIDs the long id of the target
-   end if
+   SetUUIDs the long id of the target,true
    pass newField
 end newField
 
 on newButton
-   if the uVersion["UUID"] of the target is not empty then
-      ResetUUIDs the long id of the target
-   end if
+   SetUUIDs the long id of the target,true
    pass newButton
 end newButton
 
 on newPlayer
-   if the uVersion["UUID"] of the target is not empty then
-      ResetUUIDs the long id of the target
-   end if
+   SetUUIDs the long id of the target,true
    pass newPlayer
 end newPlayer
 
 on newGraphic
-   if the uVersion["UUID"] of the target is not empty then
-      ResetUUIDs the long id of the target
-   end if
+   SetUUIDs the long id of the target,true
    pass newGraphic
 end newGraphic
 
 on newImage
-   if the uVersion["UUID"] of the target is not empty then
-      ResetUUIDs the long id of the target
-   end if
+   SetUUIDs the long id of the target,true
    pass newImage
 end newImage
 
-private command ResetUUIDs pObject
+private command SetUUIDs pObject,pDontCheck
    local tVersion
-   put the short id of pObject into tVersion["ID"]
-   put UUID() into tVersion["UUID"]
-   set the customProperties["uVersion"] of pObject to tVersion
+   if pDontCheck or the uVersion["ID"] of pObject is not the short id of pObject then
+      put the short id of pObject into tVersion["ID"]
+      put UUID() into tVersion["UUID"]
+      set the customProperties["uVersion"] of pObject to tVersion
+   end if
    
    switch word 1 of pObject
       case "stack"
          repeat for each line tID in the cardIDs of pObject
-            ResetUUIDs "card id "&tID&" of "&pObject
+            SetUUIDs "card id "&tID&" of "&pObject,pDontCheck
          end repeat
          repeat for each line tID in the sharedGroupIDs of pObject
-            ResetUUIDs "bkgnd id "&tID&" of "&pObject
+            SetUUIDs "bkgnd id "&tID&" of "&pObject,pDontCheck
          end repeat
          break
       case "card"
+         local tChildControl
+         repeat for each line tID in the childControlIDs of pObject
+            put the long id of ("control id "&tID&" of "&pObject) into tChildControl
+            if word 1 of tChildControl is not "group" or not the sharedBehavior or tChildControl then
+               SetUUIDs the long id of ("control id "&tID&" of "&pObject),pDontCheck
+            end if
+         end repeat
+         break
       case "group"
       case "bkgnd"
          repeat for each line tID in the childControlIDs of pObject
-            ResetUUIDs the long id of "control id "&tID&" of "&pObject
+            SetUUIDs the long id of ("control id "&tID&" of "&pObject),pDontCheck
          end repeat
          break
    end switch
-end ResetUUIDs
+end SetUUIDs
 

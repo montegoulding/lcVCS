@@ -673,6 +673,8 @@ private command LoadEnvironment
       return "error: could not load DataGrid Library"
    end if
    
+   SetDataGridUUIDs
+   
    # recursively parse user extensions
    LoadStackFilesRecursively GetPreference("User Extensions")
    

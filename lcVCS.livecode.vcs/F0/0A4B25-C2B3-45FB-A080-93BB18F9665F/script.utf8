@@ -985,7 +985,6 @@ command SetDataGridUUIDs
    repeat for each key tID in tVersion
       set the customProperties["uVersion"] of control id tID of stack "revDataGridLibrary" to tVersion[tID]
    end repeat
-   save stack "revDataGridLibrary"
 end SetDataGridUUIDs
 
 -- this loads the datagrid's uuids so se don't go searching for them
