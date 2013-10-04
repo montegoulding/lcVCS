@@ -1,4 +1,3 @@
-local sProjects
 local sTreeA
 local sRootFolder
 
@@ -6,13 +5,10 @@ on preOpenCard
    set the hideConsoleWindows to true
    if the environment is "development" then
       
-      LoadPreferences
       SetDataGridUUIDs
       LoadPlugins
       accept datagram connections on port 10000 with message "NewMessage"
       insert the script of btn "lcVCS FrontScript" into front
-      
-      put GetPreference("Projects") into sProjects
       
       if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
          send "DeleteLoader" to me in 0 milliseconds
@@ -26,7 +22,7 @@ on preOpenCard
          end if
          
          # asynchronously fetch current projects
-         send "FetchProject" to me in 20 milliseconds
+         --send "FetchProject" to me in 20 milliseconds
       end if
       close this stack
    else
@@ -117,45 +113,45 @@ on NewMessage pIP,pData
    close socket pIP
 end NewMessage
 
-on FetchProject
-   put line 1 of the keys of sProjects into tIndex
-   put sProjects[tIndex] into tPath
-   set the itemDel to slash
-   delete item -1 of tPath
-   put the defaultFolder into tOldDefaultFolder
-   set the defaultFolder to tPath
-   put "git fetch --all" into tProcess
-   open process tProcess for neither
-   set the defaultFolder to tOldDefaultFolder
-   repeat 
-      read from process tProcess until linefeed
-      wait 20 milliseconds with messages
-      replace numToChar(13) with empty in it
-      if it is empty or the result is "eof" then exit repeat
-   end repeat
-   close process tProcess
-   put shell("git tag") into tTags
-   put shell("git describe") into tCurrent
-   if not tCurrent contains "cannont describe" then
-      set the itemDel to "-"
-      if the number of items of tCurrent > 1 then
-         put item 1 to -3 of tCurrent into tCurrent
-      end if
-      put tCurrent into tNewTag
-      repeat for each line tTag in tTags
-         if NewerVersion(tTag,tNewTag) then
-            put tTag into tNewTag
-         end if
-      end repeat
-      if tNewTag is not tCurrent then
-         put shell(merge("git cat-file -p `git rev-parse [[ tNewTag ]]`")) into tMessage
-      end if
-   end if
-   delete variable sProjects[tIndex]
-   if the number of elements of sProjects > 0 then
-      send "FetchProject" to me in 20 milliseconds
-   end if
-end FetchProject
+--on FetchProject
+--   put line 1 of the keys of sProjects into tIndex
+--   put sProjects[tIndex] into tPath
+--   set the itemDel to slash
+--   delete item -1 of tPath
+--   put the defaultFolder into tOldDefaultFolder
+--   set the defaultFolder to tPath
+--   put "git fetch --all" into tProcess
+--   open process tProcess for read
+--   set the defaultFolder to tOldDefaultFolder
+--   repeat 
+--      read from process tProcess until linefeed
+--      wait 20 milliseconds with messages
+--      replace numToChar(13) with empty in it
+--      if it is empty or the result is "eof" then exit repeat
+--   end repeat
+--   close process tProcess
+--   put shell("git tag") into tTags
+--   put shell("git describe") into tCurrent
+--   if not tCurrent contains "cannont describe" then
+--      set the itemDel to "-"
+--      if the number of items of tCurrent > 1 then
+--         put item 1 to -3 of tCurrent into tCurrent
+--      end if
+--      put tCurrent into tNewTag
+--      repeat for each line tTag in tTags
+--         if NewerVersion(tTag,tNewTag) then
+--            put tTag into tNewTag
+--         end if
+--      end repeat
+--      if tNewTag is not tCurrent then
+--         put shell(merge("git cat-file -p `git rev-parse [[ tNewTag ]]`")) into tMessage
+--      end if
+--   end if
+--   delete variable sProjects[tIndex]
+--   if the number of elements of sProjects > 0 then
+--      send "FetchProject" to me in 20 milliseconds
+--   end if
+--end FetchProject
 
 function NewerVersion pV1,pV2
    set the itemDel to "."
@@ -168,9 +164,6 @@ function NewerVersion pV1,pV2
    end repeat
    return false
 end NewerVersion
-
-
-
 
 function GetHelp
    return "lcVCS (c) 2013 M E R Goulding Software Development" & cr \
@@ -256,7 +249,7 @@ on ParseArgs
       case "install"
          # install git hooks
          repeat for each word tHook in "post-checkout post-rewrite post-merge"
-            put format("#!/bin/bash\nset -x\n\nlcvcs+ import\n") into url ("binfile:"&tOptionA["repo"]&".git/hooks/"&tHook)
+            put format("#!/bin/bash\nset -x\n\nlcvcs import\n") into url ("binfile:"&tOptionA["repo"]&".git/hooks/"&tHook)
             get shell ("chmod 755 "&quote&tOptionA["repo"]&".git/hooks/"&tHook&quote)
          end repeat
          break
@@ -285,12 +278,8 @@ on ParseArgs
                   put "StackFile: "&tStackFile&cr&cr after tOut
                   repeat for each line tObject in tFilteredStatus
                      
-                     if char 2 of tObject is not "D" or IsUUID(item -1 of tObject) then
-                        ParsePath tOptionA["repo"],char 4 to -1 of tObject
-                        put the result into tName
-                     else
-                        next repeat
-                     end if
+                     ParsePath tOptionA["repo"],char 4 to -1 of tObject
+                     put the result into tName
                      
                      switch char 1 to 2 of tObject
                         case "DD"
@@ -525,40 +514,10 @@ on ParsePath pRepo,pFile
    put pRepo & pFile into tPath
    set the itemDel to slash
    
-   if IsUUID(item -1 of tPath) then
-      if item -2 of tPath is among the words of "cards sharedGroups substacks" then
-         put item 1 to -5 of tPath into tFolder
-         
-         if there is not a file tPath then
-            put item -4 of tPath&item -3 of tPath into tUUID
-         else
-            put item -1 of tPath into tUUID
-         end if
-         
-      else
-         # could be the mainstack UUID
-         if IsUUID(item -3 of tPath&item -2 of tPath) then
-            put item 1 to -4 of tPath into tFolder
-         else
-            put item 1 to -2 of tPath into tFolder
-         end if
-         
-         if there is not a file tPath then
-            put item -3 of tPath&item -2 of tPath into tUUID
-         else
-            put item -1 of tPath into tUUID
-         end if
-         
-      end if
-   else
-      if there is not a file tPath then
-         return "error: file not found"
-      end if
-      put item -3 of tPath&item -2 of tPath into tUUID
-      put item 1 to -4 of tPath into tFolder
-      if not IsUUID(tUUID) then
-         return "error: not a LiveCode object"
-      end if
+   put item -3 of tPath&item -2 of tPath into tUUID
+   put item 1 to -4 of tPath into tFolder
+   if not IsUUID(tUUID) then
+      return "error: not a LiveCode object"
    end if
    
    if sTreeA is not an array then
@@ -568,10 +527,10 @@ on ParsePath pRepo,pFile
    
    if there is not a file tPath then
       -- get the content of the file to work out what it was
-      local tFile
       replace pRepo with empty in tFolder
-      put tFolder & slash & char 1 to 2 of item -1 of pFile & slash & char 3 to -1 of item -1 of pFile & slash & "properties.json" into tFile
-      put shell("git show HEAD^:"&tFile) into tContent
+      put "properties.json" into item -1 of tPath
+      put shell("git show HEAD^:"&tPath) into tContent
+      
       try
          put JSONToArray(tContent) into tObject
          set the itemDel to "."
@@ -580,11 +539,11 @@ on ParsePath pRepo,pFile
          else
             put quote&tObject["properties"]["name"]&quote into tName
          end if
-         return item -1 of tObject["class"] && tName & " of "& UUIDToObjectReference(tUUID)
+         -- deleted object so can only work out the abbrev name
+         return item -1 of tObject["class"] && tName
       catch e
          return "error: file not found"
       end try
-      
    else
       return UUIDToObjectReference(tUUID)
    end if
@@ -602,22 +561,16 @@ function ParseTree pFolder
    
    put the defaultFolder into tOldFolder
    set the defaultFolder to pFolder
-   repeat for each item tFolder in "cards,sharedGroups,substacks"
-      if there is a folder tFolder then
-         set the defaultFolder to tFolder
-         put the files into tFiles
-         filter tFiles without "*.*"
-         repeat for each line tFile in tFiles
-            put ParseTree(sRootFolder&"/"&char 1 to 2 of tFile&"/"&char 3 to -1 of tFile) into tArray[tFolder][tFile]
+   repeat for each item tFile in "cards,sharedGroups,substacks,layers,mainstack"
+      if there is a file (tFile&".txt") then
+         repeat for each line tUUID in url ("file:"&tFile&".txt")
+            if tFile is among the items of "layers,mainstack" then
+               put ParseTree(sRootFolder&"/"&char 1 to 2 of tUUID&"/"&char 3 to -1 of tUUID) into tArray[tUUID]
+            else
+               put ParseTree(sRootFolder&"/"&char 1 to 2 of tUUID&"/"&char 3 to -1 of tUUID) into tArray[tFile][tUUID]
+            end if
          end repeat
-         set the defaultFolder to ".."
       end if
-   end repeat
-   
-   put the files into tFiles
-   filter tFiles without "*.*"
-   repeat for each line tFile in tFiles
-      put ParseTree(sRootFolder&"/"&char 1 to 2 of tFile&"/"&char 3 to -1 of tFile) into tArray[tFile]
    end repeat
    
    set the defaultFolder to tOldFolder
@@ -666,8 +619,6 @@ end IsUUID
 
 private command LoadEnvironment
    local tExternal,tExternalLibraryName
-   # load preferences file
-   LoadPreferences
    
    # load stacks into memory
    if there is not a stack GetPreference("DataGrid Library Path") then
