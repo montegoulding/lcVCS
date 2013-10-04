@@ -4,6 +4,8 @@ Stackfile export/import for VCS support in LiveCode
 
 lcVCS exports and imports stack files to a structured folder of json, script and image files.
 
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z772WTBXRTLMQ)
+
 ##Author
 
 Monte Goulding - monte@goulding.ws
@@ -24,7 +26,7 @@ In each folder is a properties.json file containing the class, uuid, properties 
 An example path to an object properties file is therefore:
 stack.livecode.vcs/f7/8b57e1-8aed-4f01-9022-c3d47e231a2e/properties.json
 
-lcVCS also uses empty files named with a UUID as a form of alias or reference to an object. For example, a file with the UUID of the mainstack of the stackFile can be found inside the *.vcs directory. If an object is a stack it will have a cards subdirectory and may have a substacks and sharedGroups subdirectory containing these object reference files. If an object is a card or group it's directory may also contain these object reference files informing lcVCS of child objects.
+lcVCS also uses lists of UUIDs in files to reference child objects. The root directory has a mainstack file with a single UUID. With that lcVCS can find the object path of the mainstack. Stack directories will have a cards file and may have a substacks file and a sharedGroups file. Cards and groups may have a layers file. Only the direct children of the control are listed in these files and they are in layer order. Because of the complexity of dealing with merge conflicts on these files lcVCS handles them in a specific way while importing. If it finds conflict markers it will strip them from the file. This may result in UUIDs being listed multiple times so the first occurance is the one that will be used. It may also result in UUIDs from deleted or moved objects being listed so if the object directory doesn't exist these are ignored.
 
 All data with the exception of custom properties is exported as utf8 so that it's possible for cross platform developers to work on the files without encoding issues creating conflicts. Any custom property that contains non ASCII characters is base64Encoded and wrapped in `base64Decode()`.
 

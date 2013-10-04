@@ -56,7 +56,7 @@
     "shadowPattern": "",
     "stackFiles": "",
     "startUpIconic": "false",
-    "style": "toplevel",
+    "style": "modeless",
     "systemWindow": "false",
     "textFont": "",
     "textSize": "",

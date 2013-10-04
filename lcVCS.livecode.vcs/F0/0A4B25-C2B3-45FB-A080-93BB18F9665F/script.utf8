@@ -3,7 +3,7 @@ constant kUnicodeProps = "unicodeTitle,unicodeLabel,unicodeToolTip,unicodeText"
 constant kIconProps = "icon,hiliteIcon,disabledIcon,visitedIcon,armedIcon,hoverIcon"
 constant kPatternProps = "forePattern,focusPattern,backPattern,borderPattern,bottomPattern,hilitePattern,shadowPattern,topPattern"
 constant kExtension = "vcs"
-constant kPropsToDelete = "defaultButton,armed"
+constant kPropsToDelete = "defaultButton,armed,layer"
 
 local sUUIDMap -- an array with UUIDs as keys and object references as values
 local sUUIDsToResolve -- object references are resolved once the stackFile is fully imported
@@ -17,6 +17,7 @@ local sTempNameSuffix -- a suffix (uuid) used when lcVCS is importing itself
 local sStackPath -- the path to the stack being imported
 local sMainstackPath -- the path to the mainstack being imported
 local sPrefA -- lcVCS preferences
+local sSharedGroup
 
 # Use the optional pStackFile parameter to export only one stackFile from
 # a project. This should only be done if there is a plugin resetting
@@ -135,7 +136,7 @@ command ExportStackFile pFilePath,pFolder
       create folder tFolder
       set the folder to tFolder
       put tFolder into sMainstackPath
-      put empty into url ("file:"&UUIDForObject(the long id of stack the mainstack of stack pFilePath))
+      put UUIDForObject(the long id of stack the mainstack of stack pFilePath) into url "file:mainstack"
       ExportStack the mainstack of stack pFilePath
       save stack pFilePath
    end if
@@ -154,9 +155,7 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
    delete variable sPropsToSet
    set the folder to pFolder
    put pFolder into sMainstackPath
-   put the files into tUUIDs
-   filter tUUIDs without "*.*"
-   set the folder to UUIDToObjectPath(line 1 of tUUIDs)
+   set the folder to UUIDToObjectPath(url "file:mainstack")
    ImportObject "","","",pIslcVCS
    put the short name of sUUIDMap[the result] into tStackFileMainstack
    -- only load UUIDs from all mainstacks if necessary
@@ -210,8 +209,6 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
       end repeat
    end repeat
    
-   SetLayers
-   
    if pFilePath is empty then
       set the itemDel to "."
       if item -1 of pFolder = "vcs" then
@@ -243,49 +240,6 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
    
    set the folder to tOriginalFolder
 end ImportStackFile
-
-# Set the layers of controls
-command SetLayers
-   local tLayers,tCardUUID,tObject,tCards,tSharedGroupUUID,tStackUUID
-   repeat for each key tSharedGroupUUID in sLayersToSet["sharedobjectlayers"]
-      put the keys of sLayersToSet["sharedobjectlayers"][tSharedGroupUUID] into tLayers
-      sort tLayers numeric
-      repeat for each line tLayer in tLayers
-         try
-            -- interleave conflicted layers
-            repeat for each line tObject in sLayersToSet["sharedobjectlayers"][tSharedGroupUUID][tLayer]
-               relayer tObject to front of owner
-            end repeat
-         end try
-      end repeat
-   end repeat
-   repeat for each key tStackUUID in sLayersToSet["cardlayers"]
-      -- interleave conflicted card layers
-      repeat for each key tCardUUID in sLayersToSet["cardlayers"][tStackUUID]
-         put tCardUUID,sLayersToSet["cardlayers"][tStackUUID][tCardUUID] &cr after tCards
-      end repeat
-      sort tCards numeric by item 2 of each
-      repeat for each line tCard in tCards
-         put item 1 of tCard into tCardUUID
-         if tCardUUID = "" then next repeat
-         put the keys of sLayersToSet["objectlayers"][tCardUUID] into tLayers
-         sort tLayers numeric
-         repeat for each line tLayer in tLayers
-            try
-               -- interleave conflicted layers
-               repeat for each line tObject in sLayersToSet["objectlayers"][tCardUUID][tLayer]
-                  relayer tObject to front of owner
-               end repeat
-            end try
-         end repeat
-         set the layer of sUUIDMap[tCardUUID] to sLayersToSet["cardlayers"][tStackUUID][tCardUUID]
-      end repeat
-      delete variable tCards
-   end repeat
-   repeat for each key tGroup in sLayersToSet["hilitedbutton"]
-      set the hilitedButton of tGroup to sLayersToSet["hilitedbutton"][tGroup]
-   end repeat
-end SetLayers
 
 -- if the stack gets this message then it just 
 -- imported a version of itself with a temp name
@@ -471,36 +425,45 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
       put the short id of sUUIDMap[tObject["A"]["UUID"]] into tVersion["ID"]
       set the customProperties["uVersion"] of sUUIDMap[tObject["A"]["UUID"]] to tVersion
       if tObject["A"]["class"] <> "com.runrev.engine.stack" then
-         put the files into tUUIDs
-         filter tUUIDs without "*.*"
+         put CleanLayerFile(url "file:layers") into tUUIDs
+         
+         local tSharedGroupsOnCard
          repeat for each line tUUID in tUUIDs
-            set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
-            ImportObject pStackUUID,pCardUUID,tObject["A"]["UUID"],pIslcVCS
+            if sSharedGroup[tUUID] then
+               if not tSharedGroupsOnCard[tUUID] then
+                  -- sharedGroups are already created and just need to be relayered to front
+                  relayer sUUIDMap[tUUID] to front of owner
+                  put true into tSharedGroupsOnCard[tUUID]
+               end if
+            else
+               if sUUIDMap[tUUID] is empty then
+                  set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
+                  ImportObject pStackUUID,pCardUUID,tObject["A"]["UUID"],pIslcVCS
+               end if
+            end if
          end repeat
+         
+         if tObject["A"]["class"] is "com.runrev.engine.card" then
+            -- remove unplaced groups
+            repeat for each key tUUID in sSharedGroup
+               if not tSharedGroupsOnCard[tUUID] then
+                  remove sUUIDMap[tUUID] from sUUIDMap[tObject["A"]["UUID"]]
+               end if
+            end repeat
+         end if
       else
          put the folder into tOriginalFolder
-         repeat for each item tType in "cards,sharedGroups,substacks"
-            if there is a folder tType then
-               set the folder to tType
-               put the files into tUUIDs
-               filter tUUIDs without "*.*"
-               repeat for each line tUUID in tUUIDs
-                  if tType = "sharedGroups" then
-                     go ("cd 1 of "&sUUIDMap[pStackUUID])
-                  end if
+         repeat for each item tType in "sharedGroups,cards,substacks"
+            put CleanLayerFile(url ("file:"&tType)) into tUUIDs
+            
+            repeat for each line tUUID in tUUIDs
+               if sUUIDMap[tUUID] is empty then
                   set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
                   ImportObject pStackUUID,pCardUUID,,pIslcVCS
-               end repeat
-            end if
+               end if
+            end repeat
             switch tType
                case "cards"
-                  -- find card layer 1 and put it's UUID into 
-                  repeat with X=1 to the number of cards of sUUIDMap[pStackUUID]
-                     put sUUIDMap[the long id of card X of sUUIDMap[pStackUUID]] into pCardUUID
-                     if sLayersToSet["cardlayers"][pCardUUID] is 1 then exit repeat
-                  end repeat
-                  break
-               case "sharedGroups"
                   delete card 1
                   close this stack
                   break
@@ -534,6 +497,11 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
    end try
    delete variable pProperties["properties"]["id"]
    put the properties of sUUIDMap[pProperties["UUID"]] into tCurrentProps
+   
+   if pProperties["properties"]["sharedBehavior"] then
+      put true into sSharedGroup[pProperties["UUID"]]
+   end if
+   
    repeat for each key tProperty in pProperties["properties"]
       switch
          case tProperty is "resizable"
@@ -545,35 +513,6 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
          case tProperty is "hilitedButton"
             if pProperties["properties"][tProperty] is an integer then
                put pProperties["properties"][tProperty] into sLayersToSet["hilitedbuttons"][sUUIDMap[pProperties["UUID"]]]
-            end if
-            delete variable pProperties["properties"][tProperty]
-            break
-         case tProperty is "layer"
-            if pProperties["class"] is "com.runrev.engine.card" then
-               put pProperties["properties"][tProperty] into sLayersToSet["cardlayers"][sUUIDMap[the owner of sUUIDMap[pProperties["UUID"]]]][pProperties["UUID"]]
-            else
-               if pProperties["properties"][tProperty] is an array then
-                  put "" into tFirstCard["layer"]
-                  -- it's a background that needs to be placed
-                  repeat for each key tCardUUID in pProperties["properties"][tProperty]
-                     put the abbrev id of sUUIDMap[pProperties["UUID"]]&" of "&sUUIDMap[tCardUUID] &cr after sLayersToSet["objectlayers"][tCardUUID][pProperties["properties"][tProperty][tCardUUID]]
-                     try -- throws error if it's already on the card
-                        place sUUIDMap[pProperties["UUID"]] onto sUUIDMap[tCardUUID]
-                     end try
-                  end repeat
-               else
-                  put FindParent(sUUIDMap[pProperties["UUID"]],"group",true) into tSharedGroup
-                  if tSharedGroup is not empty then
-                     put the abbrev id of tSharedGroup&" of "&the abbrev id of the defaultStack into tSharedGroup
-                     put the abbrev id of sUUIDMap[pProperties["UUID"]] && "of" && the abbrev id of the defaultStack &cr after sLayersToSet["sharedobjectlayers"][sUUIDMap[tSharedGroup]][pProperties["properties"][tProperty]]
-                  else
-                     -- support calling this command independent of main import for conflict resolution
-                     if pCardUUID is empty then
-                        put UUIDForObject(FindParent(sUUIDMap[pProperties["UUID"]],"card")) into pCardUUID
-                     end if
-                     put sUUIDMap[pProperties["UUID"]]&cr after sLayersToSet["objectlayers"][pCardUUID][pProperties["properties"][tProperty]]
-                  end if
-               end if
             end if
             delete variable pProperties["properties"][tProperty]
             break
@@ -668,6 +607,7 @@ end ObjectForUUID
 
 command ExportStack pStack
    local tIndex,tIsOpen
+   delete variable sSharedGroup
    set the defaultStack to pStack
    ExportObject the long id of stack pStack
 end ExportStack
@@ -770,14 +710,6 @@ function ExportObjectProperties pObject,pShared
          if not the lockLoc of pObject then
             delete variable tObject["properties"]["rect"]
          end if
-         if tObject["properties"]["sharedBehavior"] then
-            -- get a layer for each card because they can be different
-            repeat for each line tCardID in the cardIDs of pObject
-               put the long id of card id tCardID into tCardRef
-               put the abbrev id of pObject&" of "&tCardRef into tGroupCardRef
-               put the layer of tGroupCardRef into tObject["properties"]["layer"][UUIDForObject(tCardRef)]
-            end repeat 
-         end if
          break
       case "button"
          if not the sharedHilite of pObject and pShared then
@@ -820,14 +752,6 @@ function ExportObjectProperties pObject,pShared
          end if
          break
    end switch
-   if not (word 1 of pObject is "group" and the sharedBehavior of pObject) and pShared then
-      -- use layer from a consistent card
-      put FindParent(pObject,"group",true) into tSharedObject
-      put the cardIDs of tSharedObject into tCardIDs
-      sort tCardIDs numeric
-      put the abbrev id of pObject & " of card id " & line 1 of tCardIDs & " of " & the long name of the defaultStack into tObjectFirstCardRef
-      put the layer of tObjectFirstCardRef into tObject["properties"]["layer"]
-   end if
    -- custom properties
    if the customKeys of pObject is not empty or the customPropertySets of pObject is not empty then
       repeat for each line tCustomPropertySet in ""&cr&the customPropertySets of pObject
@@ -886,32 +810,29 @@ command ExportObject pObject,pShared,pType
    switch word 1 of pObject
       case "stack"
          -- cards
-         if there is not a folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards") then
-            create folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards")
-         end if
+         local tCards
          repeat for each line tID in the cardIDs of pObject
-            put empty into url ("file:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards/"&UUIDForObject(the long id of card id tID of pObject))
+            put UUIDForObject(the long id of card id tID of pObject)&cr after tCards
             ExportObject the long id of card id tID of pObject,,false
          end repeat
+         put tCards into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards")
          -- shared groups
+         local tSharedGroups
          if the sharedGroupIDs of pObject is not empty then
-            if there is not a folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups") then
-               create folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups")
-            end if
             repeat for each line tID in the sharedGroupIDs of pObject
-               put empty into url ("file:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups/"&UUIDForObject(the long id of background id tID of pObject))
+               put UUIDForObject(the long id of background id tID of pObject)&cr after tSharedGroups
                ExportObject the long id of background id tID of pObject,true,false
             end repeat
+            put tSharedGroups into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups")
          end if
          -- substacks
+         local tSubstacks
          if the substacks of pObject is not empty then
-            if there is not a folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/substacks") then
-               create folder (sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/substacks")
-            end if
             repeat for each line tStack in the substacks of pObject
-               put empty into url ("file:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/substacks/"&UUIDForObject(the long id of stack tStack))
+               put UUIDForObject(the long id of stack tStack)&cr after tSubstacks
                ExportStack tStack
             end repeat
+            put tSubstacks into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/substacks")
          end if
          break
       case "card"
@@ -921,14 +842,19 @@ command ExportObject pObject,pShared,pType
          if the cIDEProperties["cCustomControlID"] of pObject = "" then
             if the number of controls of pObject is not 0 then
                local tControlRef
+               local tLayers
                repeat for each line tControlID in the childControlIDs of pObject
                   put the long id of control id tControlID of pObject into tControlRef
+                  -- layer of shared groups in the list too
+                  put UUIDForObject(tControlRef)&cr after tLayers
                   if not (word 1 of tControlRef is "group" and \
                         the sharedBehavior of tControlRef) then
-                     put empty into url ("file:" & sMainstackPath & slash & UUIDToObjectPath(tUUID) & slash & UUIDForObject(tControlRef))
                      ExportObject tControlRef,pShared,false
                   end if
                end repeat
+               if tLayers is not empty then
+                  put tLayers into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/layers")
+               end if
             end if
          end if
          break
@@ -1120,6 +1046,9 @@ command SetPreference pPreference,pValue
 end SetPreference
 
 function GetPreference pPreference
+   if sPrefA is not an array then
+      LoadPreferences
+   end if
    return sPrefA[pPreference]
 end GetPreference
 
@@ -1176,6 +1105,20 @@ function ProjectForStackFile pStackFile,pResolved
    
 end ProjectForStackFile
 
+# Cleans conflict markers
+#! Warning - only use on layer files
+#! TODO Improve with regex that handles all conflict markers
+private function CleanLayerFile pData
+   if "<<<<<<<" is in pData then
+      filter pData without "<<<<<<<*"
+      filter pData without "|||||||*"
+      filter pData without "=======*"
+      filter pData without ">>>>>>>*"
+   end if
+   return pData
+end CleanLayerFile
+
+# building the command line interface
 on standaloneSaved pPath
    lock messages
    local tProcess
