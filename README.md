@@ -4,6 +4,8 @@ Stackfile export/import for VCS support in LiveCode
 
 lcVCS exports and imports stack files to a structured folder of json, script and image files.
 
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z772WTBXRTLMQ)
+
 ##Author
 
 Monte Goulding - monte@goulding.ws
