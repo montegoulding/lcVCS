@@ -7,7 +7,6 @@ constant kPropsToDelete = "defaultButton,armed,layer"
 
 local sUUIDMap -- an array with UUIDs as keys and object references as values
 local sUUIDsToResolve -- object references are resolved once the stackFile is fully imported
-local sLayersToSet -- layers are set once a stack is fully imported
 local sConflicts -- conflict markers are parsed and the plugin assists resolution
 local sPropsToSet -- properties that need to be set right at the end eg cantModify of stack
 local sStacksToDelete -- stacks to delete after the import
@@ -17,7 +16,7 @@ local sTempNameSuffix -- a suffix (uuid) used when lcVCS is importing itself
 local sStackPath -- the path to the stack being imported
 local sMainstackPath -- the path to the mainstack being imported
 local sPrefA -- lcVCS preferences
-local sSharedGroup
+local sSharedGroup -- keeps track of imported shared groups in a stack
 
 # Use the optional pStackFile parameter to export only one stackFile from
 # a project. This should only be done if there is a plugin resetting
@@ -151,7 +150,6 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
    put pFilePath into sCurrentStackFilePath
    put the folder into tOriginalFolder
    delete variable sUUIDsToResolve
-   delete variable sLayersToSet
    delete variable sPropsToSet
    set the folder to pFolder
    put pFolder into sMainstackPath
@@ -622,8 +620,10 @@ function ExportObjectProperties pObject,pShared
    put UUIDForObject(pObject) into tObject["UUID"]
    put sMainstackPath & slash & UUIDToObjectPath(tObject["UUID"]) into tObjectPath
    EnsureFolder tObjectPath
+   
    set the folder to tObjectPath
    put pObject into sUUIDMap[tObject["UUID"]]
+   
    -- properties
    put the properties of pObject into tObject["properties"]
    -- delete some props
@@ -803,8 +803,10 @@ command ExportObject pObject,pShared,pType
    local tObjects,tOriginalFolder
    put the folder into tOriginalFolder
    -- properties of stack
+   
    local tUUID
    put ExportObjectProperties(pObject,pShared) into tUUID
+   
    -- child objects
    local tIndex="1"
    switch word 1 of pObject
