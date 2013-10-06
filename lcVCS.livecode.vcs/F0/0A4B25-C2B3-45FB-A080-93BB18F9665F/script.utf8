@@ -4,6 +4,7 @@ constant kIconProps = "icon,hiliteIcon,disabledIcon,visitedIcon,armedIcon,hoverI
 constant kPatternProps = "forePattern,focusPattern,backPattern,borderPattern,bottomPattern,hilitePattern,shadowPattern,topPattern"
 constant kExtension = "vcs"
 constant kPropsToDelete = "defaultButton,armed,layer"
+constant kPasswordProtectedStackPrefix = "34f35cd6-e2fb-4d4e-a93a-bcd12b40a930"
 
 local sUUIDMap -- an array with UUIDs as keys and object references as values
 local sUUIDsToResolve -- object references are resolved once the stackFile is fully imported
@@ -17,6 +18,7 @@ local sStackPath -- the path to the stack being imported
 local sMainstackPath -- the path to the mainstack being imported
 local sPrefA -- lcVCS preferences
 local sSharedGroup -- keeps track of imported shared groups in a stack
+local sUnsharedProps -- holds unshared data of shared objects until the group is placed
 
 # Use the optional pStackFile parameter to export only one stackFile from
 # a project. This should only be done if there is a plugin resetting
@@ -151,6 +153,7 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
    put the folder into tOriginalFolder
    delete variable sUUIDsToResolve
    delete variable sPropsToSet
+   delete variable sUnsharedProps
    set the folder to pFolder
    put pFolder into sMainstackPath
    set the folder to UUIDToObjectPath(url "file:mainstack")
@@ -268,209 +271,249 @@ end PostImportStack
 
 on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
    local tObject,tSetName,tType,tError,tConflict="false",tHilitedButton,tResize,tUUIDS,tStackPath,tUserState,tScript,tVersion,tOriginalFolder
-   put url ("binfile:properties.json") into tObject
-   if tObject is not empty then
-      try
-         put JSONToArray(tObject) into tObject["A"]
-      catch tError
-         -- most likely there's conflict markers causing an issue or someone's bad manual edit...
-         put ParseConflictedFile(tObject) into tObject
+   if there is a stack "stack.binary" then
+      # clean the name
+      put the short name of stack "stack.binary" into tName
+      replace kPasswordProtectedStackPrefix with empty in tName
+      set the name of stack "stack.binary" to tName
+      
+      # set the mainstack of substacks
+      if pStackUUID is not empty then
+         set the mainstack of stack tName to the short name of sUUIDMap[pStackUUID]
+      end if
+      
+      put CleanLayerFile(url "file:substacks") into tUUIDs
+      
+      put UUIDForObject(the long id of stack tName) into pStackUUID
+               
+      repeat for each line tUUID in tUUIDs
+         if sUUIDMap[tUUID] is empty then
+            set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
+            ImportObject pStackUUID
+         end if
+      end repeat
+   else
+      put url ("binfile:properties.json") into tObject
+      if tObject is not empty then
          try
-            put JSONToArray(tObject["A"]) into tObject["A"]
-            put JSONToArray(tObject["B"]) into tObject["B"]
-            #! reinstate when union recursively is released
-            --         -- make sure it's a real difference in an element value not 
-            --         -- just the two branches adding to the last item of the same JSON object (trailing comma issue)
-            --         -- union will add elements from one object to another but won't mess with existing elements
-            --         union tObject["A"] with tObject["B"] recursively
-            --         union tObject["B"] with tObject["A"] recursively
-            --         -- if the arrays are now the same then we know it was just a trailing comma issue
-            --         if tObject["A"] is tObject["B"] then
-            --            delete variable tObject["B"]
-            --         end if
+            put JSONToArray(tObject) into tObject["A"]
          catch tError
-            answer "There was an error decoding properties file:"&cr&the folder&"/properties.json"&cr&tError
-            exit to top
+            -- most likely there's conflict markers causing an issue or someone's bad manual edit...
+            put ParseConflictedFile(tObject) into tObject
+            try
+               put JSONToArray(tObject["A"]) into tObject["A"]
+               put JSONToArray(tObject["B"]) into tObject["B"]
+               #! reinstate when union recursively is released
+               --         -- make sure it's a real difference in an element value not 
+               --         -- just the two branches adding to the last item of the same JSON object (trailing comma issue)
+               --         -- union will add elements from one object to another but won't mess with existing elements
+               --         union tObject["A"] with tObject["B"] recursively
+               --         union tObject["B"] with tObject["A"] recursively
+               --         -- if the arrays are now the same then we know it was just a trailing comma issue
+               --         if tObject["A"] is tObject["B"] then
+               --            delete variable tObject["B"]
+               --         end if
+            catch tError
+               answer "There was an error decoding properties file:"&cr&the folder&"/properties.json"&cr&tError
+               exit to top
+            end try
          end try
-      end try
-      if there is a file "userstate.json" then
-         try
-            #! modify when union recursively is released
-            put JSONToArray(url ("userstate.json")) into tUserState
-            repeat for each key tCustomPropertySet in tUserState
-               union tObject["A"]["customPropertySets"][tCustomPropertySet] with tUserState[tCustomPropertySet] 
-            end repeat
-            if tObject["B"] is an array then
+         if there is a file "userstate.json" then
+            try
+               #! modify when union recursively is released
+               put JSONToArray(url ("userstate.json")) into tUserState
                repeat for each key tCustomPropertySet in tUserState
-                  union tObject["B"]["customPropertySets"][tCustomPropertySet] with tUserState[tCustomPropertySet] 
+                  union tObject["A"]["customPropertySets"][tCustomPropertySet] with tUserState[tCustomPropertySet] 
+               end repeat
+               if tObject["B"] is an array then
+                  repeat for each key tCustomPropertySet in tUserState
+                     union tObject["B"]["customPropertySets"][tCustomPropertySet] with tUserState[tCustomPropertySet] 
+                  end repeat
+               end if
+            end try
+         end if
+         put uniDecode(uniEncode(tObject["A"]["properties"]["name"],"UTF8"),"ANSI") into tObject["A"]["properties"]["name"]
+         switch tObject["A"]["class"]
+            case "com.runrev.engine.stack"
+               put the folder into sStackPath
+               -- support VCS on self
+               if pIslcVCS then
+                  create stack (tObject["A"]["properties"]["name"]&sTempNameSuffix)
+               else
+                  if there is a stack tObject["A"]["properties"]["name"] then
+                     delete stack tObject["A"]["properties"]["name"]
+                  end if
+                  create stack tObject["A"]["properties"]["name"]
+               end if
+               set the defaultStack to it
+               set the loc of it to the screenLoc
+               -- workaround for the fact that the first card is already created
+               -- and we use this for a background creation card
+               -- a new stack id is always 1002 so the id of 1000 will be safe
+               set the id of card 1 of it to 1000
+               if pStackUUID is not empty then
+                  set the mainstack of it to the short name of sUUIDMap[pStackUUID]
+               end if
+               put tObject["A"]["UUID"] into pStackUUID
+               break
+            case "com.runrev.engine.card"
+               create card tObject["A"]["properties"]["name"]
+               put tObject["A"]["UUID"] into pCardUUID
+               break
+            case "com.runrev.engine.image"
+               if word 1 of sUUIDMap[pParentUUID] is "group" then
+                  create image tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
+               else
+                  create image tObject["A"]["properties"]["name"]
+               end if
+               if there is a file ("image."&tObject["A"]["properties"]["paintCompression"]) then
+                  set the text of it to url ("binfile:image."&tObject["A"]["properties"]["paintCompression"])
+               end if
+               delete variable tObject["A"]["properties"]["paintCompression"]
+               if tObject["A"]["properties"]["fileName"] is empty then
+                  delete variable tObject["A"]["properties"]["fileName"]
+               end if
+               break
+            case "com.runrev.engine.button"
+               if word 1 of sUUIDMap[pParentUUID] is "group" then
+                  create button tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
+               else
+                  create button tObject["A"]["properties"]["name"]
+               end if
+               reset the templateButton
+               break
+            case "com.runrev.engine.field"
+               if word 1 of sUUIDMap[pParentUUID] is "group" then
+                  create field tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
+               else
+                  create field tObject["A"]["properties"]["name"]
+               end if
+               break
+            case "com.runrev.engine.player"
+               if word 1 of sUUIDMap[pParentUUID] is "group" then
+                  create player tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
+               else
+                  create player tObject["A"]["properties"]["name"]
+               end if
+               break
+            case "com.runrev.engine.scrollbar"
+               if word 1 of sUUIDMap[pParentUUID] is "group" then
+                  create scrollbar tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
+               else
+                  create scrollbar tObject["A"]["properties"]["name"]
+               end if
+               break
+            case "com.runrev.engine.graphic"
+               if word 1 of sUUIDMap[pParentUUID] is "group" then
+                  create graphic tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
+               else
+                  create graphic tObject["A"]["properties"]["name"]
+               end if
+               break
+            case "com.runrev.engine.group"
+               if word 1 of sUUIDMap[pParentUUID] is "group" then
+                  create group tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
+               else
+                  create group tObject["A"]["properties"]["name"]
+               end if
+               set the lockUpdates of it to true
+               break
+            default
+               ##! TODO
+               -- custom control so find appropriate template object
+               -- copy it to the appropriate spot
+               
+               break
+         end switch
+         if tObject["A"]["class"] <> "com.runrev.engine.stack" then
+            put the abbrev id of it &" of "& sUUIDMap[pStackUUID] into sUUIDMap[tObject["A"]["UUID"]]
+         else
+            put it into sUUIDMap[tObject["A"]["UUID"]]
+         end if
+         set the itemDel to comma
+         SetObjectProperties tObject["A"],pCardUUID,true
+         put uniDecode(uniEncode(url ("binfile:script.utf8"),"UTF8"),"ANSI") into tScript
+         set the script of sUUIDMap[tObject["A"]["UUID"]] to tScript
+         -- conflict resolution
+         if the result contains "<<<<<<<" then
+            -- script compilation error caused by conflict markers
+            AddToConflicts sUUIDMap[tObject["A"]["UUID"]],"script"
+            put true into tConflict
+         end if
+         if tObject["B"] is an array then
+            AddToConflicts sUUIDMap[tObject["A"]["UUID"]],"properties",tObject
+            put true into tConflict
+         end if
+         
+         # set uVersion custom property set
+         put tObject["A"]["UUID"] into tVersion["UUID"]
+         put the short id of sUUIDMap[tObject["A"]["UUID"]] into tVersion["ID"]
+         set the customProperties["uVersion"] of sUUIDMap[tObject["A"]["UUID"]] to tVersion
+         
+         if tObject["A"]["class"] <> "com.runrev.engine.stack" then
+            put CleanLayerFile(url "file:layers") into tUUIDs
+            
+            local tSharedGroupsOnCard
+            repeat for each line tUUID in tUUIDs
+               if sSharedGroup[tUUID] then
+                  if not tSharedGroupsOnCard[tUUID] then
+                     -- sharedGroups are already created and just need to be relayered to front
+                     relayer sUUIDMap[tUUID] to front of owner
+                     put true into tSharedGroupsOnCard[tUUID]
+                  end if
+               else
+                  if sUUIDMap[tUUID] is empty then
+                     set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
+                     ImportObject pStackUUID,pCardUUID,tObject["A"]["UUID"],pIslcVCS
+                  end if
+               end if
+            end repeat
+            
+            if tObject["A"]["class"] is "com.runrev.engine.card" then
+               -- remove unplaced groups
+               repeat for each key tUUID in sSharedGroup
+                  if not tSharedGroupsOnCard[tUUID] then
+                     remove sUUIDMap[tUUID] from sUUIDMap[tObject["A"]["UUID"]]
+                  end if
+               end repeat
+               
+               # set unshared properties of shared object
+               repeat for each key tUUID in sUnsharedProps[tObject["A"]["UUID"]]
+                  local tControlRef -- reference to object on this card
+                  put the abbrev id of sUUIDMap[tUUID] && "of" && sUUIDMap[tObject["A"]["UUID"]] into tControlRef
+                  repeat for each key tProperty in sUnsharedProps[tObject["A"]["UUID"]][tUUID]
+                     set the tProperty of tControlRef to sUnsharedProps[tObject["A"]["UUID"]][tUUID][tProperty]
+                  end repeat
                end repeat
             end if
-         end try
-      end if
-      put uniDecode(uniEncode(tObject["A"]["properties"]["name"],"UTF8"),"ANSI") into tObject["A"]["properties"]["name"]
-      switch tObject["A"]["class"]
-         case "com.runrev.engine.stack"
-            put the folder into sStackPath
-            -- support VCS on self
-            if pIslcVCS then
-               create stack (tObject["A"]["properties"]["name"]&sTempNameSuffix)
-            else
-               if there is a stack tObject["A"]["properties"]["name"] then
-                  delete stack tObject["A"]["properties"]["name"]
-               end if
-               create stack tObject["A"]["properties"]["name"]
-            end if
-            set the defaultStack to it
-            set the loc of it to the screenLoc
-            -- workaround for the fact that the first card is already created
-            -- and we use this for a background creation card
-            -- a new stack id is always 1002 so the id of 1000 will be safe
-            set the id of card 1 of it to 1000
-            if pStackUUID is not empty then
-               set the mainstack of it to the short name of sUUIDMap[pStackUUID]
-            end if
-            put tObject["A"]["UUID"] into pStackUUID
-            break
-         case "com.runrev.engine.card"
-            create card tObject["A"]["properties"]["name"]
-            put tObject["A"]["UUID"] into pCardUUID
-            break
-         case "com.runrev.engine.image"
-            if word 1 of sUUIDMap[pParentUUID] is "group" then
-               create image tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
-            else
-               create image tObject["A"]["properties"]["name"]
-            end if
-            if there is a file ("image."&tObject["A"]["properties"]["paintCompression"]) then
-               set the text of it to url ("binfile:image."&tObject["A"]["properties"]["paintCompression"])
-            end if
-            delete variable tObject["A"]["properties"]["paintCompression"]
-            if tObject["A"]["properties"]["fileName"] is empty then
-               delete variable tObject["A"]["properties"]["fileName"]
-            end if
-            break
-         case "com.runrev.engine.button"
-            if word 1 of sUUIDMap[pParentUUID] is "group" then
-               create button tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
-            else
-               create button tObject["A"]["properties"]["name"]
-            end if
-            reset the templateButton
-            break
-         case "com.runrev.engine.field"
-            if word 1 of sUUIDMap[pParentUUID] is "group" then
-               create field tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
-            else
-               create field tObject["A"]["properties"]["name"]
-            end if
-            break
-         case "com.runrev.engine.player"
-            if word 1 of sUUIDMap[pParentUUID] is "group" then
-               create player tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
-            else
-               create player tObject["A"]["properties"]["name"]
-            end if
-            break
-         case "com.runrev.engine.scrollbar"
-            if word 1 of sUUIDMap[pParentUUID] is "group" then
-               create scrollbar tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
-            else
-               create scrollbar tObject["A"]["properties"]["name"]
-            end if
-            break
-         case "com.runrev.engine.graphic"
-            if word 1 of sUUIDMap[pParentUUID] is "group" then
-               create graphic tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
-            else
-               create graphic tObject["A"]["properties"]["name"]
-            end if
-            break
-         case "com.runrev.engine.group"
-            if word 1 of sUUIDMap[pParentUUID] is "group" then
-               create group tObject["A"]["properties"]["name"] in sUUIDMap[pParentUUID]
-            else
-               create group tObject["A"]["properties"]["name"]
-            end if
-            set the lockUpdates of it to true
-            break
-         default
-            ##! TODO
-            -- custom control so find appropriate template object
-            -- copy it to the appropriate spot
             
-            break
-      end switch
-      if tObject["A"]["class"] <> "com.runrev.engine.stack" then
-         put the abbrev id of it &" of "& sUUIDMap[pStackUUID] into sUUIDMap[tObject["A"]["UUID"]]
-      else
-         put it into sUUIDMap[tObject["A"]["UUID"]]
-      end if
-      set the itemDel to comma
-      SetObjectProperties tObject["A"],pCardUUID,true
-      put uniDecode(uniEncode(url ("binfile:script.utf8"),"UTF8"),"ANSI") into tScript
-      set the script of sUUIDMap[tObject["A"]["UUID"]] to tScript
-      -- conflict resolution
-      if the result contains "<<<<<<<" then
-         -- script compilation error caused by conflict markers
-         AddToConflicts sUUIDMap[tObject["A"]["UUID"]],"script"
-         put true into tConflict
-      end if
-      if tObject["B"] is an array then
-         AddToConflicts sUUIDMap[tObject["A"]["UUID"]],"properties",tObject
-         put true into tConflict
-      end if
-      put tObject["A"]["UUID"] into tVersion["UUID"]
-      put the short id of sUUIDMap[tObject["A"]["UUID"]] into tVersion["ID"]
-      set the customProperties["uVersion"] of sUUIDMap[tObject["A"]["UUID"]] to tVersion
-      if tObject["A"]["class"] <> "com.runrev.engine.stack" then
-         put CleanLayerFile(url "file:layers") into tUUIDs
-         
-         local tSharedGroupsOnCard
-         repeat for each line tUUID in tUUIDs
-            if sSharedGroup[tUUID] then
-               if not tSharedGroupsOnCard[tUUID] then
-                  -- sharedGroups are already created and just need to be relayered to front
-                  relayer sUUIDMap[tUUID] to front of owner
-                  put true into tSharedGroupsOnCard[tUUID]
-               end if
-            else
-               if sUUIDMap[tUUID] is empty then
-                  set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
-                  ImportObject pStackUUID,pCardUUID,tObject["A"]["UUID"],pIslcVCS
-               end if
+            if tObject["A"]["class"] is "com.runrev.engine.group" then
+               set the lockUpdates of sUUIDMap[tObject["A"]["UUID"]] to false
             end if
-         end repeat
-         
-         if tObject["A"]["class"] is "com.runrev.engine.card" then
-            -- remove unplaced groups
-            repeat for each key tUUID in sSharedGroup
-               if not tSharedGroupsOnCard[tUUID] then
-                  remove sUUIDMap[tUUID] from sUUIDMap[tObject["A"]["UUID"]]
-               end if
+            
+         else
+            # if the stack was password protected it may still have substacks
+            put the folder into tOriginalFolder
+            repeat for each item tType in "sharedGroups,cards,substacks"
+               put CleanLayerFile(url ("file:"&tType)) into tUUIDs
+               
+               repeat for each line tUUID in tUUIDs
+                  if sUUIDMap[tUUID] is empty then
+                     set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
+                     ImportObject pStackUUID,pCardUUID,,pIslcVCS
+                  end if
+               end repeat
+               
+               switch tType
+                  case "cards"
+                     delete card 1
+                     close this stack
+                     break
+               end switch
+               
+               set the folder to tOriginalFolder
             end repeat
          end if
-      else
-         put the folder into tOriginalFolder
-         repeat for each item tType in "sharedGroups,cards,substacks"
-            put CleanLayerFile(url ("file:"&tType)) into tUUIDs
-            
-            repeat for each line tUUID in tUUIDs
-               if sUUIDMap[tUUID] is empty then
-                  set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
-                  ImportObject pStackUUID,pCardUUID,,pIslcVCS
-               end if
-            end repeat
-            switch tType
-               case "cards"
-                  delete card 1
-                  close this stack
-                  break
-            end switch
-            set the folder to tOriginalFolder
-         end repeat
-      end if
-      if tObject["A"]["class"] is "com.runrev.engine.group" then
-         set the lockUpdates of sUUIDMap[tObject["A"]["UUID"]] to false
       end if
    end if
    return pStackUUID
@@ -530,8 +573,7 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
             if pProperties["properties"][tProperty] is an array then
                put the abbrev id of sUUIDMap[pProperties["UUID"]] into tAbbrevID
                repeat for each key tUUID in pProperties["properties"][tProperty]
-                  put tAbbrevID&" of "&sUUIDMap[tUUID] into tControlRef
-                  set the tProperty of tControlRef to pProperties["properties"][tProperty][tUUID]
+                  put pProperties["properties"][tProperty][tUUID] into sUnsharedProps[tUUID][pProperties["UUID"]][tProperty]
                end repeat
             end if
          case tProperty is "repeatCount" -- possible side effects of deleting
@@ -604,13 +646,27 @@ function ObjectForUUID pUUID
 end ObjectForUUID
 
 command ExportStack pStack
-   local tIndex,tIsOpen
+   local tIndex,tIsOpen,tObjectPath
    delete variable sSharedGroup
    set the defaultStack to pStack
-   ExportObject the long id of stack pStack
+   
+   ExportObject the long id of stack pStack,,,the password of stack pStack
+   
+   # if the stack was password protected then none of it's objects are exported
+   # but each object still gets sent lcVCSExport and UUIDs are created for each object
+   if the password of stack pStack then
+      clone stack pStack
+      set the name of it to (kPasswordProtectedStackPrefix&pStack)
+      put sMainstackPath & slash & UUIDToObjectPath(UUIDForObject(the long ID of stack pStack)) into tObjectPath
+      EnsureFolder tObjectPath
+      set the fileName of stack (kPasswordProtectedStackPrefix&pStack) to tObjectPath & slash & "stack.binary"
+      save stack (kPasswordProtectedStackPrefix&pStack)
+      delete stack (kPasswordProtectedStackPrefix&pStack)
+   end if
+   
 end ExportStack
 
-function ExportObjectProperties pObject,pShared
+function ExportObjectProperties pObject,pShared,pPassword
    local tImage,tObject,tGroupCardRef,tPaintCompression,tPropertySetA,tUserStateSetA,tUserState,tSharedObject,tCardIDs,tObjectFirstCardRef,tOriginalFolder,tObjectPath,tScript,tID,tCardRef
    put the folder into tOriginalFolder
    unlock messages
@@ -618,194 +674,197 @@ function ExportObjectProperties pObject,pShared
    lock messages
    set the caseSensitive to true
    put UUIDForObject(pObject) into tObject["UUID"]
-   put sMainstackPath & slash & UUIDToObjectPath(tObject["UUID"]) into tObjectPath
-   EnsureFolder tObjectPath
    
-   set the folder to tObjectPath
-   put pObject into sUUIDMap[tObject["UUID"]]
-   
-   -- properties
-   put the properties of pObject into tObject["properties"]
-   -- delete some props
-   repeat for each item tProperty in kPropsToDelete
-      delete variable tObject["properties"][tProperty]
-   end repeat
-   put uniDecode(uniEncode(tObject["properties"]["name"],"ANSI"),"UTF8") into tObject["properties"]["name"]
-   -- unicode properties
-   repeat for each item tProperty in kUnicodeProps
-      if tObject["properties"][tProperty] is not empty then
-         put uniDecode(tObject["properties"][tProperty],"UTF8") into tObject["properties"][tProperty]
+   if not pPassword then
+      put sMainstackPath & slash & UUIDToObjectPath(tObject["UUID"]) into tObjectPath
+      EnsureFolder tObjectPath
+      
+      set the folder to tObjectPath
+      put pObject into sUUIDMap[tObject["UUID"]]
+      
+      -- properties
+      put the properties of pObject into tObject["properties"]
+      -- delete some props
+      repeat for each item tProperty in kPropsToDelete
+         delete variable tObject["properties"][tProperty]
+      end repeat
+      put uniDecode(uniEncode(tObject["properties"]["name"],"ANSI"),"UTF8") into tObject["properties"]["name"]
+      -- unicode properties
+      repeat for each item tProperty in kUnicodeProps
+         if tObject["properties"][tProperty] is not empty then
+            put uniDecode(tObject["properties"][tProperty],"UTF8") into tObject["properties"][tProperty]
+         end if
+      end repeat
+      if tObject["properties"]["behavior"] is not empty then
+         put UUIDForObject(tObject["properties"]["behavior"]) into tObject["properties"]["behavior"]
       end if
-   end repeat
-   if tObject["properties"]["behavior"] is not empty then
-      put UUIDForObject(tObject["properties"]["behavior"]) into tObject["properties"]["behavior"]
-   end if
-   if the cIDEProperties["cCustomControlID"] of pObject <> "" then
-      put the cIDEProperties["cCustomControlID"] of pObject into tObject["class"]
-   else
-      if word 1 of pObject is "bkgnd" then
-         put "com.runrev.engine.group" into tObject["class"]
+      if the cIDEProperties["cCustomControlID"] of pObject <> "" then
+         put the cIDEProperties["cCustomControlID"] of pObject into tObject["class"]
       else
-         put "com.runrev.engine."&word 1 of pObject into tObject["class"]
+         if word 1 of pObject is "bkgnd" then
+            put "com.runrev.engine.group" into tObject["class"]
+         else
+            put "com.runrev.engine."&word 1 of pObject into tObject["class"]
+         end if
       end if
-   end if
-   try
+      
+      # get the script and UTF8 encode it
       put the script of pObject into tScript
       if tScript <> "" then
          put uniDecode(uniEncode(tScript,"ANSI"),"UTF8") into tScript
       end if
-   catch e
-      throw "password protected scripts unspported: "&the long name of pObject
-   end try
-   if word 1 of pObject is not "image" then
-      repeat for each item tProperty in kPatternProps
-         try
-            put the tProperty of pObject into tID
-            if tID <> "" and tID <> 0 then
-               -- if unresolved the property will be cleared
-               --_internal resolve image id tID relative to pObject
-               --resolve image id tID relative to pObject
-               #! Workaround using behavior heirarchy until resolve image syntax accepted
-               get ResolveImage(tID,pObject)
-               put it into tObject["properties"][tProperty]
-               
-               if there is a tObject["properties"][tProperty] then
-                  put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
-               end if
-            end if
-         end try
-      end repeat
-   end if
-   switch word 1 of pObject
-      case "stack"
-         -- should be saved next to the folder
-         delete variable tObject["properties"]["fileName"]
-         -- only want conflict on width and height difference not stack location
-         delete variable tObject["properties"]["rect"]
-         put the width of pObject into tObject["properties"]["width"]
-         put the height of pObject into tObject["properties"]["height"]
-         -- stack id is too likely to cause a conflict and will resolve itself anyway
-         delete variable tObject["properties"]["id"]
-         break
-      case "image"
-         if tObject["properties"]["fileName"] is empty then
-            put the paintCompression of pObject into tObject["properties"]["paintCompression"]
-            if tObject["properties"]["paintCompression"] is "rle" then
-               export pObject to file "image.png" as png with standard palette
-               put "png" into tObject["properties"]["paintCompression"]
-            else
-               put tObject["properties"]["text"] into url ("binfile:image."&tObject["properties"]["paintCompression"])
-            end if
-            delete variable tObject["properties"]["text"]
-         end if
-         -- no point having merge conflicts on animated gif frames unless
-         -- the it's specificially set to a specific frame
-         if tObject["properties"]["repeatCount"] is not 0 then
-            delete variable tObject["properties"]["currentFrame"]
-         end if
-         break
-      case "group"
-      case "bkgnd"
-         -- no point exporting group rect if it's not locked
-         if not the lockLoc of pObject then
-            delete variable tObject["properties"]["rect"]
-         end if
-         break
-      case "button"
-         if not the sharedHilite of pObject and pShared then
-            put word 3 of pObject into tID
-            local tUUID
-            repeat for each line tCardID in the cardIDs of the defaultStack
-               if there is a button id tID of card id tCardID of the defaultStack then
-                  put UUIDForObject(the long id of card id tCardID of the defaultStack) into tUUID
-                  put the hilite of button id tID of card id tCardID of the defaultStack into tObject["properties"]["hilite"][tUUID]
-               end if
-            end repeat 
-         end if 
-         if "text" is among the lines of the keys of tObject["properties"] then
-            put the text of pObject into tObject["properties"]["text"]
-         end if
-         repeat for each item tProperty in kIconProps
+      
+      if word 1 of pObject is not "image" then
+         repeat for each item tProperty in kPatternProps
             try
-               if tObject["properties"][tProperty] <> "" and tObject["properties"][tProperty] <> 0 then
-                  get ResolveImage(tObject["properties"][tProperty],pObject)
-                  --_internal resolve image id tObject["properties"][tProperty] relative to pObject
+               put the tProperty of pObject into tID
+               if tID <> "" and tID <> 0 then
+                  -- if unresolved the property will be cleared
+                  --_internal resolve image id tID relative to pObject
+                  --resolve image id tID relative to pObject
+                  #! Workaround using behavior heirarchy until resolve image syntax accepted
+                  get ResolveImage(tID,pObject)
                   put it into tObject["properties"][tProperty]
-                  if tObject["properties"][tProperty] is not empty then
+                  
+                  if there is a tObject["properties"][tProperty] then
                      put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
-                  else
-                     put 0 into tObject["properties"][tProperty]
                   end if
                end if
             end try
          end repeat
-         break
-      case "field"
-         if not the sharedText of pObject and pShared then
-            put word 3 of pObject into tID
-            repeat for each line tCardID in the cardIDs of the defaultStack
-               if there is a field id tID of card id tCardID of the defaultStack then
-                  put UUIDForObject(the long id of card id tCardID of the defaultStack) into tUUID
-                  put the htmlText of field id tID of card id tCardID of the defaultStack into tObject["properties"]["htmlText"][tUUID]
+      end if
+      switch word 1 of pObject
+         case "stack"
+            -- should be saved next to the folder
+            delete variable tObject["properties"]["fileName"]
+            -- only want conflict on width and height difference not stack location
+            delete variable tObject["properties"]["rect"]
+            put the width of pObject into tObject["properties"]["width"]
+            put the height of pObject into tObject["properties"]["height"]
+            -- stack id is too likely to cause a conflict and will resolve itself anyway
+            delete variable tObject["properties"]["id"]
+            break
+         case "image"
+            if tObject["properties"]["fileName"] is empty then
+               put the paintCompression of pObject into tObject["properties"]["paintCompression"]
+               if tObject["properties"]["paintCompression"] is "rle" then
+                  export pObject to file "image.png" as png with standard palette
+                  put "png" into tObject["properties"]["paintCompression"]
+               else
+                  put tObject["properties"]["text"] into url ("binfile:image."&tObject["properties"]["paintCompression"])
                end if
-            end repeat 
-         end if
-         break
-   end switch
-   -- custom properties
-   if the customKeys of pObject is not empty or the customPropertySets of pObject is not empty then
-      repeat for each line tCustomPropertySet in ""&cr&the customPropertySets of pObject
-         put the customProperties[tCustomPropertySet] of pObject into tPropertySetA
-         if tCustomPropertySet is "uVersion" then
-            next repeat
-         end if
-         if tCustomPropertySet is "" then 
-            put "customKeys" into tCustomPropertySet
-         end if
-         if there is a stack sPlugins[tCustomPropertySet]["stack"] then
-            dispatch "lcVCSFilterExportedProps" to stack sPlugins[tCustomPropertySet]["stack"] with pObject,tPropertySetA,tUserStateSetA
-         end if
-         if the number of elements in tPropertySetA > 0 then
-            put tPropertySetA into tObject["customPropertySets"][uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
-         end if
-         if the number of elements in tUserStateSetA > 0 then
-            put tUserStateSetA into tUserState[uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
-         end if
-         delete variable tUserStateSetA
-      end repeat
-   end if
-   if the number of elements of tObject["customPropertySets"] is 0 then
-      delete variable tObject["customPropertySets"]
-   end if
-   local tJSON
-   put ArrayToJSON(tObject,,true) into tJSON
-   put tJSON into url ("binfile:properties.json")
-   if the number of elements of tUserState is not 0 then
-      put ArrayToJSON(tUserState,,true) into tJSON
-      put tJSON into url ("binfile:userstate.json")
-   else
-      if there is a file "userstate.json" then
-         delete file "userstate.json"
+               delete variable tObject["properties"]["text"]
+            end if
+            -- no point having merge conflicts on animated gif frames unless
+            -- the it's specificially set to a specific frame
+            if tObject["properties"]["repeatCount"] is not 0 then
+               delete variable tObject["properties"]["currentFrame"]
+            end if
+            break
+         case "group"
+         case "bkgnd"
+            -- no point exporting group rect if it's not locked
+            if not the lockLoc of pObject then
+               delete variable tObject["properties"]["rect"]
+            end if
+            break
+         case "button"
+            if not the sharedHilite of pObject and pShared then
+               put word 3 of pObject into tID
+               local tUUID
+               repeat for each line tCardID in the cardIDs of the defaultStack
+                  if there is a button id tID of card id tCardID of the defaultStack then
+                     put UUIDForObject(the long id of card id tCardID of the defaultStack) into tUUID
+                     put the hilite of button id tID of card id tCardID of the defaultStack into tObject["properties"]["hilite"][tUUID]
+                  end if
+               end repeat 
+            end if 
+            if "text" is among the lines of the keys of tObject["properties"] then
+               put the text of pObject into tObject["properties"]["text"]
+            end if
+            repeat for each item tProperty in kIconProps
+               try
+                  if tObject["properties"][tProperty] <> "" and tObject["properties"][tProperty] <> 0 then
+                     get ResolveImage(tObject["properties"][tProperty],pObject)
+                     --_internal resolve image id tObject["properties"][tProperty] relative to pObject
+                     put it into tObject["properties"][tProperty]
+                     if tObject["properties"][tProperty] is not empty then
+                        put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
+                     else
+                        put 0 into tObject["properties"][tProperty]
+                     end if
+                  end if
+               end try
+            end repeat
+            break
+         case "field"
+            if not the sharedText of pObject and pShared then
+               put word 3 of pObject into tID
+               repeat for each line tCardID in the cardIDs of the defaultStack
+                  if there is a field id tID of card id tCardID of the defaultStack then
+                     put UUIDForObject(the long id of card id tCardID of the defaultStack) into tUUID
+                     put the htmlText of field id tID of card id tCardID of the defaultStack into tObject["properties"]["htmlText"][tUUID]
+                  end if
+               end repeat 
+            end if
+            break
+      end switch
+      -- custom properties
+      if the customKeys of pObject is not empty or the customPropertySets of pObject is not empty then
+         repeat for each line tCustomPropertySet in ""&cr&the customPropertySets of pObject
+            put the customProperties[tCustomPropertySet] of pObject into tPropertySetA
+            if tCustomPropertySet is "uVersion" then
+               next repeat
+            end if
+            if tCustomPropertySet is "" then 
+               put "customKeys" into tCustomPropertySet
+            end if
+            if there is a stack sPlugins[tCustomPropertySet]["stack"] then
+               dispatch "lcVCSFilterExportedProps" to stack sPlugins[tCustomPropertySet]["stack"] with pObject,tPropertySetA,tUserStateSetA
+            end if
+            if the number of elements in tPropertySetA > 0 then
+               put tPropertySetA into tObject["customPropertySets"][uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
+            end if
+            if the number of elements in tUserStateSetA > 0 then
+               put tUserStateSetA into tUserState[uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
+            end if
+            delete variable tUserStateSetA
+         end repeat
       end if
-   end if
-   if tScript is not empty then 
-      put tScript into url ("binfile:script.utf8")
-   else
-      if there is a file "script.utf8" then
-         delete file "script.utf8"
+      if the number of elements of tObject["customPropertySets"] is 0 then
+         delete variable tObject["customPropertySets"]
       end if
+      local tJSON
+      put ArrayToJSON(tObject,,true) into tJSON
+      put tJSON into url ("binfile:properties.json")
+      if the number of elements of tUserState is not 0 then
+         put ArrayToJSON(tUserState,,true) into tJSON
+         put tJSON into url ("binfile:userstate.json")
+      else
+         if there is a file "userstate.json" then
+            delete file "userstate.json"
+         end if
+      end if
+      if tScript is not empty then 
+         put tScript into url ("binfile:script.utf8")
+      else
+         if there is a file "script.utf8" then
+            delete file "script.utf8"
+         end if
+      end if
+      set the folder to tOriginalFolder
    end if
-   set the folder to tOriginalFolder
+   
    return tObject["UUID"]
 end ExportObjectProperties
 
-command ExportObject pObject,pShared,pType
+command ExportObject pObject,pShared,pType,pPassword
    local tObjects,tOriginalFolder
    put the folder into tOriginalFolder
    -- properties of stack
    
    local tUUID
-   put ExportObjectProperties(pObject,pShared) into tUUID
+   put ExportObjectProperties(pObject,pShared,pPassword) into tUUID
    
    -- child objects
    local tIndex="1"
@@ -817,7 +876,9 @@ command ExportObject pObject,pShared,pType
             put UUIDForObject(the long id of card id tID of pObject)&cr after tCards
             ExportObject the long id of card id tID of pObject,,false
          end repeat
-         put tCards into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards")
+         if not pPassword then
+            put tCards into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards")
+         end if
          -- shared groups
          local tSharedGroups
          if the sharedGroupIDs of pObject is not empty then
@@ -825,7 +886,9 @@ command ExportObject pObject,pShared,pType
                put UUIDForObject(the long id of background id tID of pObject)&cr after tSharedGroups
                ExportObject the long id of background id tID of pObject,true,false
             end repeat
-            put tSharedGroups into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups")
+            if not pPassword then
+               put tSharedGroups into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups")
+            end if
          end if
          -- substacks
          local tSubstacks
@@ -842,21 +905,19 @@ command ExportObject pObject,pShared,pType
       case "bkgnd"
          -- only if it's not a cusom control
          if the cIDEProperties["cCustomControlID"] of pObject = "" then
-            if the number of controls of pObject is not 0 then
-               local tControlRef
-               local tLayers
-               repeat for each line tControlID in the childControlIDs of pObject
-                  put the long id of control id tControlID of pObject into tControlRef
-                  -- layer of shared groups in the list too
-                  put UUIDForObject(tControlRef)&cr after tLayers
-                  if not (word 1 of tControlRef is "group" and \
-                        the sharedBehavior of tControlRef) then
-                     ExportObject tControlRef,pShared,false
-                  end if
-               end repeat
-               if tLayers is not empty then
-                  put tLayers into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/layers")
+            local tControlRef
+            local tLayers
+            repeat for each line tControlID in the childControlIDs of pObject
+               put the long id of control id tControlID of pObject into tControlRef
+               -- layer of shared groups in the list too
+               put UUIDForObject(tControlRef)&cr after tLayers
+               if not (word 1 of tControlRef is "group" and \
+                     the sharedBehavior of tControlRef) then
+                  ExportObject tControlRef,pShared,false
                end if
+            end repeat
+            if tLayers is not empty and not pPassword then
+               put tLayers into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/layers")
             end if
          end if
          break
