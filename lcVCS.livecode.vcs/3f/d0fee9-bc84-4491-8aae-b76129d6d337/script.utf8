@@ -66,6 +66,7 @@ private command SetUUIDs pObject,pDontCheck
       set the customProperties["uVersion"] of pObject to tVersion
    end if
    
+   local tID,tSharedGroups
    switch word 1 of pObject
       case "stack"
          repeat for each line tID in the cardIDs of pObject
@@ -76,18 +77,14 @@ private command SetUUIDs pObject,pDontCheck
          end repeat
          break
       case "card"
-         local tChildControl
-         repeat for each line tID in the childControlIDs of pObject
-            put the long id of ("control id "&tID&" of "&pObject) into tChildControl
-            if word 1 of tChildControl is not "group" or not the sharedBehavior or tChildControl then
-               SetUUIDs the long id of ("control id "&tID&" of "&pObject),pDontCheck
-            end if
-         end repeat
-         break
+         put the sharedGroupIDs of pObject into tSharedGroups
+         split tSharedGroups by row as set
       case "group"
       case "bkgnd"
          repeat for each line tID in the childControlIDs of pObject
-            SetUUIDs the long id of ("control id "&tID&" of "&pObject),pDontCheck
+            if not tSharedGroups[tID] then
+               SetUUIDs the long id of ("control id "&tID&" of "&pObject),pDontCheck
+            end if
          end repeat
          break
    end switch

@@ -285,6 +285,8 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
       put CleanLayerFile(url "file:substacks") into tUUIDs
       
       put UUIDForObject(the long id of stack tName) into pStackUUID
+      
+      LoadUUIDs the long id of stack tName
                
       repeat for each line tUUID in tUUIDs
          if sUUIDMap[tUUID] is empty then
@@ -607,6 +609,33 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
    end repeat
    
 end SetObjectProperties
+
+private command LoadUUIDs pObject
+   put pObject into sUUIDMap[UUIDForObject(pObject)]
+   
+   local tID,tSharedGroups
+   switch word 1 of pObject
+      case "stack"
+         repeat for each line tID in the cardIDs of pObject
+            LoadUUIDs "card id "&tID&" of "&pObject
+         end repeat
+         repeat for each line tID in the sharedGroupIDs of pObject
+            LoadUUIDs "bkgnd id "&tID&" of "&pObject
+         end repeat
+         break
+      case "card"
+         put the sharedGroupIDs of pObject into tSharedGroups
+         split tSharedGroups by row as set
+      case "group"
+      case "bkgnd"
+         repeat for each line tID in the childControlIDs of pObject
+            if not tSharedGroups[tID] then
+               LoadUUIDs the long id of ("control id "&tID&" of "&pObject)
+            end if
+         end repeat
+         break
+   end switch
+end LoadUUIDs
 
 command AddToConflicts pObject,pType,pProperties
    put true into sConflicts[sCurrentStackFilePath][pObject][pType] 
