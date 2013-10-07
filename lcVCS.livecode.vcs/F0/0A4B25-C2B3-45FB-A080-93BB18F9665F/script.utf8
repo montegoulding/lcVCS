@@ -62,6 +62,7 @@ command ImportProject pFilePath
    end repeat
    
    repeat for each key tStack in sStacksToDelete
+      set the cantDelete of stack tStack to false
       delete stack tStack
    end repeat
    
@@ -254,6 +255,7 @@ on PostImportStack pTempNameSuffix
          put tStack into tStackName
          replace pTempNameSuffix with empty in tStackName
          if there is a stack tStackName then
+            set the cantDelete of stack tStackName to false
             delete stack tStackName
          end if
          -- set names correctly
@@ -287,7 +289,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
       put UUIDForObject(the long id of stack tName) into pStackUUID
       
       LoadUUIDs the long id of stack tName
-               
+      
       repeat for each line tUUID in tUUIDs
          if sUUIDMap[tUUID] is empty then
             set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
@@ -343,6 +345,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                   create stack (tObject["A"]["properties"]["name"]&sTempNameSuffix)
                else
                   if there is a stack tObject["A"]["properties"]["name"] then
+                     set the cantDelete of stack tObject["A"]["properties"]["name"] to false
                      delete stack tObject["A"]["properties"]["name"]
                   end if
                   create stack tObject["A"]["properties"]["name"]
@@ -690,6 +693,7 @@ command ExportStack pStack
       EnsureFolder tObjectPath
       set the fileName of stack (kPasswordProtectedStackPrefix&pStack) to tObjectPath & slash & "stack.binary"
       save stack (kPasswordProtectedStackPrefix&pStack)
+      set the cantDelete of stack (kPasswordProtectedStackPrefix&pStack) to false
       delete stack (kPasswordProtectedStackPrefix&pStack)
    end if
    

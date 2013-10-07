@@ -103,6 +103,7 @@ on NewMessage pIP,pData
          put ResolveProjectFile(line 2 of pData) into tProject
          repeat for each line tIndex in tProject["imported stackFiles"]
             try
+               set the cantDelete of stack tProject["imported stackFiles"][tIndex] to false
                delete stack tProject["imported stackFiles"][tIndex]
             end try
          end repeat
