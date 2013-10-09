@@ -31,7 +31,9 @@ command ExportProject pFilePath,pStackFile
    put ResolveProjectFile(pFilePath) into tProject
    set the itemDel to slash
    repeat with tIndex = 1 to the number of elements of tProject["stackFiles"]
-      if pStackFile is empty or tProject["imported stackfiles"][tIndex] is pStackFile then
+      # ensure all stacks are loaded into memory even if only exporting one file
+      if there is a stack tProject["imported stackfiles"][tIndex] and \
+            (pStackFile is empty or tProject["imported stackfiles"][tIndex] is pStackFile) then
          EnsureFolder tProject["exported stackfiles"][tIndex]
          ExportStackFile tProject["imported stackfiles"][tIndex], tProject["exported stackfiles"][tIndex]
       end if
