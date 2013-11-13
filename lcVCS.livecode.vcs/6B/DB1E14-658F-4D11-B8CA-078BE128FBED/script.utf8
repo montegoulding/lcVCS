@@ -1,6 +1,3 @@
-local sTreeA
-local sRootFolder
-
 on preOpenCard
    set the hideConsoleWindows to true
    

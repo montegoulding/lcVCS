@@ -817,6 +817,7 @@ function ExportObjectProperties pObject,pShared,pPassword
                   if tObject["properties"][tProperty] <> "" and tObject["properties"][tProperty] <> 0 then
                      get ResolveImage(tObject["properties"][tProperty],pObject)
                      --_internal resolve image id tObject["properties"][tProperty] relative to pObject
+                     --resolve image id tObject["properties"][tProperty] relative to pObject
                      put it into tObject["properties"][tProperty]
                      if tObject["properties"][tProperty] is not empty then
                         put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
@@ -1127,3 +1128,15 @@ private function CleanLayerFile pData
    return pData
 end CleanLayerFile
 
+on libraryStack
+   # for some reason the behavior heirarchy of functions with syntax for different platforms
+   # fails in 6.5+ so this is the workaround... when 6.5 is stable then drop all this and
+   # run with 6.5 as the min version
+   if the target is not me then pass libraryStack
+   set the itemDel to "."
+   if item 1 to 2 of the version >= 6.5 then
+      set the behavior of btn "Common" of me to the long id of btn "resolve image"
+   else
+      set the behavior of btn "Common" of me to the long id of btn "_internal resolve image"
+   end if
+end libraryStack

@@ -1,5 +1,4 @@
 function ResolveImage pID,pObject
    resolve image id pID relative to pObject
-   write the result to stdout
    return it
 end ResolveImage
