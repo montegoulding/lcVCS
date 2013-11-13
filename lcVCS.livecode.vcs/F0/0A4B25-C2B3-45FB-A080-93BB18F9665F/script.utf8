@@ -16,7 +16,6 @@ local sPlugins -- an array with loaded plugins for UUID resolution and unnecessa
 local sTempNameSuffix -- a suffix (uuid) used when lcVCS is importing itself
 local sStackPath -- the path to the stack being imported
 local sMainstackPath -- the path to the mainstack being imported
-local sPrefA -- lcVCS preferences
 local sSharedGroup -- keeps track of imported shared groups in a stack
 local sUnsharedProps -- holds unshared data of shared objects until the group is placed
 
@@ -76,15 +75,6 @@ command ImportProject pFilePath
    
    stop using me
 end ImportProject
-
-command EnsureFolder pFolder
-   set the itemDel to slash
-   repeat with tFolder = 1 to the number of items of pFolder
-      if there is not a folder (item 1 to tFolder of pFolder) then
-         create folder (item 1 to tFolder of pFolder)
-      end if
-   end repeat
-end EnsureFolder
 
 function ResolveProjectFile pFilePath
    local tProject,tProjectPath
@@ -149,7 +139,7 @@ end ExportStackFile
 
 # Import a stackfile from a folder
 on ImportStackFile pFolder,pFilePath,pIslcVCS
-   local tUUIDSearchDone = "false",tOriginalFolder,tStackFileMainstack,tUUIDs
+   local tUUIDSearchDone = "false",tOriginalFolder,tStackFileMainstack,tUUIDs,tMainstackUUID
    --lock screen
    lock messages
    put pFilePath into sCurrentStackFilePath
@@ -159,9 +149,11 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
    delete variable sUnsharedProps
    set the folder to pFolder
    put pFolder into sMainstackPath
-   set the folder to UUIDToObjectPath(url "file:mainstack")
+   put url "file:mainstack" into tMainstackUUID
+   set the folder to UUIDToObjectPath(tMainstackUUID)
+   write "uuid:"&&tMainstackUUID&cr to stdout
    ImportObject "","","",pIslcVCS
-   put the short name of sUUIDMap[the result] into tStackFileMainstack
+   put the short name of sUUIDMap[tMainstackUUID] into tStackFileMainstack
    -- only load UUIDs from all mainstacks if necessary
    repeat for each key tObject in sUUIDsToResolve
       repeat for each key tProperty in sUUIDsToResolve[tObject] 
@@ -660,7 +652,8 @@ function UUIDForObject pObject
    put the customProperties["uVersion"] of pObject into tVersion
    if tVersion["UUID"] = "" or \
          (word 1 of pObject is not "stack" and the short id of pObject <> tVersion["ID"]) or \
-         (sUUIDMap[tVersion["UUID"]] is not empty and sUUIDMap[tVersion["UUID"]] is not the long id of pObject) then
+         (sUUIDMap[tVersion["UUID"]] is not empty and \
+         the long id of sUUIDMap[tVersion["UUID"]] is not the long id of pObject) then
       put UUID() into tVersion["UUID"]
       put the short id of pObject into tVersion["ID"]
       set the customProperties["uVersion"] of pObject to tVersion
@@ -765,6 +758,8 @@ function ExportObjectProperties pObject,pShared,pPassword
                      put UUIDForObject(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
                   end if
                end if
+            catch e
+               write e to STDOUT
             end try
          end repeat
       end if
@@ -1005,7 +1000,7 @@ end ParseConflictedFile
 -- this makes sure the datagrid behaviors have the same UUID on everyone's version of the IDE
 command SetDataGridUUIDs
    local tVersion
-   put the customProperties["uDataGridBehaviors"] of me into tVersion
+   put the customProperties["uDataGridBehaviors"] of stack "lcVCS" into tVersion
    repeat for each key tID in tVersion
       set the customProperties["uVersion"] of control id tID of stack "revDataGridLibrary" to tVersion[tID]
    end repeat
@@ -1103,52 +1098,7 @@ function FindParent pObject,pType,pShared
    end if
 end FindParent
 
-function PreferencePath
-   local tFolder
-   
-   if the platform is "Linux" then
-      put "~/.lcVCS" into tFolder
-   else
-      put specialFolderPath("support")&"/lcVCS" into tFolder
-   end if
-   EnsureFolder tFolder
-   
-   return tFolder
-end PreferencePath
 
-command LoadPreferences
-   local tFile
-   
-   put PreferencePath() & slash & "preferences.dat" into tFile
-   
-   if there is a file tFile then
-      try
-         put arrayDecode(url ("binfile:"&tFile)) into sPrefA
-      end try
-   end if
-end LoadPreferences
-
-command SavePreferences
-   local tFile
-   
-   put PreferencePath() & slash & "preferences.dat" into tFile
-   
-   try
-      put arrayEncode(sPrefA) into url ("binfile:"&tFile)
-   end try
-end SavePreferences
-
-command SetPreference pPreference,pValue
-   put pValue into sPrefA[pPreference]
-   SavePreferences
-end SetPreference
-
-function GetPreference pPreference
-   if sPrefA is not an array then
-      LoadPreferences
-   end if
-   return sPrefA[pPreference]
-end GetPreference
 
 // Return a path relative to the stack directory for an object
 // Note stacks are treated differently and their data is in the stack directory
@@ -1164,45 +1114,6 @@ private function ObjectPathToUUID pObjectPath
    return item 1 of pObjectPath & item 2 of pObjectPath
 end ObjectPathToUUID
 
-on savingStandalone
-   local tProjectA
-   
-   put ProjectForStackFile(the effective filename of me,true) into tProjectA
-   local tOriginalFolder
-   put the folder into tOriginalFolder
-   
-   if tProjectA is an array then
-      set the folder to tProjectA["exported stackFiles"][1]
-      set the uVersionNumber of me to line 1 of shell("git describe")
-   end if
-   
-   set the folder to tOriginalFolder
-end savingStandalone
-
-function ProjectForStackFile pStackFile,pResolved
-   local tProjects,tIndex,tProjectA
-   
-   LoadPreferences
-   put GetPreference("Projects") into tProjects
-   
-   -- resolve all project files
-   repeat for each key tIndex in tProjects
-      put ResolveProjectFile(tProjects[tIndex]) into tProjectA
-      repeat for each key tFileIndex in tProjectA["imported stackFiles"]
-         if tProjectA["imported stackFiles"][tFileIndex] is pStackFile then
-            if pResolved then
-               return tProjectA
-            else
-               return tProjects[tIndex]
-            end if
-         end if
-      end repeat
-   end repeat
-   
-   return empty
-   
-end ProjectForStackFile
-
 # Cleans conflict markers
 #! Warning - only use on layer files
 #! TODO Improve with regex that handles all conflict markers
@@ -1216,45 +1127,3 @@ private function CleanLayerFile pData
    return pData
 end CleanLayerFile
 
-# building the command line interface
-on standaloneSaved pPath
-   lock messages
-   local tProcess
-   switch the platform
-      case  "Linux"
-         if there is a folder pPath&"lcvcs/Linux" then
-            put "cp "&q(pPath&"lcvcs/Linux/lcvcs")&&"/usr/bin" into tProcess
-         else
-            put "cp "&q(pPath&"lcvcs/lcvcs")&&"/usr/bin" into tProcess
-         end if
-         break
-      case "MacOS"
-         if there is a folder pPath&"lcvcs/MacOSX" then
-            put "cp "&q(pPath&"lcvcs/MacOSX/lcvcs.app/Contents/MacOS/lcvcs")&&"/usr/bin" into tProcess
-         else
-            put "cp "&q(pPath&"lcvcs/lcvcs.app/Contents/MacOS/lcvcs")&&"/usr/bin" into tProcess
-         end if
-         break
-      case "Win32"
-         if there is a folder pPath&"lcvcs/Windows" then
-            put "cp "&q(pPath&"Windows/lcvcs.exe")&&q(PreferencePath()) into tProcess
-         else
-            put "cp "&q(pPath&"lcvcs.exe")&&q(PreferencePath()) into tProcess
-         end if
-         # set %PATH%
-         local tPath
-         constant kRegistryPath = "HKEY_LOCAL_MACHINE\CurrentControlSet\Control\Session Manager\Environment\Path"
-         put queryRegistry(kRegistryPath) into tPath
-         set the itemDel to ";"
-         local tPrefPath
-         put replaceText(PreferencePath(),"/","\") into tPrefPath
-         if tPrefPath is not among the items of tPath then
-            put ";"&tPrefPath after tPath
-            get setRegistry(kRegistryPath,tPath)
-         end if
-         break
-   end switch
-   open elevated process tProcess for neither
-   revDeleteFolder pPath&"lcvcs"
-   
-end standaloneSaved
