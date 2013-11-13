@@ -51,7 +51,7 @@ command ImportProject pFilePath
    LoadDataGridUUIDs
    delete variable sConflicts
    delete variable sStacksToDelete
-   put uuid() into sTempNameSuffix
+   put UUID() into sTempNameSuffix
    
    put ResolveProjectFile(pFilePath) into tProject
    set the itemDel to slash
@@ -160,22 +160,25 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
          repeat for each line tUUID in sUUIDsToResolve[tObject][tProperty]
             -- resolve UUID references (icons, patterns, behaviors)
             -- load UUIDs from all mainstacks only if required
-            if not tUUIDSearchDone and there is not a sUUIDMap[tUUID] then
+            if tUUID is not an integer and not tUUIDSearchDone and there is not a sUUIDMap[tUUID] then
                put "searching for: "&tStackFileMainstack&tab&tObject&tab&tProperty&tab&sUUIDMap[tUUID]&tab&tUUID&cr after msg
                put true into tUUIDSearchDone
                repeat for each line tMainstack in the mainstacks
                   repeat for each line tStack in tMainstack&cr&the substacks of stack tMainstack
                      repeat with tCard = 1 to the number of cards of stack tStack
                         -- behavior buttons
+                        local tControlUUID
                         repeat with tControl =1 to the number of buttons of card tCard of stack tStack
-                           if the uVersion["UUID"] of btn tControl of card tCard of stack tStack <> "" then
-                              put the long id of btn tControl of card tCard of stack tStack into sUUIDMap[UUIDForObject(the long id of btn tControl of card tCard of stack tStack)]
+                           put the uVersion["UUID"] of btn tControl of card tCard of stack tStack into tControlUUID
+                           if tControlUUID <> "" then
+                              put the long id of btn tControl of card tCard of stack tStack into sUUIDMap[tControlUUID]
                            end if
                         end repeat
                         -- images
                         repeat with tControl =1 to the number of images of card tCard of stack tStack
-                           if the uVersion["UUID"] of image tControl of card tCard of stack tStack <> "" then
-                              put the long id of image tControl of card tCard of stack tStack into sUUIDMap[UUIDForObject(the long id of image tControl of card tCard of stack tStack)]
+                           put the uVersion["UUID"] of image tControl of card tCard of stack tStack into tControlUUID
+                           if tControlUUID <> "" then
+                              put the long id of image tControl of card tCard of stack tStack into sUUIDMap[tControlUUID]
                            end if
                         end repeat
                      end repeat
@@ -1128,15 +1131,11 @@ private function CleanLayerFile pData
    return pData
 end CleanLayerFile
 
-on libraryStack
-   # for some reason the behavior heirarchy of functions with syntax for different platforms
-   # fails in 6.5+ so this is the workaround... when 6.5 is stable then drop all this and
-   # run with 6.5 as the min version
-   if the target is not me then pass libraryStack
+on SetupBehaviors
    set the itemDel to "."
    if item 1 to 2 of the version >= 6.5 then
-      set the behavior of btn "Common" of me to the long id of btn "resolve image"
+      set the behavior of btn "Common" of stack "lcVCS" to the long id of btn "resolve image" of stack "lcVCS"
    else
-      set the behavior of btn "Common" of me to the long id of btn "_internal resolve image"
+      set the behavior of btn "Common" of stack "lcVCS" to the long id of btn "_internal resolve image" of stack "lcVCS"
    end if
-end libraryStack
+end SetupBehaviors
