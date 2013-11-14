@@ -140,9 +140,26 @@ end ExportStackFile
 # Import a stackfile from a folder
 on ImportStackFile pFolder,pFilePath,pIslcVCS
    local tUUIDSearchDone = "false",tOriginalFolder,tStackFileMainstack,tUUIDs,tMainstackUUID
-   --lock screen
+   lock screen
    lock messages
    put pFilePath into sCurrentStackFilePath
+   
+   if sCurrentStackFilePath is empty then
+      put pFolder into sCurrentStackFilePath
+      set the itemDel to "."
+      if item -1 of sCurrentStackFilePath = "vcs" then
+         delete item -1 of sCurrentStackFilePath
+      end if
+   else
+      set the itemDel to slash
+      if there is not a folder (item 1 to -2 of sCurrentStackFilePath) then
+         if char -1 of pFolder is "/" then
+            delete char -1 of pFolder
+         end if
+         put pFolder&"/" before sCurrentStackFilePath
+      end if
+   end if
+   
    put the folder into tOriginalFolder
    delete variable sUUIDsToResolve
    delete variable sPropsToSet
@@ -150,8 +167,10 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
    set the folder to pFolder
    put pFolder into sMainstackPath
    put url "file:mainstack" into tMainstackUUID
+   if tMainstackUUID is empty then
+      return "no mainstack file found"
+   end if
    set the folder to UUIDToObjectPath(tMainstackUUID)
-   write "uuid:"&&tMainstackUUID&cr to stdout
    ImportObject "","","",pIslcVCS
    put the short name of sUUIDMap[tMainstackUUID] into tStackFileMainstack
    -- only load UUIDs from all mainstacks if necessary
@@ -208,24 +227,6 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
       end repeat
    end repeat
    
-   if pFilePath is empty then
-      set the itemDel to "."
-      if item -1 of pFolder = "vcs" then
-         delete item -1 of pFolder
-      end if
-      set the fileName of stack tStackFileMainstack to pFolder
-   else
-      set the itemDel to slash
-      if there is a folder (item 1 to -2 of pFilePath) then
-         set the fileName of stack tStackFileMainstack to pFilePath
-      else -- relative path
-         if char -1 of pFolder is "/" then
-            delete char -1 of pFolder
-         end if
-         set the fileName of stack tStackFileMainstack to pFolder&"/"&pFilePath
-      end if
-   end if
-   
    -- set cant modify
    repeat for each key tProperty in sPropsToSet
       repeat for each key tObject in sPropsToSet[tProperty]
@@ -272,6 +273,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
    local tObject,tSetName,tType,tError,tConflict="false",tHilitedButton,tResize,tUUIDS,tStackPath,tUserState,tScript,tVersion,tOriginalFolder
    if there is a stack "stack.binary" then
       # clean the name
+      local tName
       put the short name of stack "stack.binary" into tName
       replace kPasswordProtectedStackPrefix with empty in tName
       set the name of stack "stack.binary" to tName
@@ -355,6 +357,8 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                set the id of card 1 of it to 1000
                if pStackUUID is not empty then
                   set the mainstack of it to the short name of sUUIDMap[pStackUUID]
+               else
+                  set the fileName of it to sCurrentStackFilePath
                end if
                put tObject["A"]["UUID"] into pStackUUID
                break
@@ -555,7 +559,7 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
             break
          case tProperty is "hilitedButton"
             if pProperties["properties"][tProperty] is an integer then
-               put pProperties["properties"][tProperty] into sLayersToSet["hilitedbuttons"][sUUIDMap[pProperties["UUID"]]]
+               put pProperties["properties"][tProperty] into sPropsToSet[tProperty][sUUIDMap[pProperties["UUID"]]]
             end if
             delete variable pProperties["properties"][tProperty]
             break
