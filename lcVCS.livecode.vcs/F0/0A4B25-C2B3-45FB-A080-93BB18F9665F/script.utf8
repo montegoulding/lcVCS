@@ -104,8 +104,63 @@ function ResolveProjectFile pFilePath
       put tProject["build path"] & tProject["stackFiles"][tIndex] into tProject["imported stackFiles"][tIndex]
    end repeat
    
+   local tResources,tPath
+   put merge(tProject["resource paths"]) into tResources
+   repeat for each line tPath in tResources
+      
+      # check if it's a full path to a stackfile which loads it anyway
+      if there is a stack tPath then
+         next repeat
+      end if
+      
+      # resolve relative path
+      if there is not a folder tPath then
+         put tProjectPath before tPath
+      end if
+      
+      # check if it's a full path to a stackfile which loads it anyway
+      if there is a stack tPath then
+         next repeat
+      end if
+      
+      if there is a folder tPath then
+         LoadStackFilesRecursively tPath
+      else
+         put "Could not resolve resource path: "&tPath&cr after msg
+      end if
+      
+   end repeat
+   
    return tProject
 end ResolveProjectFile
+
+private command LoadStackFilesRecursively pPath
+   local tOldFolder,tFolder,tFile
+   
+   put the folder into tOldFolder
+   
+   if there is a folder pPath then
+      
+      set the folder to pPath
+      
+      # recurse over folders
+      repeat for each line tFolder in the folders
+         if char 1 of tFolder is not "." then
+            LoadStackFilesRecursively pPath & slash & tFolder
+         end if
+      end repeat
+      
+      # load stackFiles into memory
+      repeat for each line tFile in the files
+         if char 1 of tFile is not "." then
+            get there is a stack (pPath & slash & tFile)
+         end if
+      end repeat
+      
+   end if
+   
+   set the folder to tOldFolder
+end LoadStackFilesRecursively
 
 # Export the stackfile. Creates a directory at the same path as the stackfile&.kExtension
 command ExportStackFile pFilePath,pFolder
@@ -227,6 +282,8 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
       end repeat
    end repeat
    
+   set the fileName of stack tStackFileMainstack to sCurrentStackFilePath
+   
    -- set cant modify
    repeat for each key tProperty in sPropsToSet
       repeat for each key tObject in sPropsToSet[tProperty]
@@ -270,7 +327,7 @@ end PostImportStack
 
 
 on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
-   local tObject,tSetName,tType,tError,tConflict="false",tHilitedButton,tResize,tUUIDS,tStackPath,tUserState,tScript,tVersion,tOriginalFolder
+   local tObject,tSetName,tType,tError,tConflict="false",tResize,tUUIDS,tStackPath,tUserState,tScript,tVersion,tOriginalFolder
    if there is a stack "stack.binary" then
       # clean the name
       local tName

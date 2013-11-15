@@ -13,6 +13,8 @@ on ResetProjects pIndex
       put the dgHilitedIndex of group "projects" into pIndex
    end if
    put GetPreference("Projects") into sProjects
+   
+   local tData
    repeat for each key tIndex in sProjects
       if there is not a file sProjects[tIndex] then
          delete variable sProjects[tIndex]
@@ -39,6 +41,8 @@ on AddProject pPath
          exit AddProject
       end if
    end repeat
+   
+   local tData
    try
       put JSONToArray(url ("binfile:"&pPath)) into tData
    end try
@@ -47,6 +51,8 @@ on AddProject pPath
       set the itemDelimiter to slash
       put item -2 of pPath into tData["name"]
    end if
+   
+   local tOldIndex
    put the dgHilitedIndex of group "projects" into tOldIndex
    dispatch "AddData" to group "projects" with tData
    put the result into tIndex
@@ -74,19 +80,23 @@ on DeleteProject pIndex
 end DeleteProject
 
 on SaveProject pIndex
-   if pIndex is not empty then
-      put the dgDataOfIndex[pIndex] of group "projects" into tData
-      put fld "build path" into tData["build path"]
-      put the dgData of group "stackFiles" into tStacks
-      repeat for each item tIndex in the dgIndexes of group "stackFiles"
-         add 1 to i
-         put tStacks[tIndex]["file"] into tData["stackFiles"][i]
-      end repeat
-      put ArrayToJSON(tData,,true) into url ("binfile:"&sProjects[pIndex])
-      set the dgDataOfIndex[pIndex] of group "projects" to tData
-   end if
+   if pIndex is not empty then
+      local tData
+      put the dgDataOfIndex[pIndex] of group "projects" into tData
+      put fld "build path" into tData["build path"]
+      put fld "resource paths" into tData["resource paths"]
+      local tStacks
+      put the dgData of group "stackFiles" into tStacks
+      local i
+      repeat for each item tIndex in the dgIndexes of group "stackFiles"
+         add 1 to i
+         put tStacks[tIndex]["file"] into tData["stackFiles"][i]
+      end repeat
+      put ArrayToJSON(tData,,true) into url ("binfile:"&sProjects[pIndex])
+      set the dgDataOfIndex[pIndex] of group "projects" to tData
+   end if
 end SaveProject
-
+   
 on ClearAndDisable
    put empty into fld "project path"
    put empty into fld "build path"
@@ -150,7 +160,10 @@ on UpdateTags pIndex
 end UpdateTags
 
 on Checkout pIndex,pTagOrBranch
+   local tPath
    put PathForProject(pIndex) into tPath
+   
+   local tOldDefaultFolder
    put the defaultFolder into tOldDefaultFolder
    set the defaultFolder to tPath
    put empty into fld "progress"

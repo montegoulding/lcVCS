@@ -4,6 +4,9 @@
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": "1376538132341"
+    },
+    "cREVTable": {
+      "currentview": ""
     }
   },
   "properties": {
@@ -52,7 +55,7 @@
     "noncontiguousHilites": "false",
     "opaque": "true",
     "outerGlow": "",
-    "rect": "280,153,794,174",
+    "rect": "280,67,794,88",
     "scrollbarWidth": "20",
     "shadow": "false",
     "shadowColor": "",
@@ -72,7 +75,7 @@
     "threeD": "true",
     "threeDHilite": "false",
     "toggleHilites": "false",
-    "toolTip": "",
+    "toolTip": "The build path the stackfiles should be imported\nto and exported from. Relative paths are are relative \nto the project path. The merge function is run on \nthe path so you can use the following for the user \nextensions/Plugins directory: \n<? return revEnvironmentUserPluginsPath() ?>",
     "topColor": "",
     "topPattern": "",
     "traversalOn": "true",

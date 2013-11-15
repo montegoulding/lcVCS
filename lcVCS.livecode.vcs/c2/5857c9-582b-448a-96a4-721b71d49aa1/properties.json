@@ -62,7 +62,7 @@
     "name": "Export to VCS",
     "opaque": "true",
     "outerGlow": "",
-    "rect": "354,16,494,40",
+    "rect": "354,6,494,30",
     "shadow": "false",
     "shadowColor": "",
     "shadowOffset": "4",

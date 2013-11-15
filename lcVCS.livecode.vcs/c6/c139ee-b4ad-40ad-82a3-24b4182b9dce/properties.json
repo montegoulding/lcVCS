@@ -1,12 +1,12 @@
 {
-  "UUID": "a78f241a-cd0b-4d0f-9753-ebeac235e325",
+  "UUID": "c6c139ee-b4ad-40ad-82a3-24b4182b9dce",
   "class": "com.runrev.engine.field",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": "1376538175983"
+      "revUniqueID": "1384492116375"
     },
     "cREVTable": {
-      "currentview": "The path to the project. StackFies are exported relative to this path and imported relative to the build path."
+      "currentview": "Resource paths"
     }
   },
   "properties": {
@@ -40,8 +40,8 @@
     "hiliteColor": "",
     "hilitePattern": "",
     "hilitedLines": "",
-    "htmlText": "<p>The path to the project. StackFies are exported relative to this path and imported relative to the build path.</p>",
-    "id": "1089",
+    "htmlText": "<p>Resource paths</p>",
+    "id": "167526",
     "ink": "srcCopy",
     "innerGlow": "",
     "innerShadow": "",
@@ -55,7 +55,7 @@
     "noncontiguousHilites": "false",
     "opaque": "false",
     "outerGlow": "",
-    "rect": "194,52,792,73",
+    "rect": "188,94,284,116",
     "scrollbarWidth": "20",
     "shadow": "false",
     "shadowColor": "",
@@ -67,7 +67,7 @@
     "showLines": "false",
     "style": "transparent",
     "tabStops": "",
-    "textAlign": "left",
+    "textAlign": "right",
     "textFont": "",
     "textHeight": "",
     "textSize": "",
