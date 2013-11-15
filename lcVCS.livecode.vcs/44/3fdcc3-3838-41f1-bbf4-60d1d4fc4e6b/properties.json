@@ -7,9 +7,6 @@
     },
     "cREVGeneral": {
       "revUniqueID": "1236872189019"
-    },
-    "cREVTable": {
-      "currentview": "<p>You can edit the &quot;Row Template&quot; group on this card to customize the look and feel of your data grid form or table. To begin, select the &quot;Row Template&quot; group and choose Object &gt; Edit Group menu item.</p>"
     }
   },
   "properties": {

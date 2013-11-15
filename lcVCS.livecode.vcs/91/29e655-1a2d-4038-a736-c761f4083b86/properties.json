@@ -4,9 +4,6 @@
   "customPropertySets": {
     "cREVGeneral": {
       "revUniqueID": "1376538385738"
-    },
-    "cREVTable": {
-      "currentview": "The stackFiles list is ordered. StackFiles will be imported and exported from top down. Drag and drop to re-order. StackFiles should have no object references pointing to stackfiles in a stackfile below them in the list. Drag stackFiles onto the list to add them."
     }
   },
   "properties": {

@@ -3,7 +3,7 @@
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
     "customKeys": {
-      "uCustomPropertySet": "cREVTable,cRevTable",
+      "uCustomPropertySet": "cREVTable\ncRevTable",
       "uResolveUUIDs": "false"
     }
   },
