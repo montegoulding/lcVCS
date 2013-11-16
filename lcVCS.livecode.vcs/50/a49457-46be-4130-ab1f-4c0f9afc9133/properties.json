@@ -2,9 +2,6 @@
   "UUID": "50a49457-46be-4130-ab1f-4c0f9afc9133",
   "class": "com.runrev.engine.button",
   "customPropertySets": {
-    "cGlx2TimeStamp": {
-      "checksum": "base64Decode(1B2M2Y8AsgTpgAmY7PhCfg==)"
-    },
     "cREVGeneral": {
       "revUniqueID": "1221247573485"
     }

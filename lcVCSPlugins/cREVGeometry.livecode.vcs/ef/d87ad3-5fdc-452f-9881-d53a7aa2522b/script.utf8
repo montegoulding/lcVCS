@@ -1,0 +1,9 @@
+on lcVCSFilterExportedProps pObject,@pProps
+   -- delete some unnecessaries
+   delete variable pProps
+end lcVCSFilterExportedProps
+
+-- not used for this one
+on lcVCSResolveUUIDs pObject
+   
+end lcVCSResolveUUIDs

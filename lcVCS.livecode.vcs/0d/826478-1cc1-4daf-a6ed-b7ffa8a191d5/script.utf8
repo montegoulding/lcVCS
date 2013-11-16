@@ -1,3 +1,5 @@
+local sPluginsA
+
 on selectionChanged pHilitedIndex,pOldHilitedIndex
    local tPath,tConflicts
    # save last project
@@ -5,18 +7,54 @@ on selectionChanged pHilitedIndex,pOldHilitedIndex
       SaveProject pOldHilitedIndex
    end if
    # display current project
-   put the dgDataOfIndex[pHilitedIndex] of me into tData
-   put tData["build path"] into fld "build path"
+   
+   local tDataA
+   put the dgDataOfIndex[pHilitedIndex] of me into tDataA
+   put tDataA["build path"] into fld "build path"
    
    put PathForProject(pHilitedIndex) into tPath
    put tPath into fld "project path"
    put getConflicts() into tConflicts
    
-   repeat for each key tIndex in tData["stackFiles"]
-      put tConflicts[tPath & slash & tData["stackFiles"][tIndex]] is an array into tStacks[tIndex]["conflict"]
-      put tData["stackFiles"][tIndex] into tStacks[tIndex]["file"]
+   local tStacksA
+   repeat for each key tIndex in tDataA["stackFiles"]
+      put tConflicts[tPath & slash & tDataA["stackFiles"][tIndex]] is an array into tStacksA[tIndex]["conflict"]
+      put tDataA["stackFiles"][tIndex] into tStacksA[tIndex]["file"]
    end repeat
-   set the dgData of group "stackFiles" to tStacks
+   set the dgData of group "stackFiles" to tStacksA
    
-   UpdateTags pHilitedIndex
+   put the effective filename of this stack into tPath
+   set the itemDel to slash
+   put "lcVCSPlugins" into item -1 of tPath
+   local tOriginalFolder
+   put the folder into tOriginalFolder
+   set the folder to tPath
+   
+   put 1 into tIndex
+   repeat for each line tFile in the files
+      if there is a stack tFile then
+         put the short name of stack tFile into sPluginsA[tIndex]["stack"]
+         put the uDescription of stack tFile into sPluginsA[tIndex]["description"]
+         if the number of elements of tDataA["plugins"] is 0 then
+            put the uDefault of stack tFile into sPluginsA[tIndex]["checked"]
+         else
+            put false into sPluginsA[tIndex]["checked"]
+         end if
+         if the mode of stack tFile is 0 then
+            delete stack tFile
+         end if
+         add 1 to tIndex
+      end if
+   end repeat
+   set the folder to tOriginalFolder
+   
+   repeat for each key tStack in tDataA["plugins"]
+      repeat for each key tIndex in sPluginsA
+         if sPluginsA[tIndex]["stack"] is tStack then
+            put tDataA["plugins"][tStack] into sPluginsA[tIndex]["checked"]
+         end if
+      end repeat
+   end repeat
+   set the dgData of group "Plugins" to sPluginsA
+   
 end selectionChanged

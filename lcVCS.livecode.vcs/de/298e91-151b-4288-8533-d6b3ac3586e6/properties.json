@@ -44,11 +44,11 @@
     "linkVisitedColor": "",
     "liveResizing": "false",
     "maxHeight": "65535",
-    "maxWidth": "800",
+    "maxWidth": "65535",
     "menubar": "",
     "metal": "false",
     "minHeight": "300",
-    "minWidth": "800",
+    "minWidth": "500",
     "name": "lcVCSProjects",
     "resizable": "true",
     "shadow": "true",
@@ -67,7 +67,7 @@
     "topPattern": "",
     "underlineLinks": "",
     "visible": "true",
-    "width": "800",
+    "width": "500",
     "windowManagerPlace": "false",
     "windowShape": "0"
   }

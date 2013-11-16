@@ -2,11 +2,8 @@
   "UUID": "90faafe8-9eeb-423c-84f0-9ecb1e557a1e",
   "class": "com.runrev.engine.scrollbar",
   "customPropertySets": {
-    "cGlx2TimeStamp": {
-      "checksum": "base64Decode(1B2M2Y8AsgTpgAmY7PhCfg==)"
-    },
     "cREVGeneral": {
-      "revUniqueID": "1376539206463"
+      "revUniqueID": "1384504130982"
     }
   },
   "properties": {
@@ -24,7 +21,7 @@
     "colorOverlay": "",
     "disabled": "false",
     "dropShadow": "",
-    "endValue": "171",
+    "endValue": "293",
     "focusColor": "",
     "focusPattern": "",
     "foreColor": "",
@@ -36,14 +33,14 @@
     "innerGlow": "",
     "innerShadow": "",
     "layerMode": "static",
-    "lineInc": "10",
+    "lineInc": "21",
     "lockLoc": "false",
     "name": "dgScrollbar",
     "numberFormat": "",
     "opaque": "true",
     "outerGlow": "",
-    "pageInc": "155",
-    "rect": "784,205,799,376",
+    "pageInc": "272",
+    "rect": "484,83,499,376",
     "shadowColor": "",
     "shadowOffset": "4",
     "shadowPattern": "",
@@ -57,7 +54,7 @@
     "textStyle": "",
     "threeD": "true",
     "thumbPosition": "0",
-    "thumbSize": "171",
+    "thumbSize": "293",
     "toolTip": "",
     "topColor": "",
     "topPattern": "",

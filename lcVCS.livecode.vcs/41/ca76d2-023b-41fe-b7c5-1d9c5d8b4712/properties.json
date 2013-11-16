@@ -2,9 +2,6 @@
   "UUID": "41ca76d2-023b-41fe-b7c5-1d9c5d8b4712",
   "class": "com.runrev.engine.scrollbar",
   "customPropertySets": {
-    "cGlx2TimeStamp": {
-      "checksum": "base64Decode(1B2M2Y8AsgTpgAmY7PhCfg==)"
-    },
     "cREVGeneral": {
       "revUniqueID": "1219089374946"
     }
@@ -36,13 +33,13 @@
     "innerGlow": "",
     "innerShadow": "",
     "layerMode": "static",
-    "lineInc": "23",
+    "lineInc": "21",
     "lockLoc": "false",
     "name": "dgScrollbar",
     "numberFormat": "",
     "opaque": "true",
     "outerGlow": "",
-    "pageInc": "360",
+    "pageInc": "355",
     "rect": "173,0,188,376",
     "shadowColor": "",
     "shadowOffset": "4",

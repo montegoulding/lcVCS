@@ -31,7 +31,7 @@ on ResetProjects pIndex
       put 1 into pIndex
       set the dgHilitedIndex of group "projects" to pIndex
    end if
-      
+   
    dispatch "selectionChanged" to group "projects" with pIndex
 end ResetProjects
 
@@ -81,19 +81,28 @@ end DeleteProject
 
 on SaveProject pIndex
    if pIndex is not empty then
-      local tData
-      put the dgDataOfIndex[pIndex] of group "projects" into tData
-      put fld "build path" into tData["build path"]
-      put fld "resource paths" into tData["resource paths"]
-      local tStacks
-      put the dgData of group "stackFiles" into tStacks
+      local tDataA
+      put the dgDataOfIndex[pIndex] of group "projects" into tDataA
+      put fld "build path" into tDataA["build path"]
+      put fld "resource paths" into tDataA["resource paths"]
+      local tStacksA
+      put the dgData of group "stackFiles" into tStacksA
       local i
       repeat for each item tIndex in the dgIndexes of group "stackFiles"
          add 1 to i
-         put tStacks[tIndex]["file"] into tData["stackFiles"][i]
+         put tStacksA[tIndex]["file"] into tDataA["stackFiles"][i]
       end repeat
-      put ArrayToJSON(tData,,true) into url ("binfile:"&sProjects[pIndex])
-      set the dgDataOfIndex[pIndex] of group "projects" to tData
+      local tPluginsA
+      put the dgData of group "Plugins" into tPluginsA
+      delete variable tDataA["plugins"]
+      repeat with tIndex = 1 to the number of elements of tPluginsA
+         # only add the plugin if we want to use it
+         if tPluginsA[tIndex]["checked"] then
+            put true into tDataA["plugins"][tPluginsA[tIndex]["stack"]]
+         end if
+      end repeat
+      put ArrayToJSON(tDataA,,true) into url ("binfile:"&sProjects[pIndex])
+      set the dgDataOfIndex[pIndex] of group "projects" to tDataA
    end if
 end SaveProject
    
@@ -120,54 +129,10 @@ on lcVCSExport
    if the target is me then
       set the dgData of group "Projects" to empty
       set the dgData of group "Stackfiles" to empty
+      set the dgData of group "Plugins" to empty
       set the text of fld "project path" to empty
       set the text of fld "build path" to empty
+      set the text of fld "resource paths" to empty
       set the height of me to 400
-      put empty into btn "tags"
    end if
 end lcVCSExport
-
-on UpdateTags pIndex
-   local tCurrentBranch,tPath,tOldDefaultFolder,tList,tBranches,tBranch
-   if pIndex is the dgHilitedIndex of group "projects" then
-      put PathForProject(pIndex) into tPath
-      put the defaultFolder into tOldDefaultFolder
-      set the defaultFolder to tPath
-      put shell("git tag") into tList
-      put shell("git branch") into tBranches
-      filter tBranches without "*(no branch)"
-      repeat for each line tBranch in tBranches
-         if word 1 of tBranch is "*" then
-            delete word 1 of tBranch
-            put tBranch into tCurrentBranch
-         end if
-         put word 1 to -1 of tBranch &cr after tList
-      end repeat
-      delete char -1 of tList
-      put tList into btn "tags"
-      if tCurrentBranch is empty then
-         put shell("git describe") into tCurrentBranch
-      end if
-      if tCurrentBranch contains "cannot describe" then
-         set the label of btn "tags" to tab
-         disable btn "tags"
-      else
-         set the label of btn "tags" to tCurrentBranch
-         enable btn "tags"
-      end if
-      set the defaultFolder to tOldDefaultFolder
-   end if
-end UpdateTags
-
-on Checkout pIndex,pTagOrBranch
-   local tPath
-   put PathForProject(pIndex) into tPath
-   
-   local tOldDefaultFolder
-   put the defaultFolder into tOldDefaultFolder
-   set the defaultFolder to tPath
-   put empty into fld "progress"
-   get shell("git checkout "&pTagOrBranch)
-   answer it as sheet
-   set the defaultFolder to tOldDefaultFolder
-end Checkout

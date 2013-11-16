@@ -4,6 +4,8 @@
   "customPropertySets": {
     "customKeys": {
       "uCustomPropertySet": "cRevStandaloneSettings",
+      "uDefault": "true",
+      "uDescription": "Standalone settings user workspace data",
       "uResolveUUIDs": "false"
     }
   },

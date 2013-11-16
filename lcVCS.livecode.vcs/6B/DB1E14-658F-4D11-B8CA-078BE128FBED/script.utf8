@@ -2,7 +2,6 @@ on preOpenCard
    set the hideConsoleWindows to true
    SetupBehaviors
    SetDataGridUUIDs
-   LoadPlugins
    
    if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
       send "DeleteLoader" to me in 0 milliseconds

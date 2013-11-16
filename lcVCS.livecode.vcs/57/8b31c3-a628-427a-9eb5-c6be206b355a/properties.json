@@ -2,11 +2,8 @@
   "UUID": "578b31c3-a628-427a-9eb5-c6be206b355a",
   "class": "com.runrev.engine.graphic",
   "customPropertySets": {
-    "cGlx2TimeStamp": {
-      "checksum": "base64Decode(1B2M2Y8AsgTpgAmY7PhCfg==)"
-    },
     "cREVGeneral": {
-      "revUniqueID": "1376539206445"
+      "revUniqueID": "1384504130942"
     }
   },
   "properties": {
@@ -62,7 +59,7 @@
     "outerGlow": "",
     "points": "",
     "polySides": "4",
-    "rect": "189,205,799,376",
+    "rect": "189,83,499,376",
     "roundEnds": "true",
     "roundRadius": "15",
     "shadowColor": "",

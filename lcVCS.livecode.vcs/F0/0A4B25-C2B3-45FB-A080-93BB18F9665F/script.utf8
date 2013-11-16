@@ -12,7 +12,7 @@ local sConflicts -- conflict markers are parsed and the plugin assists resolutio
 local sPropsToSet -- properties that need to be set right at the end eg cantModify of stack
 local sStacksToDelete -- stacks to delete after the import
 local sCurrentStackFilePath -- the path to the stackFile currently being imported
-local sPlugins -- an array with loaded plugins for UUID resolution and unnecessary custom property filtering
+local sPluginsA -- an array with loaded plugins for UUID resolution and unnecessary custom property filtering
 local sTempNameSuffix -- a suffix (uuid) used when lcVCS is importing itself
 local sStackPath -- the path to the stack being imported
 local sMainstackPath -- the path to the mainstack being imported
@@ -28,6 +28,7 @@ command ExportProject pFilePath,pStackFile
    delete variable sUUIDMap
    lock messages
    put ResolveProjectFile(pFilePath) into tProject
+   LoadPlugins tProject["plugins"]
    set the itemDel to slash
    repeat with tIndex = 1 to the number of elements of tProject["stackFiles"]
       # ensure all stacks are loaded into memory even if only exporting one file
@@ -37,6 +38,7 @@ command ExportProject pFilePath,pStackFile
          ExportStackFile tProject["imported stackfiles"][tIndex], tProject["exported stackfiles"][tIndex]
       end if
    end repeat
+   UnloadPlugins
    stop using me
 end ExportProject
 
@@ -54,6 +56,8 @@ command ImportProject pFilePath
    put UUID() into sTempNameSuffix
    
    put ResolveProjectFile(pFilePath) into tProject
+   LoadPlugins tProject["plugins"]
+   
    set the itemDel to slash
    put tProject["name"] = "lcVCS" and the environment is "development" into tIsLcVCS
    
@@ -72,6 +76,8 @@ command ImportProject pFilePath
    if tIsLcVCS then
       send "PostImportStack sTempNameSuffix" to stack ("lcVCS"&sTempNameSuffix) in 0 milliseconds
    end if
+   
+   UnloadPlugins
    
    stop using me
 end ImportProject
@@ -260,8 +266,10 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
                end repeat
             end if
          end repeat
-         if there is a stack sPlugins[tProperty]["stack"] then
-            dispatch "lcVCSResolveUUIDs" to stack sPlugins[tProperty]["stack"] with tObject
+         if there is a stack sPluginsA["sets"][tProperty]["stack"] then
+            dispatch "lcVCSResolveUUIDs" to stack sPluginsA["sets"][tProperty]["stack"] with tObject
+         else if there is a stack sPluginsA["keys"][tProperty]["stack"] then
+            dispatch "lcVCSResolveUUIDs" to stack sPluginsA["keys"][tProperty]["stack"] with tObject
          else if there is a sUUIDMap[tUUID] then
             switch 
                case tProperty is "behavior"
@@ -273,11 +281,9 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
                   break
             end switch
          else
-            if there is not a stack sPlugins[tProperty]["stack"] then
-               try -- could be some object that wasn't in memory during the export so it's not a UUID
-                  set the tProperty of tObject to tUUID
-               end try
-            end if
+            try -- could be some object that wasn't in memory during the export so it's not a UUID
+               set the tProperty of tObject to tUUID
+            end try
          end if
       end repeat
    end repeat
@@ -656,16 +662,24 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
    repeat for each key tCustomPropertySet in pProperties["customPropertySets"]
       if tCustomPropertySet is "customKeys" then
          set the customProperties[""] of sUUIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
+         repeat for each key tCustomProperty in pProperties["customPropertySets"][tCustomPropertySet]
+            if sPluginsA["keys"][tCustomProperty]["resolve UUIDs"] then
+               dispatch "lcVCSRegisterUUIDsToResolve" to stack sPluginsA["keys"][tCustomProperty]["stack"] with sUUIDMap[pProperties["UUID"]],tUUIDsToResolve
+               if tUUIDsToResolve is not empty then
+                  put tUUIDsToResolve into sUUIDsToResolve[sUUIDMap[pProperties["UUID"]]][tCustomProperty]
+               end if
+               delete variable tUUIDsToResolve
+            end if 
+         end repeat
       else
          set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sUUIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
-      end if
-      -- if there are UUIDs to resolve then add the set to sUUIDsToResolve so the plugin can do it
-      if sPlugins[tCustomPropertySet]["resolve UUIDs"] then
-         dispatch "lcVCSRegisterUUIDsToResolve" to stack sPlugins[tCustomPropertySet]["stack"] with sUUIDMap[pProperties["UUID"]],tUUIDsToResolve
-         if tUUIDsToResolve is not empty then
-            put tUUIDsToResolve into sUUIDsToResolve[sUUIDMap[pProperties["UUID"]]][tCustomPropertySet]
-         end if
-         delete variable tUUIDsToResolve
+         if sPluginsA["sets"][tCustomPropertySet]["resolve UUIDs"] then
+            dispatch "lcVCSRegisterUUIDsToResolve" to stack sPluginsA["sets"][tCustomPropertySet]["stack"] with sUUIDMap[pProperties["UUID"]],tUUIDsToResolve
+            if tUUIDsToResolve is not empty then
+               put tUUIDsToResolve into sUUIDsToResolve[sUUIDMap[pProperties["UUID"]]][tCustomPropertySet]
+            end if
+            delete variable tUUIDsToResolve
+         end if 
       end if
    end repeat
    
@@ -911,11 +925,16 @@ function ExportObjectProperties pObject,pShared,pPassword
             if tCustomPropertySet is "uVersion" then
                next repeat
             end if
+            # custom keys can have a plugin for individual keys while sets it's just for the whole set
             if tCustomPropertySet is "" then 
                put "customKeys" into tCustomPropertySet
-            end if
-            if there is a stack sPlugins[tCustomPropertySet]["stack"] then
-               dispatch "lcVCSFilterExportedProps" to stack sPlugins[tCustomPropertySet]["stack"] with pObject,tPropertySetA,tUserStateSetA
+               repeat for each key tCustomProperty in tPropertySetA
+                  if there is a stack sPluginsA["keys"][tCustomProperty]["stack"] then
+                     dispatch "lcVCSFilterExportedProps" to stack sPluginsA["keys"][tCustomProperty]["stack"] with pObject,tPropertySetA,tUserStateSetA
+                  end if
+               end repeat
+            else if there is a stack sPluginsA["sets"][tCustomPropertySet]["stack"] then
+               dispatch "lcVCSFilterExportedProps" to stack sPluginsA["sets"][tCustomPropertySet]["stack"] with pObject,tPropertySetA,tUserStateSetA
             end if
             if the number of elements in tPropertySetA > 0 then
                put tPropertySetA into tObject["customPropertySets"][uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
@@ -1081,10 +1100,10 @@ command LoadDataGridUUIDs
 end LoadDataGridUUIDs
 
 -- load plugins
-command LoadPlugins
+command LoadPlugins pPluginsA
    local tOriginalFolder,tPath
    set the caseSensitive to true
-   delete variable sPlugins -- just incase someone is reloading and has removed a plugin
+   delete variable sPluginsA -- just incase someone is reloading and has removed a plugin
    put the folder into tOriginalFolder
    
    put revEnvironmentUserPluginsPath()&"/lcVCSPlugins" into tPath
@@ -1092,17 +1111,38 @@ command LoadPlugins
    
    repeat for each line tStack in the files
       -- each plugin is named with the custom property set name
-      if there is a stack tStack then 
-         put the uResolveUUIDs of stack tStack into sPlugins[the uCustomPropertySet of stack tStack]["resolve UUIDs"]
-         # case sensitive is on so use multiple lines to give the possible different case versions
-         repeat for each line tCustomPropertySet in the uCustomPropertySet of stack tStack
-            put the short name of stack tStack into sPlugins[tCustomPropertySet]["stack"]
-         end repeat
+      if there is a stack tStack then
+         if pPluginsA[the short name of stack tStack] then 
+            # case sensitive is on so use multiple lines to give the possible different case versions
+            repeat for each line tCustomPropertySet in the uCustomPropertySet of stack tStack
+               put the uResolveUUIDs of stack tStack into sPluginsA["sets"][tCustomPropertySet]["resolve UUIDs"]
+               put the short name of stack tStack into sPluginsA["sets"][tCustomPropertySet]["stack"]
+            end repeat
+            repeat for each line tCustomProperty in the uCustomPropertyKeys of stack tStack
+               put the uResolveUUIDs of stack tStack into sPluginsA["keys"][tCustomProperty]["resolve UUIDs"]
+               put the short name of stack tStack into sPluginsA["keys"][tCustomProperty]["stack"]
+            end repeat
+         end if
       end if
    end repeat
    
    set the folder to tOriginalFolder
 end LoadPlugins
+
+command UnloadPlugins
+   repeat for each key tCustomPropertySet in sPluginsA["sets"]
+      if there is a stack sPluginsA["sets"][tCustomPropertySet]["stack"] and \
+            the mode of stack sPluginsA["sets"][tCustomPropertySet]["stack"] is 0 then
+         delete stack sPluginsA["sets"][tCustomPropertySet]["stack"]
+      end if
+   end repeat
+   repeat for each key tCustomProperty in sPluginsA["keys"]
+      if there is a stack sPluginsA["keys"][tCustomProperty]["stack"] and \
+            the mode of stack sPluginsA["keys"][tCustomProperty]["stack"] is 0 then
+         delete stack sPluginsA["keys"][tCustomProperty]["stack"]
+      end if
+   end repeat
+end UnloadPlugins
 
 -- pArray - array to be encoded
 -- pForceRootType - can force the root to be an object if it looks like an array

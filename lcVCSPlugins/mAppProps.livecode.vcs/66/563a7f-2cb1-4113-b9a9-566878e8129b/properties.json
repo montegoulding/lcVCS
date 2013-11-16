@@ -4,6 +4,8 @@
   "customPropertySets": {
     "customKeys": {
       "uCustomPropertySet": "mAppProps",
+      "uDefault": "",
+      "uDescription": "mApp (Mobile Application Famework)",
       "uResolveUUIDs": "true"
     }
   },

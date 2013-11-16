@@ -4,6 +4,8 @@
   "customPropertySets": {
     "customKeys": {
       "uCustomPropertySet": "dgProps",
+      "uDefault": "true",
+      "uDescription": "Resolve DataGrid row template object reference",
       "uResolveUUIDs": "true"
     }
   },

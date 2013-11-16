@@ -4,6 +4,8 @@
   "customPropertySets": {
     "customKeys": {
       "uCustomPropertySet": "cREVGeneral",
+      "uDefault": "true",
+      "uDescription": "Clean out redundant cREVGeneral properties",
       "uResolveUUIDs": "false"
     }
   },

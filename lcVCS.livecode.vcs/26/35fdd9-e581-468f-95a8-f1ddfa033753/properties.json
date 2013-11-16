@@ -2,11 +2,8 @@
   "UUID": "2635fdd9-e581-468f-95a8-f1ddfa033753",
   "class": "com.runrev.engine.button",
   "customPropertySets": {
-    "cGlx2TimeStamp": {
-      "checksum": ""
-    },
     "cREVGeneral": {
-      "revUniqueID": "1376539206444"
+      "revUniqueID": "1384504130941"
     }
   },
   "properties": {
@@ -65,7 +62,7 @@
     "name": "dgEventCatcher",
     "opaque": "false",
     "outerGlow": "",
-    "rect": "189,205,799,376",
+    "rect": "189,83,499,376",
     "shadow": "false",
     "shadowColor": "",
     "shadowOffset": "4",

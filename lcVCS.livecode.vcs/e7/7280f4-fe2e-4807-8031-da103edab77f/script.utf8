@@ -6,8 +6,30 @@ on resizeStack pWidth,pHeight
    
    set the bottom of group "buttons" to pHeight+1
    
+   get the rect of fld "project path"
+   put pWidth-6 into item 3 of it
+   set the rect of fld "project path" to it
+   
+   get the rect of fld "build path"
+   put pWidth-6 into item 3 of it
+   set the rect of fld "build path" to it
+   
+   get the rect of fld "resource paths"
+   put pWidth-6 into item 3 of it
+   set the rect of fld "resource paths" to it
+   
    get the rect of group "stackfiles"
    put pHeight-23 into item 4 of it
    put pWidth into item 3 of it
    set the rect of group "stackfiles" to it
+   
+   get the rect of btn "tab"
+   put pWidth + 5 into item 3 of it
+   put pHeight - 23 into item 4 of it
+   set the rect of btn "tab" to it
+   
+   get the rect of group "plugins"
+   put pHeight-23 into item 4 of it
+   put pWidth into item 3 of it
+   set the rect of group "plugins" to it
 end resizeStack

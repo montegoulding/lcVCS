@@ -2,11 +2,8 @@
   "UUID": "30e44621-cff0-49cc-90c4-7015adcfc1eb",
   "class": "com.runrev.engine.group",
   "customPropertySets": {
-    "cGlx2TimeStamp": {
-      "checksum": "base64Decode(1B2M2Y8AsgTpgAmY7PhCfg==)"
-    },
     "cREVGeneral": {
-      "revUniqueID": "1376539206450"
+      "revUniqueID": "1384504130947"
     }
   },
   "properties": {
@@ -49,7 +46,7 @@
     "opaque": "false",
     "outerGlow": "",
     "radioBehavior": "true",
-    "rect": "189,205,784,376",
+    "rect": "189,83,484,376",
     "scrollbarWidth": "20",
     "selectGroupedControls": "true",
     "shadowColor": "",

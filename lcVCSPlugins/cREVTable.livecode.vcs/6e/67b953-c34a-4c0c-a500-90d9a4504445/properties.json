@@ -4,6 +4,8 @@
   "customPropertySets": {
     "customKeys": {
       "uCustomPropertySet": "cREVTable\ncRevTable",
+      "uDefault": "false",
+      "uDescription": "Delete all table object properties",
       "uResolveUUIDs": "false"
     }
   },

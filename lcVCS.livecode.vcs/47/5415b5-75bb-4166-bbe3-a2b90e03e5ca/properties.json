@@ -3,7 +3,7 @@
   "class": "com.runrev.engine.field",
   "customPropertySets": {
     "cREVGeneral": {
-      "revUniqueID": "1376538132341"
+      "revUniqueID": "1384504130932"
     }
   },
   "properties": {
@@ -52,7 +52,7 @@
     "noncontiguousHilites": "false",
     "opaque": "true",
     "outerGlow": "",
-    "rect": "280,67,794,88",
+    "rect": "282,96,494,117",
     "scrollbarWidth": "20",
     "shadow": "false",
     "shadowColor": "",

@@ -3,7 +3,9 @@
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
     "customKeys": {
-      "uCustomPropertySet": "cREVGeometryCache\ncREVGeometrycache",
+      "uCustomPropertySet": "cREVGeometryCache\ncREVGeometrycache\ncREVGeometryCacheIDs",
+      "uDefault": "true",
+      "uDescription": "Clear out redundant rev geometry cache",
       "uResolveUUIDs": "false"
     }
   },
