@@ -1,0 +1,6 @@
+on menuPick pItemName
+   lock screen
+   set the visible of group "Stack Files" to pItemName = "Stack Files"
+   set the visible of group "StackFile buttons" to pItemName = "Stack Files"
+   set the visible of group "Settings" to pItemName = "Settings"
+end menuPick

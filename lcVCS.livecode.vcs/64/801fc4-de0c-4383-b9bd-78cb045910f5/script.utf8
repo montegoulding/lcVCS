@@ -1,0 +1,5 @@
+on lcVCSExport
+   if the target is me then
+      set the title of me to empty
+   end if
+end lcVCSExport
