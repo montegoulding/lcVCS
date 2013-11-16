@@ -23,7 +23,7 @@
     "colorOverlay": "",
     "disabled": "false",
     "dontSearch": "false",
-    "dontWrap": "false",
+    "dontWrap": "true",
     "dropShadow": "",
     "firstIndent": "0",
     "fixedLineHeight": "true",

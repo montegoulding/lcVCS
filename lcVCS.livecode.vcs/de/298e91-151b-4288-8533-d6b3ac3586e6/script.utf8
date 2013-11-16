@@ -133,6 +133,7 @@ on lcVCSExport
       set the text of fld "project path" to empty
       set the text of fld "build path" to empty
       set the text of fld "resource paths" to empty
+      set the width of me to 500
       set the height of me to 400
    end if
 end lcVCSExport

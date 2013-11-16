@@ -4,3 +4,8 @@ on menuPick pItemName
    set the visible of group "StackFile buttons" to pItemName = "Stack Files"
    set the visible of group "Settings" to pItemName = "Settings"
 end menuPick
+
+on lcVCSExport
+   set the menuHistory of me to 1
+   menuPick "Settings"
+end lcVCSExport

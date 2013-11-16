@@ -68,6 +68,6 @@
     "unboundedVScroll": "false",
     "vScroll": "0",
     "vScrollbar": "false",
-    "visible": "true"
+    "visible": "false"
   }
 }

@@ -1118,7 +1118,7 @@ command LoadPlugins pPluginsA
                put the uResolveUUIDs of stack tStack into sPluginsA["sets"][tCustomPropertySet]["resolve UUIDs"]
                put the short name of stack tStack into sPluginsA["sets"][tCustomPropertySet]["stack"]
             end repeat
-            repeat for each line tCustomProperty in the uCustomPropertyKeys of stack tStack
+            repeat for each line tCustomProperty in the uCustomPropertyKey of stack tStack
                put the uResolveUUIDs of stack tStack into sPluginsA["keys"][tCustomProperty]["resolve UUIDs"]
                put the short name of stack tStack into sPluginsA["keys"][tCustomProperty]["stack"]
             end repeat
