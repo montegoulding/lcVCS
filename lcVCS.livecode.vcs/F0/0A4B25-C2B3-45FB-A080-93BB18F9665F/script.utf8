@@ -929,7 +929,7 @@ function ExportObjectProperties pObject,pShared,pPassword
             if tCustomPropertySet is "uVersion" then
                next repeat
             end if
-            # custom keys can have a plugin for individual keys while sets it's just for the whole set
+            # custom keys can have a plugin for individual keys while for sets it's just for the whole set
             if tCustomPropertySet is "" then 
                put "customKeys" into tCustomPropertySet
                local tCustomProperties
@@ -944,7 +944,7 @@ function ExportObjectProperties pObject,pShared,pPassword
                      else
                         delete variable tPropertySetA[tCustomProperty]
                      end if
-                     if not tUserStateValue is not empty then
+                     if tUserStateValue is not empty then
                         put tUserStateValue into tUserStateSetA[tCustomProperty]
                      end if
                      delete variable tUserStateValue
