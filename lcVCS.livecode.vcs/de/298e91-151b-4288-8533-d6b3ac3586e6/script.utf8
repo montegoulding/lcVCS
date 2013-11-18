@@ -95,10 +95,13 @@ on SaveProject pIndex
       local tPluginsA
       put the dgData of group "Plugins" into tPluginsA
       delete variable tDataA["plugins"]
+      
+      put 1 into i
       repeat with tIndex = 1 to the number of elements of tPluginsA
          # only add the plugin if we want to use it
          if tPluginsA[tIndex]["checked"] then
-            put true into tDataA["plugins"][tPluginsA[tIndex]["stack"]]
+            put tPluginsA[tIndex]["stack"] into tDataA["plugins"][i]
+            add 1 to i
          end if
       end repeat
       put ArrayToJSON(tDataA,,true) into url ("binfile:"&sProjects[pIndex])

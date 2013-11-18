@@ -776,7 +776,11 @@ function ExportObjectProperties pObject,pShared,pPassword
    local tImage,tObject,tGroupCardRef,tPaintCompression,tPropertySetA,tUserStateSetA,tUserState,tSharedObject,tCardIDs,tObjectFirstCardRef,tOriginalFolder,tObjectPath,tScript,tID,tCardRef
    put the folder into tOriginalFolder
    unlock messages
-   dispatch "lcVCSExport" to pObject
+   try
+      dispatch "lcVCSExport" to pObject
+   catch e
+      put "lcVCSExport Error: "&pObject&cr after msg
+   end try
    lock messages
    set the caseSensitive to true
    put UUIDForObject(pObject) into tObject["UUID"]
@@ -1084,7 +1088,7 @@ end ParseConflictedFile
 -- this makes sure the datagrid behaviors have the same UUID on everyone's version of the IDE
 command SetDataGridUUIDs
    local tVersion
-   put the customProperties["uDataGridBehaviors"] of stack "lcVCS" into tVersion
+   put the customProperties["uDataGridBehaviors"] of me into tVersion
    repeat for each key tID in tVersion
       set the customProperties["uVersion"] of control id tID of stack "revDataGridLibrary" to tVersion[tID]
    end repeat
@@ -1112,17 +1116,19 @@ command LoadPlugins pPluginsA
    repeat for each line tStack in the files
       -- each plugin is named with the custom property set name
       if there is a stack tStack then
-         if pPluginsA[the short name of stack tStack] then 
-            # case sensitive is on so use multiple lines to give the possible different case versions
-            repeat for each line tCustomPropertySet in the uCustomPropertySet of stack tStack
-               put the uResolveUUIDs of stack tStack into sPluginsA["sets"][tCustomPropertySet]["resolve UUIDs"]
-               put the short name of stack tStack into sPluginsA["sets"][tCustomPropertySet]["stack"]
-            end repeat
-            repeat for each line tCustomProperty in the uCustomPropertyKey of stack tStack
-               put the uResolveUUIDs of stack tStack into sPluginsA["keys"][tCustomProperty]["resolve UUIDs"]
-               put the short name of stack tStack into sPluginsA["keys"][tCustomProperty]["stack"]
-            end repeat
-         end if
+         repeat for each key tIndex in pPluginsA
+            if pPluginsA[tIndex] is the short name of stack tStack then 
+               # case sensitive is on so use multiple lines to give the possible different case versions
+               repeat for each line tCustomPropertySet in the uCustomPropertySet of stack tStack
+                  put the uResolveUUIDs of stack tStack into sPluginsA["sets"][tCustomPropertySet]["resolve UUIDs"]
+                  put the short name of stack tStack into sPluginsA["sets"][tCustomPropertySet]["stack"]
+               end repeat
+               repeat for each line tCustomProperty in the uCustomPropertyKey of stack tStack
+                  put the uResolveUUIDs of stack tStack into sPluginsA["keys"][tCustomProperty]["resolve UUIDs"]
+                  put the short name of stack tStack into sPluginsA["keys"][tCustomProperty]["stack"]
+               end repeat
+            end if
+         end repeat
       end if
    end repeat
    
@@ -1235,8 +1241,8 @@ end CleanLayerFile
 on SetupBehaviors
    set the itemDel to "."
    if item 1 to 2 of the version >= 6.5 then
-      set the behavior of btn "Common" of stack "lcVCS" to the long id of btn "resolve image" of stack "lcVCS"
+      set the behavior of btn "Common" of me to the long id of btn "resolve image" of me
    else
-      set the behavior of btn "Common" of stack "lcVCS" to the long id of btn "_internal resolve image" of stack "lcVCS"
+      set the behavior of btn "Common" of me to the long id of btn "_internal resolve image" of me
    end if
 end SetupBehaviors

@@ -2,6 +2,12 @@
   "UUID": "71AE2082-5BD7-4EBD-8444-0CB249714FED",
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
+    "cREVGeneral": {
+      "breakpointconditions": "",
+      "breakpoints": "",
+      "breakpointstates": "",
+      "scripteditorvscroll": "0"
+    },
     "customKeys": {
       "uCustomPropertySet": "cREVGeneral",
       "uDefault": "true",

@@ -48,10 +48,10 @@ on selectionChanged pHilitedIndex,pOldHilitedIndex
    end repeat
    set the folder to tOriginalFolder
    
-   repeat for each key tStack in tDataA["plugins"]
+   repeat for each key tPluginIndex in tDataA["plugins"]
       repeat for each key tIndex in sPluginsA
-         if sPluginsA[tIndex]["stack"] is tStack then
-            put tDataA["plugins"][tStack] into sPluginsA[tIndex]["checked"]
+         if sPluginsA[tIndex]["stack"] is tDataA["plugins"][tPluginIndex] then
+            put true into sPluginsA[tIndex]["checked"]
          end if
       end repeat
    end repeat

@@ -1,16 +1,16 @@
 {
   "build path": "<? return revEnvironmentUserPluginsPath() ?>",
   "name": "lcVCS",
-  "plugins": {
-    "GLX2": "true",
-    "cREVGeometry": "true",
-    "cREVGeometryCache": "true",
-    "cREVTable": "true",
-    "cRevGeneral": "true",
-    "cRevStandaloneSettings": "true",
-    "dgProps": "true",
-    "mAppProps": "true"
-  },
+  "plugins": [
+    "cRevGeneral",
+    "cREVGeometry",
+    "cREVGeometryCache",
+    "cRevStandaloneSettings",
+    "cREVTable",
+    "dataviewProps",
+    "dgProps",
+    "GLX2"
+  ],
   "resource paths": "",
   "stackFiles": [
     "lcVCS.livecode",
