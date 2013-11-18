@@ -934,7 +934,15 @@ function ExportObjectProperties pObject,pShared,pPassword
                put "customKeys" into tCustomPropertySet
                repeat for each key tCustomProperty in tPropertySetA
                   if there is a stack sPluginsA["keys"][tCustomProperty]["stack"] then
-                     dispatch "lcVCSFilterExportedProps" to stack sPluginsA["keys"][tCustomProperty]["stack"] with pObject,tPropertySetA,tUserStateSetA
+                     local tCustomPropertyValue,tUserStateValue
+                     put tPropertySetA[tCustomProperty] into tCustomPropertyValue
+                     dispatch "lcVCSFilterExportedProps" to stack sPluginsA["keys"][tCustomProperty]["stack"] with pObject,tCustomPropertyValue,tUserStateValue
+                     if tCustomPropertyValue is not empty then
+                        put tCustomPropertyValue into tPropertySetA[tCustomProperty]
+                     end if
+                     if not tUserStateValue is not empty then
+                        put tUserStateValue into tUserStateSetA[tCustomProperty]
+                     end if
                   end if
                end repeat
             else if there is a stack sPluginsA["sets"][tCustomPropertySet]["stack"] then
