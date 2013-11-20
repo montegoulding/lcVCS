@@ -1,11 +1,6 @@
 {
   "UUID": "5aa010ce-3947-4e94-8b79-2d1a7b225b32",
   "class": "com.runrev.engine.group",
-  "customPropertySets": {
-    "cREVGeneral": {
-      "revUniqueID": "1234029519014"
-    }
-  },
   "properties": {
     "altId": "0",
     "backColor": "",

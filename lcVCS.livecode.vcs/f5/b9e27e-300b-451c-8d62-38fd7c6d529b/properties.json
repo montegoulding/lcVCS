@@ -1,11 +1,6 @@
 {
   "UUID": "f5b9e27e-300b-451c-8d62-38fd7c6d529b",
   "class": "com.runrev.engine.button",
-  "customPropertySets": {
-    "cREVGeneral": {
-      "revUniqueID": "1233671464256"
-    }
-  },
   "properties": {
     "accelKey": "",
     "accelMods": "",

@@ -1,11 +1,6 @@
 {
-  "UUID": "1f34fca4-18f8-4be4-80ca-db1309645c94",
+  "UUID": "15507e26-b1e4-4470-b051-6f4e0981a89a",
   "class": "com.runrev.engine.card",
-  "customPropertySets": {
-    "cREVGeneral": {
-      "scripteditorvscroll": "0"
-    }
-  },
   "properties": {
     "altId": "0",
     "backColor": "",
@@ -25,10 +20,10 @@
     "forePattern": "",
     "hiliteColor": "",
     "hilitePattern": "",
-    "id": "1002",
+    "id": "1003",
     "ink": "srcCopy",
     "mark": "false",
-    "name": "card id 0",
+    "name": "",
     "shadowColor": "",
     "shadowOffset": "4",
     "shadowPattern": "",

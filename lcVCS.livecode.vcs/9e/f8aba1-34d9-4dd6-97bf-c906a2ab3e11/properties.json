@@ -1,11 +1,6 @@
 {
   "UUID": "9ef8aba1-34d9-4dd6-97bf-c906a2ab3e11",
   "class": "com.runrev.engine.scrollbar",
-  "customPropertySets": {
-    "cREVGeneral": {
-      "revUniqueID": "1234031453129"
-    }
-  },
   "properties": {
     "altId": "0",
     "backColor": "",

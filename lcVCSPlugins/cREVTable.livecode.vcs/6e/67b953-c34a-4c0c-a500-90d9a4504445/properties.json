@@ -2,14 +2,6 @@
   "UUID": "6e67b953-c34a-4c0c-a500-90d9a4504445",
   "class": "com.runrev.engine.stack",
   "customPropertySets": {
-    "cREVGeneral": {
-      "breakpointconditions": "",
-      "breakpoints": "",
-      "breakpointstates": "",
-      "scripteditorselection": "0",
-      "scripteditorvscroll": "0",
-      "stackfileversion": "5.5"
-    },
     "customKeys": {
       "uCustomPropertySet": "cREVTable\ncRevTable",
       "uDefault": "false",

@@ -2,7 +2,7 @@
   "build path": "<? return revEnvironmentUserPluginsPath() ?>",
   "name": "lcVCS",
   "plugins": [
-    "cRevGeneral",
+    "cREVGeneralAll",
     "cREVGeometry",
     "cREVGeometryCache",
     "cRevStandaloneSettings",
