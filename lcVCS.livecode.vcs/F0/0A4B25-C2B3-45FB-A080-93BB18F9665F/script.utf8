@@ -953,12 +953,15 @@ function ExportObjectProperties pObject,pShared,pPassword
             else if there is a stack sPluginsA["sets"][tCustomPropertySet]["stack"] then
                dispatch "lcVCSFilterExportedProps" to stack sPluginsA["sets"][tCustomPropertySet]["stack"] with pObject,tPropertySetA,tUserStateSetA
             end if
+            
             if the number of elements in tPropertySetA > 0 then
                put tPropertySetA into tObject["customPropertySets"][uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
             end if
+            
             if the number of elements in tUserStateSetA > 0 then
                put tUserStateSetA into tUserState[uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
             end if
+            
             delete variable tUserStateSetA
          end repeat
       end if
