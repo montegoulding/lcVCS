@@ -865,10 +865,11 @@ function ExportObjectProperties pObject,pShared,pPassword
                else
                   put tObject["properties"]["text"] into url ("binfile:image."&tObject["properties"]["paintCompression"])
                end if
-               delete variable tObject["properties"]["text"]
+               delete variable tObject["properties"]["fileName"]
             end if
+            delete variable tObject["properties"]["text"]
             -- no point having merge conflicts on animated gif frames unless
-            -- the it's specificially set to a specific frame
+            -- it's set to a specific frame
             if tObject["properties"]["repeatCount"] is not 0 then
                delete variable tObject["properties"]["currentFrame"]
             end if
