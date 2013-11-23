@@ -9,7 +9,8 @@
     "cREVTable",
     "dataviewProps",
     "dgProps",
-    "GLX2"
+    "GLX2",
+    "LicenseHeader"
   ],
   "resource paths": "",
   "stackFiles": [
@@ -22,6 +23,7 @@
     "lcVCSPlugins/cREVTable.livecode",
     "lcVCSPlugins/GLX2.livecode",
     "lcVCSPlugins/cREVGeometry.livecode",
-    "lcVCSPlugins/cREVGeometry.livecode"
+    "lcVCSPlugins/cREVGeometry.livecode",
+    "lcVCSPlugins/LicenseHeader.livecode"
   ]
 }

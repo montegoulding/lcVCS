@@ -1,0 +1,70 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  Foobar is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+--This demo script plugin looks for a LICENSE_HEADER.txt file
+--at the root of the repo and if the header isn't in the script
+--adds it to the top of the file. It automatically generates a ruled
+--comment block.
+
+local sHeader
+local sHeaderLookedFor = "false"
+local sHeaderLength = 0
+
+command lcVCSFilterExportedScript pObject,@pScript
+   if pScript is not empty then
+      if not sHeaderLookedFor then
+         GenerateHeader
+      end if
+      if sHeader is not empty then
+         -- add header during export
+         if sHeader is not in pScript then
+            put sHeader before pScript
+         end if
+      end if
+   end if
+end lcVCSFilterExportedScript
+
+command lcVCSFilterImportedScript pObject,@pScript
+   if pScript is not empty then
+      if not sHeaderLookedFor then
+         GenerateHeader
+      end if
+      if sHeader is not empty then
+         -- strip header during import
+         if char 1 to sHeaderLength of pScript is sHeader then
+            delete char 1 to sHeaderLength of pScript
+         end if
+      end if
+   end if
+end lcVCSFilterImportedScript
+
+command GenerateHeader
+   local tPath
+   put line 1 of shell("git rev-parse --show-toplevel") into tPath
+   put "/LICENSE_HEADER.txt" after tPath
+   if there is a file tPath then
+      put url ("binfile:"&tPath) into sHeader
+   end if
+   put "/**"&cr before sHeader
+   repeat with X = 2 to the number of lines of sHeader
+      put " *  " before line X of sHeader
+   end repeat
+   put cr&" */"&cr&cr after sHeader
+   put true into sHeaderLookedFor
+   put the length of sHeader into sHeaderLength
+end GenerateHeader

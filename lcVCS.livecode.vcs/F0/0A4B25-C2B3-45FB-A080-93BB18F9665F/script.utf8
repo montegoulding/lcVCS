@@ -266,11 +266,25 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
                end repeat
             end if
          end repeat
-         if there is a stack sPluginsA["sets"][tProperty]["stack"] then
-            dispatch "lcVCSResolveUUIDs" to stack sPluginsA["sets"][tProperty]["stack"] with tObject
-         else if there is a stack sPluginsA["keys"][tProperty]["stack"] then
-            dispatch "lcVCSResolveUUIDs" to stack sPluginsA["keys"][tProperty]["stack"] with tObject
-         else if there is a sUUIDMap[tUUID] then
+         
+         local tUUIDResolved
+         put false into tUUIDResolved
+         
+         repeat for each key tIndex in sPluginsA["sets"][tProperty]
+            if there is a stack sPluginsA["sets"][tProperty][tIndex]["stack"] then
+               dispatch "lcVCSResolveUUIDs" to stack sPluginsA["sets"][tProperty][tIndex]["stack"] with tObject
+               put true into tUUIDResolved
+            end if
+         end repeat
+         
+         repeat for each key tIndex in sPluginsA["keys"][tProperty]
+            if there is a stack sPluginsA["keys"][tProperty][tIndex]["stack"] then
+               dispatch "lcVCSResolveUUIDs" to stack sPluginsA["keys"][tProperty][tIndex]["stack"] with tObject
+               put true into tUUIDResolved
+            end if
+         end repeat
+         
+         if not tUUIDResolved and there is a sUUIDMap[tUUID] then
             switch 
                case tProperty is "behavior"
                   replace sTempNameSuffix with empty in sUUIDMap[tUUID]
@@ -502,6 +516,13 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
          set the itemDel to comma
          SetObjectProperties tObject["A"],pCardUUID,true
          put uniDecode(uniEncode(url ("binfile:script.utf8"),"UTF8"),"ANSI") into tScript
+         
+         repeat for each key tIndex in sPluginsA["script"]
+            if there is a stack sPluginsA["script"][tIndex] then
+               dispatch "lcVCSFilterImportedScript" to stack sPluginsA["script"][tIndex] with sUUIDMap[tObject["A"]["UUID"]],tScript
+            end if
+         end repeat
+         
          set the script of sUUIDMap[tObject["A"]["UUID"]] to tScript
          -- conflict resolution
          if the result contains "<<<<<<<" then
@@ -663,23 +684,27 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
       if tCustomPropertySet is "customKeys" then
          set the customProperties[""] of sUUIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
          repeat for each key tCustomProperty in pProperties["customPropertySets"][tCustomPropertySet]
-            if sPluginsA["keys"][tCustomProperty]["resolve UUIDs"] then
-               dispatch "lcVCSRegisterUUIDsToResolve" to stack sPluginsA["keys"][tCustomProperty]["stack"] with sUUIDMap[pProperties["UUID"]],tUUIDsToResolve
+            repeat for each key tIndex in sPluginsA["keys"][tCustomProperty]
+               if sPluginsA["keys"][tCustomProperty][tIndex]["resolve UUIDs"] then
+                  dispatch "lcVCSRegisterUUIDsToResolve" to stack sPluginsA["keys"][tCustomProperty][tIndex]["stack"] with sUUIDMap[pProperties["UUID"]],tUUIDsToResolve
+                  if tUUIDsToResolve is not empty then
+                     put tUUIDsToResolve into sUUIDsToResolve[sUUIDMap[pProperties["UUID"]]][tCustomProperty]
+                  end if
+                  delete variable tUUIDsToResolve
+               end if 
+            end repeat
+         end repeat
+      else
+         set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sUUIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
+         repeat for each key tIndex in sPluginsA["keys"][tCustomPropertySet]
+            if sPluginsA["sets"][tCustomPropertySet][tIndex]["resolve UUIDs"] then
+               dispatch "lcVCSRegisterUUIDsToResolve" to stack sPluginsA["sets"][tCustomPropertySet][tIndex]["stack"] with sUUIDMap[pProperties["UUID"]],tUUIDsToResolve
                if tUUIDsToResolve is not empty then
-                  put tUUIDsToResolve into sUUIDsToResolve[sUUIDMap[pProperties["UUID"]]][tCustomProperty]
+                  put tUUIDsToResolve into sUUIDsToResolve[sUUIDMap[pProperties["UUID"]]][tCustomPropertySet]
                end if
                delete variable tUUIDsToResolve
             end if 
          end repeat
-      else
-         set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sUUIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
-         if sPluginsA["sets"][tCustomPropertySet]["resolve UUIDs"] then
-            dispatch "lcVCSRegisterUUIDsToResolve" to stack sPluginsA["sets"][tCustomPropertySet]["stack"] with sUUIDMap[pProperties["UUID"]],tUUIDsToResolve
-            if tUUIDsToResolve is not empty then
-               put tUUIDsToResolve into sUUIDsToResolve[sUUIDMap[pProperties["UUID"]]][tCustomPropertySet]
-            end if
-            delete variable tUUIDsToResolve
-         end if 
       end if
    end repeat
    
@@ -936,23 +961,29 @@ function ExportObjectProperties pObject,pShared,pPassword
                local tCustomProperties
                put the keys of tPropertySetA into tCustomProperties
                repeat for each line tCustomProperty in tCustomProperties
-                  if there is a stack sPluginsA["keys"][tCustomProperty]["stack"] then
-                     local tCustomPropertyValue,tUserStateValue
-                     put tPropertySetA[tCustomProperty] into tCustomPropertyValue
-                     dispatch "lcVCSFilterExportedProps" to stack sPluginsA["keys"][tCustomProperty]["stack"] with pObject,tCustomPropertyValue,tUserStateValue
-                     if tCustomPropertyValue is not empty then
-                        put tCustomPropertyValue into tPropertySetA[tCustomProperty]
-                     else
-                        delete variable tPropertySetA[tCustomProperty]
+                  repeat for each key tIndex in sPluginsA["keys"][tCustomProperty]
+                     if there is a stack sPluginsA["keys"][tCustomProperty][tIndex]["stack"] then
+                        local tCustomPropertyValue,tUserStateValue
+                        put tPropertySetA[tCustomProperty] into tCustomPropertyValue
+                        dispatch "lcVCSFilterExportedProps" to stack sPluginsA["keys"][tCustomProperty][tIndex]["stack"] with pObject,tCustomPropertyValue,tUserStateValue
+                        if tCustomPropertyValue is not empty then
+                           put tCustomPropertyValue into tPropertySetA[tCustomProperty]
+                        else
+                           delete variable tPropertySetA[tCustomProperty]
+                        end if
+                        if tUserStateValue is not empty then
+                           put tUserStateValue into tUserStateSetA[tCustomProperty]
+                        end if
+                        delete variable tUserStateValue
                      end if
-                     if tUserStateValue is not empty then
-                        put tUserStateValue into tUserStateSetA[tCustomProperty]
-                     end if
-                     delete variable tUserStateValue
+                  end repeat
+               end repeat
+            else
+               repeat for each key tIndex in sPluginsA["sets"][tCustomPropertySet]
+                  if there is a stack sPluginsA["sets"][tCustomPropertySet][tIndex]["stack"] then
+                     dispatch "lcVCSFilterExportedProps" to stack sPluginsA["sets"][tCustomPropertySet][tIndex]["stack"] with pObject,tPropertySetA,tUserStateSetA
                   end if
                end repeat
-            else if there is a stack sPluginsA["sets"][tCustomPropertySet]["stack"] then
-               dispatch "lcVCSFilterExportedProps" to stack sPluginsA["sets"][tCustomPropertySet]["stack"] with pObject,tPropertySetA,tUserStateSetA
             end if
             
             if the number of elements in tPropertySetA > 0 then
@@ -980,6 +1011,13 @@ function ExportObjectProperties pObject,pShared,pPassword
             delete file "userstate.json"
          end if
       end if
+      
+      repeat for each key tIndex in sPluginsA["script"]
+         if there is a stack sPluginsA["script"][tIndex] then
+            dispatch "lcVCSFilterExportedScript" to stack sPluginsA["script"][tIndex] with pObject,tScript
+         end if
+      end repeat
+      
       if tScript is not empty then 
          put tScript into url ("binfile:script.utf8")
       else
@@ -1130,6 +1168,7 @@ command LoadPlugins pPluginsA
    put revEnvironmentUserPluginsPath()&"/lcVCSPlugins" into tPath
    set the folder to tPath
    
+   local tPluginIndexA
    repeat for each line tStack in the files
       -- each plugin is named with the custom property set name
       if there is a stack tStack then
@@ -1137,13 +1176,21 @@ command LoadPlugins pPluginsA
             if pPluginsA[tIndex] is the short name of stack tStack then 
                # case sensitive is on so use multiple lines to give the possible different case versions
                repeat for each line tCustomPropertySet in the uCustomPropertySet of stack tStack
-                  put the uResolveUUIDs of stack tStack into sPluginsA["sets"][tCustomPropertySet]["resolve UUIDs"]
-                  put the short name of stack tStack into sPluginsA["sets"][tCustomPropertySet]["stack"]
+                  add 1 to tPluginIndexA["sets"][tCustomPropertySet]
+                  put the uResolveUUIDs of stack tStack into sPluginsA["sets"][tCustomPropertySet][tPluginIndexA["sets"][tCustomPropertySet]]["resolve UUIDs"]
+                  put the short name of stack tStack into sPluginsA["sets"][tCustomPropertySet][tPluginIndexA["sets"][tCustomPropertySet]]["stack"]
                end repeat
+               
                repeat for each line tCustomProperty in the uCustomPropertyKey of stack tStack
-                  put the uResolveUUIDs of stack tStack into sPluginsA["keys"][tCustomProperty]["resolve UUIDs"]
-                  put the short name of stack tStack into sPluginsA["keys"][tCustomProperty]["stack"]
+                  add 1 to tPluginIndexA["sets"][tCustomPropertySet]
+                  put the uResolveUUIDs of stack tStack into sPluginsA["keys"][tCustomProperty][tPluginIndexA["sets"][tCustomPropertySet]]["resolve UUIDs"]
+                  put the short name of stack tStack into sPluginsA["keys"][tCustomProperty][tPluginIndexA["sets"][tCustomPropertySet]]["stack"]
                end repeat
+               
+               if the uScript of stack tStack then
+                  add 1 to tPluginIndexA["script"]
+                  put the short name of stack tStack into sPluginsA["script"]["stack"]
+               end if
             end if
          end repeat
       end if
@@ -1154,16 +1201,28 @@ end LoadPlugins
 
 command UnloadPlugins
    repeat for each key tCustomPropertySet in sPluginsA["sets"]
-      if there is a stack sPluginsA["sets"][tCustomPropertySet]["stack"] and \
-            the mode of stack sPluginsA["sets"][tCustomPropertySet]["stack"] is 0 then
-         delete stack sPluginsA["sets"][tCustomPropertySet]["stack"]
-      end if
+      repeat for each key tIndex in sPluginsA["sets"][tCustomPropertySet]
+         if there is a stack sPluginsA["sets"][tCustomPropertySet][tIndex]["stack"] and \
+               the mode of stack sPluginsA["sets"][tCustomPropertySet][tIndex]["stack"] is 0 then
+            delete stack sPluginsA["sets"][tCustomPropertySet][tIndex]["stack"]
+         end if
+      end repeat
    end repeat
    repeat for each key tCustomProperty in sPluginsA["keys"]
-      if there is a stack sPluginsA["keys"][tCustomProperty]["stack"] and \
-            the mode of stack sPluginsA["keys"][tCustomProperty]["stack"] is 0 then
-         delete stack sPluginsA["keys"][tCustomProperty]["stack"]
-      end if
+      repeat for each key tIndex in sPluginsA["keys"][tCustomPropertySet]
+         if there is a stack sPluginsA["keys"][tCustomProperty][tIndex]["stack"] and \
+               the mode of stack sPluginsA["keys"][tCustomProperty][tIndex]["stack"] is 0 then
+            delete stack sPluginsA["keys"][tCustomProperty][tIndex]["stack"]
+         end if
+      end repeat
+   end repeat
+   repeat for each key tCustomProperty in sPluginsA["scripts"]
+      repeat for each key tIndex in sPluginsA["scripts"]
+         if there is a stack sPluginsA["scripts"][tIndex]["stack"] and \
+               the mode of stack sPluginsA["scripts"][tIndex]["stack"] is 0 then
+            delete stack sPluginsA["scripts"][tIndex]["stack"]
+         end if
+      end repeat
    end repeat
 end UnloadPlugins
 

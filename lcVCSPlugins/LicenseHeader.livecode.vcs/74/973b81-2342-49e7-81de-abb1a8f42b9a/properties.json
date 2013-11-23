@@ -1,5 +1,5 @@
 {
-  "UUID": "15507e26-b1e4-4470-b051-6f4e0981a89a",
+  "UUID": "74973b81-2342-49e7-81de-abb1a8f42b9a",
   "class": "com.runrev.engine.card",
   "properties": {
     "altId": "0",
@@ -20,7 +20,7 @@
     "forePattern": "",
     "hiliteColor": "",
     "hilitePattern": "",
-    "id": "1003",
+    "id": "1002",
     "ink": "srcCopy",
     "mark": "false",
     "name": "",
