@@ -188,6 +188,7 @@ end LoadStackFilesRecursively
 # Export the stackfile. Creates a directory at the same path as the stackfile&.kExtension
 command ExportStackFile pFilePath,pFolder
    local tFolder,tStacks,tSubstacks,tIndex,tOriginalFolder
+   
    lock screen
    put the folder into tOriginalFolder
    if there is a stack pFilePath then
@@ -301,20 +302,22 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
             end if
          end repeat
          
-         if not tUUIDResolved and there is a sUUIDMap[tUUID] then
-            switch 
-               case tProperty is "behavior"
-                  replace sTempNameSuffix with empty in sUUIDMap[tUUID]
-                  set the tProperty of tObject to sUUIDMap[tUUID]
-                  break
-               default
-                  set the tProperty of tObject to the short id of sUUIDMap[tUUID]
-                  break
-            end switch
-         else
-            try -- could be some object that wasn't in memory during the export so it's not a UUID
-               set the tProperty of tObject to tUUID
-            end try
+         if not tUUIDResolved then
+            if there is a sUUIDMap[tUUID] then
+               switch 
+                  case tProperty is "behavior"
+                     replace sTempNameSuffix with empty in sUUIDMap[tUUID]
+                     set the tProperty of tObject to sUUIDMap[tUUID]
+                     break
+                  default
+                     set the tProperty of tObject to the short id of sUUIDMap[tUUID]
+                     break
+               end switch
+            else
+               try -- could be some object that wasn't in memory during the export so it's not a UUID
+                  set the tProperty of tObject to tUUID
+               end try
+            end if
          end if
       end repeat
    end repeat
