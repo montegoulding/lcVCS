@@ -23,7 +23,7 @@
     "lcVCSPlugins/cREVTable.livecode",
     "lcVCSPlugins/GLX2.livecode",
     "lcVCSPlugins/cREVGeometry.livecode",
-    "lcVCSPlugins/cREVGeometry.livecode",
-    "lcVCSPlugins/LicenseHeader.livecode"
+    "lcVCSPlugins/LicenseHeader.livecode",
+    "lcVCSPlugins/cREVGeneralAll.livecode"
   ]
 }

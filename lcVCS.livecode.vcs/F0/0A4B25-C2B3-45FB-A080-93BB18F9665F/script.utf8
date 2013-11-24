@@ -319,7 +319,10 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
       end repeat
    end repeat
    
-   set the fileName of stack tStackFileMainstack to sCurrentStackFilePath
+   if pIslcVCS then
+      -- engine can not cope with two stacks having the same filename
+      set the fileName of stack tStackFileMainstack to sCurrentStackFilePath
+   end if
    
    -- set cant modify
    repeat for each key tProperty in sPropsToSet
@@ -451,7 +454,8 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                set the id of card 1 of it to 1000
                if pStackUUID is not empty then
                   set the mainstack of it to the short name of sUUIDMap[pStackUUID]
-               else
+               else if not pIslcVCS then
+                  -- engine can not cope with two stacks having the same filename
                   set the fileName of it to sCurrentStackFilePath
                end if
                put tObject["A"]["UUID"] into pStackUUID
@@ -713,7 +717,7 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
          end repeat
       else
          set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sUUIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
-         repeat for each key tIndex in sPluginsA["keys"][tCustomPropertySet]
+         repeat for each key tIndex in sPluginsA["sets"][tCustomPropertySet]
             if sPluginsA["sets"][tCustomPropertySet][tIndex]["resolve UUIDs"] then
                dispatch "lcVCSRegisterUUIDsToResolve" to stack sPluginsA["sets"][tCustomPropertySet][tIndex]["stack"] with sUUIDMap[pProperties["UUID"]],tUUIDsToResolve
                if tUUIDsToResolve is not empty then
@@ -1199,9 +1203,9 @@ command LoadPlugins pPluginsA
                end repeat
                
                repeat for each line tCustomProperty in the uCustomPropertyKey of stack tStack
-                  add 1 to tPluginIndexA["sets"][tCustomPropertySet]
-                  put the uResolveUUIDs of stack tStack into sPluginsA["keys"][tCustomProperty][tPluginIndexA["sets"][tCustomPropertySet]]["resolve UUIDs"]
-                  put the short name of stack tStack into sPluginsA["keys"][tCustomProperty][tPluginIndexA["sets"][tCustomPropertySet]]["stack"]
+                  add 1 to tPluginIndexA["keys"][tCustomProperty]
+                  put the uResolveUUIDs of stack tStack into sPluginsA["keys"][tCustomProperty][tPluginIndexA["keys"][tCustomProperty]]["resolve UUIDs"]
+                  put the short name of stack tStack into sPluginsA["keys"][tCustomProperty][tPluginIndexA["keys"][tCustomProperty]]["stack"]
                end repeat
                
                if the uScript of stack tStack then

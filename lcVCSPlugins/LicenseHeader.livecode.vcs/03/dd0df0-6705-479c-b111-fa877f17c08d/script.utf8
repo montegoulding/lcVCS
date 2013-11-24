@@ -23,7 +23,6 @@
 
 local sHeader
 local sHeaderLookedFor = "false"
-local sHeaderLength = 0
 
 command lcVCSFilterExportedScript pObject,@pScript
    if pScript is not empty then
@@ -40,17 +39,7 @@ command lcVCSFilterExportedScript pObject,@pScript
 end lcVCSFilterExportedScript
 
 command lcVCSFilterImportedScript pObject,@pScript
-   if pScript is not empty then
-      if not sHeaderLookedFor then
-         GenerateHeader
-      end if
-      if sHeader is not empty then
-         -- strip header during import
-         if char 1 to sHeaderLength of pScript is sHeader then
-            delete char 1 to sHeaderLength of pScript
-         end if
-      end if
-   end if
+   -- do nothing
 end lcVCSFilterImportedScript
 
 command GenerateHeader
@@ -66,5 +55,4 @@ command GenerateHeader
    end repeat
    put cr&" */"&cr&cr after sHeader
    put true into sHeaderLookedFor
-   put the length of sHeader into sHeaderLength
 end GenerateHeader
