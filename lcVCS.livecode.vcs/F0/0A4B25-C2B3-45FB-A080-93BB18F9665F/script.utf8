@@ -272,6 +272,7 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
                               put the long id of btn tControl of card tCard of stack tStack into sUUIDMap[tControlUUID]
                            end if
                         end repeat
+                        
                         -- images
                         repeat with tControl =1 to the number of images of card tCard of stack tStack
                            put the uVersion["UUID"] of image tControl of card tCard of stack tStack into tControlUUID
@@ -647,8 +648,8 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
          put pProperties["properties"]["id"] into word 3 of sUUIDMap[pProperties["UUID"]]
       end if
    catch e
-      put the long name of control id pProperties["properties"]["id"]&cr& \
-            the long name of sUUIDMap[pProperties["UUID"]]&cr after msg
+      put "ID conflict: "&&pProperties["properties"]["id"]&&the long name of control id pProperties["properties"]["id"]&cr& \
+            "Changed to: "&&the id of the long name of sUUIDMap[pProperties["UUID"]]&&the long name of sUUIDMap[pProperties["UUID"]]&cr after msg
    end try
    delete variable pProperties["properties"]["id"]
    put the properties of sUUIDMap[pProperties["UUID"]] into tCurrentProps
@@ -972,6 +973,12 @@ function ExportObjectProperties pObject,pShared,pPassword
             end if
             break
       end switch
+      
+      -- reset mac scrollbar width to default
+      if tObject["properties"]["scrollbarWidth"] is 16 then
+         put 20 into tObject["properties"]["scrollbarWidth"]
+      end if
+      
       -- custom properties
       if the customKeys of pObject is not empty or the customPropertySets of pObject is not empty then
          repeat for each line tCustomPropertySet in ""&cr&the customPropertySets of pObject
