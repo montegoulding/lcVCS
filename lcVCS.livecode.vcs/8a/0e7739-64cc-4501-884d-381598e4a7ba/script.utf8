@@ -6,7 +6,7 @@
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *  
- *  Foobar is distributed in the hope that it will be useful,
+ *  lcVCS is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -19,10 +19,10 @@
 -- only applies to 'forms' and not 'tables'.
 
 on FillInData pDataArray
-   set the text of field "title" of me to pDataArray["repository"]["name"]
-   set the text of field "description" of me to pDataArray["repository"]["description"]
-   set the text of field "owner" of me to pDataArray["repository"]["owner"]["login"]
-   set the filename of image "owner" of me to pDataArray["repository"]["owner"]["avatar_url"]
+   set the text of field "title" of me to pDataArray["name"]
+   set the text of field "description" of me to pDataArray["description"]
+   set the text of field "owner" of me to pDataArray["owner"]["login"]
+   set the filename of image "owner" of me to pDataArray["owner"]["avatar_url"]
 end FillInData
 
 

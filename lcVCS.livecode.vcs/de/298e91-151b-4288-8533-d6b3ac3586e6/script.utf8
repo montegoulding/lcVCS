@@ -6,7 +6,7 @@
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *  
- *  Foobar is distributed in the hope that it will be useful,
+ *  lcVCS is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -147,13 +147,13 @@ end ImportProjectAtIndex
 
 on lcVCSExport
    if the target is me then
-      set the dgData of group "Projects" to empty
-      set the dgData of group "Stackfiles" to empty
-      set the dgData of group "Plugins" to empty
       set the text of fld "project path" to empty
       set the text of fld "build path" to empty
       set the text of fld "resource paths" to empty
       set the width of me to 500
       set the height of me to 400
+      set the dgData of group "Projects" to empty
+      set the dgData of group "Stackfiles" to empty
+      set the dgData of group "Plugins" to empty
    end if
 end lcVCSExport

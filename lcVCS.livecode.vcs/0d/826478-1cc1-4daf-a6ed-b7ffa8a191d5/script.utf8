@@ -6,7 +6,7 @@
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *  
- *  Foobar is distributed in the hope that it will be useful,
+ *  lcVCS is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -47,11 +47,17 @@ on selectionChanged pHilitedIndex,pOldHilitedIndex
    put the folder into tOriginalFolder
    set the folder to tPath
    
+   delete variable sPluginsA
    put 1 into tIndex
    repeat for each line tFile in the files
       if there is a stack tFile then
          put the short name of stack tFile into sPluginsA[tIndex]["stack"]
          put the uDescription of stack tFile into sPluginsA[tIndex]["description"]
+         
+         if sPluginsA[tIndex]["description"] is empty then 
+            put sPluginsA[tIndex]["stack"] into sPluginsA[tIndex]["description"]
+         end if
+         
          if the number of elements of tDataA["plugins"] is 0 then
             put the uDefault of stack tFile into sPluginsA[tIndex]["checked"]
          else

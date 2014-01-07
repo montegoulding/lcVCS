@@ -6,7 +6,7 @@
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *  
- *  Foobar is distributed in the hope that it will be useful,
+ *  lcVCS is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -26,15 +26,15 @@ on mouseUp
       if it is not empty then
          put the defaultFolder into tOldDefaultFolder
          set the defaultFolder to it
-         if tDataA["repository"]["name"] is among the lines of the folders then
-            answer error "There is already a folder named "&tDataA["repository"]["name"]
+         if tDataA["name"] is among the lines of the folders then
+            answer error "There is already a folder named "&tDataA["name"]
             set the defaultFolder to tOldDefaultFolder
             exit mouseUp
          end if
          if the platform is "Win32" then
             #! TODO work out Windows clone command
          else
-            put "git clone --progress --verbose --recursive "&tDataA["repository"]["html_url"]&".git" into tClone
+            put "git clone --progress --verbose --recursive "&tDataA["html_url"]&".git" into tClone
          end if
          put empty into fld "progress"
          open process tClone for update
@@ -54,9 +54,34 @@ on mouseUp
          hide field "progress"
          unlock screen with visual effect "reveal up fast"
          put GetPreference("Projects") into tProjects
-         put the defaultFolder&"/"&tDataA["repository"]["name"]&"/lcVCSProject.json" into tProjects[max(replaceText(the keys of tProjects,cr,comma)) + 1]
+         
+         local tPath
+         put ProjectPath(the defaultFolder&"/"&tDataA["name"]) into tProjects[max(replaceText(the keys of tProjects,cr,comma)) + 1]
          SetPreference "Projects",sProjects
          set the defaultFolder to tOldDefaultFolder
       end if
    end if
 end mouseUp
+
+function ProjectPath pPath
+   local tOldFolder
+   put the folder into tOldFolder
+   set the folder to pPath
+   if there is a file "lcVCSProject.json" then
+      return pPath&"/lcVCSProject.json"
+   else
+      local tFolders
+      put the folders into tFolders
+      filter tFolders without ".*"
+      
+      local tPath
+      repeat for each line tFolder in tFolders
+         put ProjectPath(pPath&"/"&tFolder) into tPath
+         if tPath is not empty then
+            return tPath
+         end if
+      end repeat
+   end if
+   set the folder to tOldFolder
+   return empty
+end ProjectPath

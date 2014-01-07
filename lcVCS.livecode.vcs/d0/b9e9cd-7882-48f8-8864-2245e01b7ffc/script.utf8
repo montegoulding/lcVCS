@@ -6,7 +6,7 @@
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *  
- *  Foobar is distributed in the hope that it will be useful,
+ *  lcVCS is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -31,7 +31,7 @@ on Search
    
    # fork:true doesn't return anything for some reason
    # ideally we would list all forks
-   load url "https://api.github.com/search/code?q=path:lcVCSProject.json&sort=indexed" with message "SearchComplete"
+   load url "https://api.github.com/search/repositories?q=lcVCS+LiveCode&sort=stars" with message "SearchComplete"
    show image "loading"
    
    set the httpHeaders to tOriginalHeaders
@@ -49,6 +49,7 @@ on escapeKey
 end escapeKey
 
 on lcVCSExport
+   
    if the target is me then
       put empty into fld "progress"
       set the dgData of group "search" to empty

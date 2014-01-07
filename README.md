@@ -51,4 +51,7 @@ Because LiveCode stackfiles retain session changes between saves it's important 
 
 ##Dependencies
 * [mergJSON](https://github.com/montegoulding/mergJSON) which is a dual licensed (GPL/Commercial) JSON external for implementing JSONToArray and ArrayToJSON.
-* LiveCode 6.1.1
+* LiveCode 6.5.1
+
+##GitHub Search
+lcVCS includes a GitHub search for lcVCS based projects. If you want your project to appear in the list you just need to include lcVCS and LiveCode somewhere in the README, description or name of the repo.

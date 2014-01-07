@@ -6,7 +6,7 @@
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *  
- *  Foobar is distributed in the hope that it will be useful,
+ *  lcVCS is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -40,6 +40,9 @@ local sUnsharedProps -- holds unshared data of shared objects until the group is
 # a project. This should only be done if there is a plugin resetting
 # the UUIDs of objects after a stack clone (and ideally after other object copies).
 command ExportProject pFilePath,pStackFile
+   local tMainstacks
+   put the mainstacks into tMainstacks
+   
    local tProject
    start using me
    delete variable sUUIDMap
@@ -56,6 +59,16 @@ command ExportProject pFilePath,pStackFile
       end if
    end repeat
    UnloadPlugins
+   
+   # Remove stacks from memory if they weren't in memory prior to export
+   lock messages
+   repeat with tIndex = 1 to the number of elements of tProject["imported stackFiles"]
+      if the short name of stack tProject["imported stackFiles"][tIndex] is not among the lines of tMainstacks then
+         delete stack tProject["imported stackFiles"][tIndex]
+      end if
+   end repeat
+   unlock messages
+   
    stop using me
 end ExportProject
 
@@ -563,7 +576,9 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
          # set uVersion custom property set
          put tObject["A"]["UUID"] into tVersion["UUID"]
          put the short id of sUUIDMap[tObject["A"]["UUID"]] into tVersion["ID"]
-         set the customProperties["uVersion"] of sUUIDMap[tObject["A"]["UUID"]] to tVersion
+         repeat for each key tKey in tVersion
+            set the uVersion[tKey] of sUUIDMap[tObject["A"]["UUID"]] to tVersion[tKey]
+         end repeat
          
          if tObject["A"]["class"] <> "com.runrev.engine.stack" then
             put CleanLayerFile(url "file:layers") into tUUIDs
@@ -784,7 +799,10 @@ function UUIDForObject pObject
          the long id of sUUIDMap[tVersion["UUID"]] is not the long id of pObject) then
       put UUID() into tVersion["UUID"]
       put the short id of pObject into tVersion["ID"]
-      set the customProperties["uVersion"] of pObject to tVersion
+      repeat for each key tKey in tVersion
+         set the uVersion[tKey] of pObject to tVersion[tKey]
+      end repeat
+
       put the long id of pObject into sUUIDMap[tVersion["UUID"]]
    end if
    return tVersion["UUID"]
@@ -805,7 +823,7 @@ command ExportStack pStack
    delete variable sSharedGroup
    set the defaultStack to pStack
    
-   ExportObject the long id of stack pStack,,,the password of stack pStack
+   ExportObject the long id of stack pStack,,the password of stack pStack
    
    # if the stack was password protected then none of it's objects are exported
    # but each object still gets sent lcVCSExport and UUIDs are created for each object
@@ -883,7 +901,7 @@ function ExportObjectProperties pObject,pShared,pPassword
                   --_internal resolve image id tID relative to pObject
                   --resolve image id tID relative to pObject
                   #! Workaround using behavior heirarchy until resolve image syntax accepted
-                  get ResolveImage(tID,pObject)
+                  resolve image id tID relative to pObject
                   put it into tObject["properties"][tProperty]
                   
                   if there is a tObject["properties"][tProperty] then
@@ -948,7 +966,7 @@ function ExportObjectProperties pObject,pShared,pPassword
             repeat for each item tProperty in kIconProps
                try
                   if tObject["properties"][tProperty] <> "" and tObject["properties"][tProperty] <> 0 then
-                     get ResolveImage(tObject["properties"][tProperty],pObject)
+                     resolve image id tObject["properties"][tProperty] relative to pObject
                      --_internal resolve image id tObject["properties"][tProperty] relative to pObject
                      --resolve image id tObject["properties"][tProperty] relative to pObject
                      put it into tObject["properties"][tProperty]
@@ -984,7 +1002,9 @@ function ExportObjectProperties pObject,pShared,pPassword
          repeat for each line tCustomPropertySet in ""&cr&the customPropertySets of pObject
             put the customProperties[tCustomPropertySet] of pObject into tPropertySetA
             if tCustomPropertySet is "uVersion" then
-               next repeat
+               delete local tPropertySetA["UUID"]
+               delete local tPropertySetA["ID"]
+               delete local tPropertySetA["SHA"]
             end if
             # custom keys can have a plugin for individual keys while for sets it's just for the whole set
             if tCustomPropertySet is "" then 
@@ -1078,7 +1098,8 @@ command ExportObject pObject,pShared,pType,pPassword
          local tCards
          repeat for each line tID in the cardIDs of pObject
             put UUIDForObject(the long id of card id tID of pObject)&cr after tCards
-            ExportObject the long id of card id tID of pObject,,false
+            set the currentCard of pObject to the short name of card id tId
+            ExportObject the long id of card id tID of pObject,,false
          end repeat
          if not pPassword then
             put tCards into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards")
@@ -1345,11 +1366,3 @@ private function CleanLayerFile pData
    return pData
 end CleanLayerFile
 
-on SetupBehaviors
-   set the itemDel to "."
-   if item 1 to 2 of the version >= 6.5 then
-      set the behavior of btn "Common" of me to the long id of btn "resolve image" of me
-   else
-      set the behavior of btn "Common" of me to the long id of btn "_internal resolve image" of me
-   end if
-end SetupBehaviors
