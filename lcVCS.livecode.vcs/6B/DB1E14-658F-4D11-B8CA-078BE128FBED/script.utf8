@@ -17,12 +17,15 @@
 
 
 on preOpenCard
-   set the hideConsoleWindows to true
-   SetDataGridUUIDs
-   
-   if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
-      send "DeleteLoader" to me in 0 milliseconds
-      modeless "lcVCSProjects"
+   set the itemDel to "."
+   if item 1 to 2 of the version >= 6.5 then
+      set the hideConsoleWindows to true
+      SetDataGridUUIDs
+      
+      if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
+         send "DeleteLoader" to me in 0 milliseconds
+         modeless "lcVCSProjects"
+      end if
    end if
    close this stack
 end preOpenCard
