@@ -1378,7 +1378,7 @@ command DeployRelease
       set the folder to tProjectA["exported stackFiles"][1]
       
       local tDescribe
-      put line 1 of shell("git describe") into tDescribe
+      put line 1 of shell("git describe --long") into tDescribe
       
       set the uVersion["REF"] of me to tDescribe
       
