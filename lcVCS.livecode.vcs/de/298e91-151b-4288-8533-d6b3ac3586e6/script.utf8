@@ -18,6 +18,7 @@
 local sProjects,sFetched
 
 on preOpenStack
+   set the title of me to "lcVCS Projects"&&the uVersion["REF"] of stack "lcVCS"
    ResetProjects
 end preOpenStack
 
@@ -147,6 +148,7 @@ end ImportProjectAtIndex
 
 on lcVCSExport
    if the target is me then
+      set the title of me to empty
       set the text of fld "project path" to empty
       set the text of fld "build path" to empty
       set the text of fld "resource paths" to empty

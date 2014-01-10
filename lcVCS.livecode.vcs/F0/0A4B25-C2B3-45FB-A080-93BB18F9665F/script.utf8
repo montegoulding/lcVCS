@@ -1004,7 +1004,7 @@ function ExportObjectProperties pObject,pShared,pPassword
             if tCustomPropertySet is "uVersion" then
                delete local tPropertySetA["UUID"]
                delete local tPropertySetA["ID"]
-               delete local tPropertySetA["SHA"]
+               delete local tPropertySetA["REF"]
             end if
             # custom keys can have a plugin for individual keys while for sets it's just for the whole set
             if tCustomPropertySet is "" then 
@@ -1366,3 +1366,53 @@ private function CleanLayerFile pData
    return pData
 end CleanLayerFile
 
+command DeployRelease
+   local tProjectA
+   
+   put ProjectForStackFile(the effective filename of me,true) into tProjectA
+   
+   local tOriginalFolder
+   put the folder into tOriginalFolder
+   
+   if tProjectA is an array then
+      set the folder to tProjectA["exported stackFiles"][1]
+      
+      local tDescribe
+      put line 1 of shell("git describe") into tDescribe
+      
+      set the uVersion["REF"] of me to tDescribe
+      
+      local tRepoRoot
+      put line 1 of shell("git rev-parse --show-toplevel") into tRepoRoot
+      
+      set the directory to tRepoRoot
+      if there is not a folder "build" then
+         create folder "build"
+      end if
+      
+      local tStackFile
+      put the filename of me into tStackFile
+      put tStackFile into tlcVCSPath
+      
+      set the filename of me to (the folder&"/build/lcVCS.livecode")
+      save me
+      
+      set the itemDel to slash
+      put "lcVCSPlugins" into item -1 of tlcVCSPath
+      revDeleteFolder tRepoRoot&"/build/lcVCSPlugins"
+      revCopyFolder tlcVCSPath,tRepoRoot&"/build"
+      
+      delete file (tRepoRoot&"/build/README.md")
+      revCopyFile tRepoRoot&"/README.md",tRepoRoot&"/build"
+      
+      delete file (tRepoRoot&"/build/LICENSE.txt")
+      revCopyFile tRepoRoot&"/LICENSE.txt",tRepoRoot&"/build"
+      
+      set the filename of me to tStackFile
+      
+      set the folder to "build"
+      get shell("zip -r "&quote&tRepoRoot&"/lcVCS-"&tDescribe&".zip"&quote&" .")
+   end if
+   
+   set the folder to tOriginalFolder
+end DeployRelease
