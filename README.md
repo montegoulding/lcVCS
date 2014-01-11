@@ -53,5 +53,23 @@ Because LiveCode stackfiles retain session changes between saves it's important 
 * [mergJSON](https://github.com/montegoulding/mergJSON) which is a dual licensed (GPL/Commercial) JSON external for implementing JSONToArray and ArrayToJSON.
 * LiveCode 6.5.1
 
+##Installation
+###mergJSON
+* If you don't have a user extensions/Externals folder then create one. To find your user extensions folder go to LiveCode prefs.
+* If you don't have an Externals.txt file in the user extensions/Externals folder then create one
+* OS X
+    * Copy mergJSON.bundle into your user extensions/Externals directory
+    * Add mergJSON,mergJSON.bundle to your Externals.txt file in you user extensions/External directory
+* Linux
+    * Copy mergJSON.so into your user extensions/Externals directory
+    * Add mergJSON,mergJSON.so to your Externals.txt file in you user extensions/External directory
+* Windows
+    * Copy mergJSON.dll into your user extensions/Externals directory
+    * Add mergJSON,mergJSON.dll to your Externals.txt file in you user extensions/External directory
+
+###lcVCS
+* Copy lcVCS.livecode into your user extensions/Plugins directory
+* Copy the lcVCSPlugins folder into your user extensions/Plugins directory
+
 ##GitHub Search
 lcVCS includes a GitHub search for lcVCS based projects. If you want your project to appear in the list you just need to include lcVCS and LiveCode somewhere in the README, description or name of the repo.
