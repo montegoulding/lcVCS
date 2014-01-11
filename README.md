@@ -91,7 +91,7 @@ Because LiveCode stackfiles retain session changes between saves it's important 
     cd lcVCS
     git pull
 
-* Open lcVCS by choosing it from the Development > Pligins menu
+* Open lcVCS by choosing it from the Development > Plugins menu
 * Choose lcVCS from the projects list on the left of the projects stack
 * Click the Import Project button
 * When the import is complete the projects list will appear blank so just click the stack to trigger resumeStack and it will show the projects again
