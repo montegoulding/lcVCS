@@ -71,5 +71,37 @@ Because LiveCode stackfiles retain session changes between saves it's important 
 * Copy lcVCS.livecode into your user extensions/Plugins directory
 * Copy the lcVCSPlugins folder into your user extensions/Plugins directory
 
+##Keeping lcVCS updated via git
+### Get the repo if you think it's unlikely you will contribute
+* Clone the repo using `git clone https://github.com/montegoulding/lcVCS.git`
+* Open lcVCS and click the + icon on the bottom left of the projects stack.
+* Browse to and choose the cloned repo
+* You should now see lcVCS in the projects list
+
+### Get the repo if you think you will probably contribute
+* Go to [GitHub](https://github.com/montegoulding/lcVCS)
+* Create an account if you don't have one
+* Click on the button to fork lcVCS
+* Clone the repo using `git clone https://github.com/<your username>/lcVCS.git` or preferably setup SSH keys on GitHub and use `git clone git@github.com:<your username>/lcVCS.git`
+* Enter the repo `cd lcVCS`
+* Add my repo as upstream with `git remote add upstream https://github.com/montegoulding/lcVCS.git`
+* Make the master branch track `upstream/master` rather than `origin/master` with `git branch --set-upstream master upstream/master`
+
+###Updating the repo
+    cd lcVCS
+    git pull
+
+* Open lcVCS by choosing it from the Development > Pligins menu
+* Choose lcVCS from the projects list on the left of the projects stack
+* Click the Import Project button
+* When the import is complete the projects list will appear blank so just click the stack to trigger resumeStack and it will show the projects again
+
+##Contributing to lcVCS
+* Follow the instructions above to fork lcVCS
+* Branch from master before committing so you will always be able to pull master the montegoulding repo
+* Commit your changes using the --sign-off option
+* Send a pull request from your branch against the montegoulding repo
+* By sending a pull request you are agreeing to the *Developer's Certificate of Origin* found in `DCO.txt`
+
 ##GitHub Search
 lcVCS includes a GitHub search for lcVCS based projects. If you want your project to appear in the list you just need to include lcVCS and LiveCode somewhere in the README, description or name of the repo.
