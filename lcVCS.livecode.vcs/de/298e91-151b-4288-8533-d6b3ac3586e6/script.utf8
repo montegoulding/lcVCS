@@ -77,8 +77,8 @@ on AddProject pPath
    set the dgHilitedIndex of group "projects" to tIndex
    dispatch "ScrollIndexIntoView" to group "projects" with tIndex
    dispatch "selectionChanged" to group "projects" with tIndex,tOldIndex
-   SaveProject tIndex
    put pPath into sProjects[tIndex]
+   SaveProject tIndex
    SetPreference "Projects",sProjects
 end AddProject
 

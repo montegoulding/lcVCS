@@ -104,4 +104,4 @@ Because LiveCode stackfiles retain session changes between saves it's important 
 * By sending a pull request you are agreeing to the *Developer's Certificate of Origin* found in `DCO.txt`
 
 ##GitHub Search
-lcVCS includes a GitHub search for lcVCS based projects. If you want your project to appear in the list you just need to include lcVCS and LiveCode somewhere in the README, description or name of the repo.
+lcVCS includes a GitHub search for lcVCS based projects. If you want your project to appear in the list you just need to include lcVCS and LiveCode somewhere in the README of the repo. Just write something like `This is project uses lcVCS to enable VCS support in a LiveCode project`.

@@ -31,7 +31,7 @@ on Search
    
    # fork:true doesn't return anything for some reason
    # ideally we would list all forks
-   load url "https://api.github.com/search/repositories?q=lcVCS+LiveCode&sort=stars" with message "SearchComplete"
+   load url "https://api.github.com/search/repositories?q=lcVCS+LiveCode+in:README&sort=stars" with message "SearchComplete"
    show image "loading"
    
    set the httpHeaders to tOriginalHeaders
