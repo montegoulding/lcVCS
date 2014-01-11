@@ -98,9 +98,9 @@ Because LiveCode stackfiles retain session changes between saves it's important 
 
 ##Contributing to lcVCS
 * Follow the instructions above to fork lcVCS
-* Branch from master before committing so you will always be able to pull master the montegoulding repo
+* Branch from master before committing so you will always be able to pull master from the upstream remote
 * Commit your changes using the --sign-off option
-* Send a pull request from your branch against the montegoulding repo
+* Send a pull request from your branch against the upstream remote
 * By sending a pull request you are agreeing to the *Developer's Certificate of Origin* found in `DCO.txt`
 
 ##GitHub Search
