@@ -85,7 +85,7 @@ Because LiveCode stackfiles retain session changes between saves it's important 
 * Clone the repo using `git clone https://github.com/<your username>/lcVCS.git` or preferably setup SSH keys on GitHub and use `git clone git@github.com:<your username>/lcVCS.git`
 * Enter the repo `cd lcVCS`
 * Add my repo as upstream with `git remote add upstream https://github.com/montegoulding/lcVCS.git`
-* Make the master branch track `upstream/master` rather than `origin/master` with `git branch --set-upstream master upstream/master`
+* Make the `master` branch track `upstream/master` rather than `origin/master` with `git branch --set-upstream upstream/master master`
 
 ###Updating the repo
     cd lcVCS
@@ -99,7 +99,7 @@ Because LiveCode stackfiles retain session changes between saves it's important 
 ##Contributing to lcVCS
 * Follow the instructions above to fork lcVCS
 * Branch from master before committing so you will always be able to pull master from the upstream remote
-* Commit your changes using the --sign-off option
+* Commit your changes using the `--sign-off` or `-s` option
 * Send a pull request from your branch against the upstream remote
 * By sending a pull request you are agreeing to the *Developer's Certificate of Origin* found in `DCO.txt`
 
