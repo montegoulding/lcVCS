@@ -54,6 +54,8 @@ Because LiveCode stackfiles retain session changes between saves it's important 
 * LiveCode 6.5.1
 
 ##Installation
+You will need [mergJSON](https://github.com/montegoulding/mergJSON) and the lcVCS stackFiles. Compiled versions can be downloaded from [here](http://mergext.com). If you don't have a mergExt account you can sign up for a free one.
+
 ###mergJSON
 * If you don't have a user extensions/Externals folder then create one. To find your user extensions folder go to LiveCode prefs.
 * If you don't have an Externals.txt file in the user extensions/Externals folder then create one
