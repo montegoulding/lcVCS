@@ -83,6 +83,7 @@ command ImportProject pFilePath
    LoadDataGridUUIDs
    delete variable sConflicts
    delete variable sStacksToDelete
+   delete variable sSharedGroup
    put UUID() into sTempNameSuffix
    
    put ResolveProjectFile(pFilePath) into tProject
@@ -587,8 +588,11 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
             repeat for each line tUUID in tUUIDs
                if sSharedGroup[tUUID] then
                   if not tSharedGroupsOnCard[tUUID] then
+                     try
+                        place sUUIDMap[tUUID] onto sUUIDMap[pCardUUID]
+                     end try
                      -- sharedGroups are already created and just need to be relayered to front
-                     relayer sUUIDMap[tUUID] to front of owner
+                     relayer sUUIDMap[tUUID] to front of sUUIDMap[pCardUUID]
                      put true into tSharedGroupsOnCard[tUUID]
                   end if
                else
@@ -833,6 +837,7 @@ command ExportStack pStack
       put sMainstackPath & slash & UUIDToObjectPath(UUIDForObject(the long ID of stack pStack)) into tObjectPath
       EnsureFolder tObjectPath
       set the fileName of stack (kPasswordProtectedStackPrefix&pStack) to tObjectPath & slash & "stack.binary"
+      set the topLeft of stack (kPasswordProtectedStackPrefix&pStack) to 0,0
       save stack (kPasswordProtectedStackPrefix&pStack)
       set the cantDelete of stack (kPasswordProtectedStackPrefix&pStack) to false
       delete stack (kPasswordProtectedStackPrefix&pStack)
@@ -1082,7 +1087,7 @@ function ExportObjectProperties pObject,pShared,pPassword
    return tObject["UUID"]
 end ExportObjectProperties
 
-command ExportObject pObject,pShared,pType,pPassword
+command ExportObject pObject,pShared,pPassword
    local tObjects,tOriginalFolder
    put the folder into tOriginalFolder
    -- properties of stack
@@ -1099,7 +1104,7 @@ command ExportObject pObject,pShared,pType,pPassword
          repeat for each line tID in the cardIDs of pObject
             put UUIDForObject(the long id of card id tID of pObject)&cr after tCards
             set the currentCard of pObject to the short name of card id tId
-            ExportObject the long id of card id tID of pObject,,false
+            ExportObject the long id of card id tID of pObject,,pPassword
          end repeat
          if not pPassword then
             put tCards into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards")
@@ -1109,7 +1114,7 @@ command ExportObject pObject,pShared,pType,pPassword
          if the sharedGroupIDs of pObject is not empty then
             repeat for each line tID in the sharedGroupIDs of pObject
                put UUIDForObject(the long id of background id tID of pObject)&cr after tSharedGroups
-               ExportObject the long id of background id tID of pObject,true,false
+               ExportObject the long id of background id tID of pObject,true,pPassword
             end repeat
             if not pPassword then
                put tSharedGroups into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/sharedGroups")
@@ -1138,7 +1143,7 @@ command ExportObject pObject,pShared,pType,pPassword
                put UUIDForObject(tControlRef)&cr after tLayers
                if not (word 1 of tControlRef is "group" and \
                      the sharedBehavior of tControlRef) then
-                  ExportObject tControlRef,pShared,false
+                  ExportObject tControlRef,pShared,pPassword
                end if
             end repeat
             if tLayers is not empty and not pPassword then
