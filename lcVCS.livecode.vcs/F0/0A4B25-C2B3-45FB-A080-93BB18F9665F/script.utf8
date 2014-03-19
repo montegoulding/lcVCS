@@ -635,6 +635,9 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                   if sUUIDMap[tUUID] is empty then
                      set the folder to sMainstackPath & slash & UUIDToObjectPath(tUUID)
                      ImportObject pStackUUID,pCardUUID,,pIslcVCS
+                     if tType is "sharedGroups" then
+                        remove sUUIDMap[tUUID] from card 1
+                     end if
                   end if
                end repeat
                
@@ -702,6 +705,9 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
          case char 1 to 7 of tProperty is "unicode" -- "unicode"&tProperty
             -- utf8 encoded
             put uniEncode(pProperties["properties"][tProperty],"UTF8") into pProperties["properties"][tProperty]
+            break
+         case tProperty is "showController" -- showController precedence
+            set the showController of sUUIDMap[pProperties["UUID"]] to pProperties["properties"][tProperty]
             break
          case tProperty is among the items of "htmlText,hilite"
             if pProperties["properties"][tProperty] is an array then
@@ -849,11 +855,15 @@ function ExportObjectProperties pObject,pShared,pPassword
    local tImage,tObject,tGroupCardRef,tPaintCompression,tPropertySetA,tUserStateSetA,tUserState,tSharedObject,tCardIDs,tObjectFirstCardRef,tOriginalFolder,tObjectPath,tScript,tID,tCardRef
    put the folder into tOriginalFolder
    unlock messages
-   try
+   if the environment is "development" then
       dispatch "lcVCSExport" to pObject
-   catch e
-      put "lcVCSExport Error: "&pObject&cr after msg
-   end try
+   else
+      try
+         dispatch "lcVCSExport" to pObject
+      catch e
+         put "lcVCSExport Error "&the internet date&": "&pObject&cr&e into url ("file:"&specialFolderPath("desktop")&"/error.txt")
+      end try
+   end if
    lock messages
    set the caseSensitive to true
    put UUIDForObject(pObject) into tObject["UUID"]
@@ -1292,7 +1302,7 @@ function ArrayToJSON pArray,pForceRootType,pPretty,pKey
    repeat for each line tKey in the keys of pArray
       if pArray[tKey] is an array then
          put "}"&ArrayToJSON(pArray[tKey],pForceRootType,,tKey) into tArray[tKey]
-      else if (pKey is not "properties" or tKey is "text") and needsEncoding(pArray[tKey]) then
+      else if needsEncoding(pArray[tKey]) then
          put "base64Decode("&base64Encode(pArray[tKey])&")" into tArray[tKey]
       else 
          -- force all elements to be strings
