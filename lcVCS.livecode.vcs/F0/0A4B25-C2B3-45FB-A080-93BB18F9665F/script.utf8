@@ -153,6 +153,14 @@ function ResolveProjectFile pFilePath
       # resolve relative path
       if there is not a folder tPath then
          put tProjectPath before tPath
+         if there is a folder tPath then
+            # work around the engine not resolving the file path 
+            # before throwing an error about duplicate file names
+            put the folder into tOldFolder
+            set the folder to tPath
+            put the folder into tPath
+            set the folder to tOldFolder
+         end if
       end if
       
       # check if it's a full path to a stackfile which loads it anyway
@@ -817,6 +825,8 @@ function UUIDForObject pObject
    end if
    return tVersion["UUID"]
 end UUIDForObject
+
+
 
 function ObjectForUUID pUUID
    if exists(sUUIDMap[pUUID]) then

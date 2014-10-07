@@ -31,6 +31,9 @@ on selectionChanged pHilitedIndex,pOldHilitedIndex
    
    put PathForProject(pHilitedIndex) into tPath
    put tPath into fld "project path"
+   
+   put tDataA["resource paths"] into fld "resource paths"
+      
    put getConflicts() into tConflicts
    
    local tStacksA
