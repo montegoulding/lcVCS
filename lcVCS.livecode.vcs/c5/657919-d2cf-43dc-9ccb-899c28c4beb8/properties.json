@@ -52,6 +52,7 @@
     "minWidth": "300",
     "name": "lcVCSConflicts",
     "resizable": "true",
+    "scalefactor": "1",
     "shadow": "true",
     "shadowColor": "",
     "shadowOffset": "4",

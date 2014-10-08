@@ -46,6 +46,7 @@
     "minWidth": "32",
     "name": "lcVCSSearchGitHub",
     "resizable": "false",
+    "scalefactor": "1",
     "shadow": "true",
     "shadowColor": "",
     "shadowOffset": "4",
