@@ -286,20 +286,12 @@ on ImportStackFile pFolder,pFilePath,pIslcVCS
                repeat for each line tMainstack in the mainstacks
                   repeat for each line tStack in tMainstack&cr&the substacks of stack tMainstack
                      repeat with tCard = 1 to the number of cards of stack tStack
-                        -- behavior buttons
+                        -- parse all controls
                         local tControlUUID
-                        repeat with tControl =1 to the number of buttons of card tCard of stack tStack
-                           put the uVersion["UUID"] of btn tControl of card tCard of stack tStack into tControlUUID
+                        repeat with tControl =1 to the number of controls of card tCard of stack tStack
+                           put the uVersion["UUID"] of control tControl of card tCard of stack tStack into tControlUUID
                            if tControlUUID <> "" then
-                              put the long id of btn tControl of card tCard of stack tStack into sUUIDMap[tControlUUID]
-                           end if
-                        end repeat
-                        
-                        -- images
-                        repeat with tControl =1 to the number of images of card tCard of stack tStack
-                           put the uVersion["UUID"] of image tControl of card tCard of stack tStack into tControlUUID
-                           if tControlUUID <> "" then
-                              put the long id of image tControl of card tCard of stack tStack into sUUIDMap[tControlUUID]
+                              put the long id of control tControl of card tCard of stack tStack into sUUIDMap[tControlUUID]
                            end if
                         end repeat
                      end repeat
