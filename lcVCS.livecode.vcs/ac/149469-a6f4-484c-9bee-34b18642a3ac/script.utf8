@@ -58,7 +58,7 @@ command SavePreferences
    put PreferencePath() & slash & "preferences.dat" into tFile
    
    try
-      put arrayEncode(sPrefA) into url ("binfile:"&tFile)
+      put CompatibleArrayEncode(sPrefA) into url ("binfile:"&tFile)
    end try
 end SavePreferences
 
