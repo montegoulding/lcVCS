@@ -16,5 +16,5 @@
  */
 
 function CompatibleArrayEncode pArrayA
-   return arrayEncode(pArray)
+   return arrayEncode(pArrayA)
 end CompatibleArrayEncode
