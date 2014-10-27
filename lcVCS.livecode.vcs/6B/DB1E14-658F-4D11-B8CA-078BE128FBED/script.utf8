@@ -21,6 +21,7 @@ on preOpenCard
    if item 1 to 2 of the version >= 6.5 then
       set the hideConsoleWindows to true
       SetDataGridUUIDs
+      SetBehaviorForVersion
       
       if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
          send "DeleteLoader" to me in 0 milliseconds

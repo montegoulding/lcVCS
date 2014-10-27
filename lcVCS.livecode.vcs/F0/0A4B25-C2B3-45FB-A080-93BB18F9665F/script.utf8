@@ -36,6 +36,19 @@ local sMainstackPath -- the path to the mainstack being imported
 local sSharedGroup -- keeps track of imported shared groups in a stack
 local sUnsharedProps -- holds unshared data of shared objects until the group is placed
 
+on libraryStack
+   SetBehaviorForVersion
+end libraryStack
+
+command SetBehaviorForVersion
+   set the itemDel to "."
+   if item 1 of the version < 7 then
+      set the behavior of btn "common" of cd 1 of me to the long id of btn "LC 6" of cd 1 of me
+   else
+      set the behavior of btn "common" of cd 1 of me to the long id of btn "LC 7" of cd 1 of me
+   end if
+end SetBehaviorForVersion
+
 # Use the optional pStackFile parameter to export only one stackFile from
 # a project. This should only be done if there is a plugin resetting
 # the UUIDs of objects after a stack clone (and ideally after other object copies).
@@ -450,7 +463,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                end if
             end try
          end if
-         put uniDecode(uniEncode(tObject["A"]["properties"]["name"],"UTF8"),"ANSI") into tObject["A"]["properties"]["name"]
+         put NativeToUTF8(tObject["A"]["properties"]["name"]) into tObject["A"]["properties"]["name"]
          switch tObject["A"]["class"]
             case "com.runrev.engine.stack"
                put the folder into sStackPath
@@ -554,7 +567,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
          end if
          set the itemDel to comma
          SetObjectProperties tObject["A"],pCardUUID,true
-         put uniDecode(uniEncode(url ("binfile:script.utf8"),"UTF8"),"ANSI") into tScript
+         put NativeToUTF8(url ("binfile:script.utf8")) into tScript
          
          repeat for each key tIndex in sPluginsA["script"]
             if there is a stack sPluginsA["script"][tIndex] then
@@ -704,7 +717,7 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
             break
          case char 1 to 7 of tProperty is "unicode" -- "unicode"&tProperty
             -- utf8 encoded
-            put uniEncode(pProperties["properties"][tProperty],"UTF8") into pProperties["properties"][tProperty]
+            put UnicodeFromUTF8(pProperties["properties"][tProperty]) into pProperties["properties"][tProperty]
             break
          case tProperty is "showController" -- showController precedence
             set the showController of sUUIDMap[pProperties["UUID"]] to pProperties["properties"][tProperty]
@@ -722,6 +735,8 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
          default
             if pProperties["properties"][tProperty] is tCurrentProps[tProperty] then
                delete variable pProperties["properties"][tProperty]
+            else if pProperties["properties"][tProperty] is not a number then
+               put NativeFromUTF8(pProperties["properties"][tProperty]) into pProperties["properties"][tProperty]
             end if
             break
       end switch
@@ -745,7 +760,7 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
             end repeat
          end repeat
       else
-         set the customProperties[uniDecode(uniEncode(tCustomPropertySet,"UTF8"),"ANSI")] of sUUIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
+         set the customProperties[NativeToUTF8(tCustomPropertySet)] of sUUIDMap[pProperties["UUID"]] to pProperties["customPropertySets"][tCustomPropertySet]
          repeat for each key tIndex in sPluginsA["sets"][tCustomPropertySet]
             if sPluginsA["sets"][tCustomPropertySet][tIndex]["resolve UUIDs"] then
                dispatch "lcVCSRegisterUUIDsToResolve" to stack sPluginsA["sets"][tCustomPropertySet][tIndex]["stack"] with sUUIDMap[pProperties["UUID"]],tUUIDsToResolve
@@ -883,11 +898,11 @@ function ExportObjectProperties pObject,pShared,pPassword
       repeat for each item tProperty in kPropsToDelete
          delete variable tObject["properties"][tProperty]
       end repeat
-      put uniDecode(uniEncode(tObject["properties"]["name"],"ANSI"),"UTF8") into tObject["properties"]["name"]
+      put NativeToUTF8(tObject["properties"]["name"]) into tObject["properties"]["name"]
       -- unicode properties
       repeat for each item tProperty in kUnicodeProps
          if tObject["properties"][tProperty] is not empty then
-            put uniDecode(tObject["properties"][tProperty],"UTF8") into tObject["properties"][tProperty]
+            put UnicodeToUTF8(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
          end if
       end repeat
       if tObject["properties"]["behavior"] is not empty then
@@ -906,7 +921,7 @@ function ExportObjectProperties pObject,pShared,pPassword
       # get the script and UTF8 encode it
       put the script of pObject into tScript
       if tScript <> "" then
-         put uniDecode(uniEncode(tScript,"ANSI"),"UTF8") into tScript
+         put NativeToUTF8(tScript) into tScript
       end if
       
       if word 1 of pObject is not "image" then
@@ -942,7 +957,7 @@ function ExportObjectProperties pObject,pShared,pPassword
             delete variable tObject["properties"]["id"]
             break
          case "image"
-            if tObject["properties"]["fileName"] is empty then
+            if tObject["properties"]["fileName"] is empty and tObject["properties"]["text"] is not empty then
                put the paintCompression of pObject into tObject["properties"]["paintCompression"]
                if tObject["properties"]["paintCompression"] is "rle" then
                   export pObject to file "image.png" as png with standard palette
@@ -1055,11 +1070,11 @@ function ExportObjectProperties pObject,pShared,pPassword
             end if
             
             if the number of elements in tPropertySetA > 0 then
-               put tPropertySetA into tObject["customPropertySets"][uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
+               put tPropertySetA into tObject["customPropertySets"][NativeToUTF8(tCustomPropertySet)]
             end if
             
             if the number of elements in tUserStateSetA > 0 then
-               put tUserStateSetA into tUserState[uniDecode(uniEncode(tCustomPropertySet,"ANSI"),"UTF8")]
+               put tUserStateSetA into tUserState[NativeToUTF8(tCustomPropertySet)]
             end if
             
             delete variable tUserStateSetA

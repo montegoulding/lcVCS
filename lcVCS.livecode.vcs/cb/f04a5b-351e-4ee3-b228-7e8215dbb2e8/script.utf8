@@ -18,3 +18,19 @@
 function CompatibleArrayEncode pArrayA
    return arrayEncode(pArrayA,6.6)
 end CompatibleArrayEncode
+
+function NativeToUTF8 pString
+   return textEncode(pString,"UTF8")
+end NativeToUTF8
+
+function NativeFromUTF8 pString
+   return textDecode(pString,"UTF8")
+end NativeFromUTF8
+
+function UnicodeToUTF8 pString
+   return textEncode(pString,"UTF8")
+end UnicodeToUTF8
+
+function UnicodeFromUTF8 pString
+   return textDecode(pString,"UTF8")
+end UnicodeFromUTF8
