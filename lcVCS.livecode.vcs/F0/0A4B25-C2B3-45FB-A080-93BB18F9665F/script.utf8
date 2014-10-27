@@ -586,7 +586,7 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
          end if
          set the itemDel to comma
          SetObjectProperties tObject["A"],pCardUUID,true
-         put NativeToUTF8(url ("binfile:script.utf8")) into tScript
+         put NativeFromUTF8(url ("binfile:script.utf8")) into tScript
          
          repeat for each key tIndex in sPluginsA["script"]
             if there is a stack sPluginsA["script"][tIndex] then
