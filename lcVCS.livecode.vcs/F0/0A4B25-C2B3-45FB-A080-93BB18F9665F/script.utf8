@@ -35,6 +35,7 @@ local sStackPath -- the path to the stack being imported
 local sMainstackPath -- the path to the mainstack being imported
 local sSharedGroup -- keeps track of imported shared groups in a stack
 local sUnsharedProps -- holds unshared data of shared objects until the group is placed
+local sOldUmask -- holds the original umask property on linux so it can be set back
 
 on libraryStack
    SetBehaviorForVersion
@@ -55,6 +56,8 @@ end SetBehaviorForVersion
 command ExportProject pFilePath,pStackFile
    local tMainstacks
    put the mainstacks into tMainstacks
+   
+   SetUMask
    
    local tProject
    start using me
@@ -83,7 +86,23 @@ command ExportProject pFilePath,pStackFile
    unlock messages
    
    stop using me
+   
+   UnsetUMask
 end ExportProject
+
+command SetUmask
+   if the platform is "linux" then
+      put the umask into sOldUmask
+      set the umask to baseConvert("133",8,10)
+   end if
+end SetUmask
+
+command UnsetUmask
+   if the platform is "linux" then
+      set the umask to sOldUmask
+   end if
+end UnsetUmask
+
 
 command ImportProject pFilePath
    local tCaseSensitve,tProject,tIsLcVCS

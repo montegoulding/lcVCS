@@ -122,7 +122,11 @@ on SaveProject pIndex
             add 1 to i
          end if
       end repeat
+      
+      SetUmask
       put ArrayToJSON(tDataA,,true) into url ("binfile:"&sProjects[pIndex])
+      UnsetUmask
+      
       set the dgDataOfIndex[pIndex] of group "projects" to tDataA
    end if
 end SaveProject

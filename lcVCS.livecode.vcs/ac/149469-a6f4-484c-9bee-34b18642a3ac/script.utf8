@@ -57,9 +57,11 @@ command SavePreferences
    
    put PreferencePath() & slash & "preferences.dat" into tFile
    
+   SetUmask
    try
       put CompatibleArrayEncode(sPrefA) into url ("binfile:"&tFile)
    end try
+   UnsetUmask
 end SavePreferences
 
 command SetPreference pPreference,pValue
