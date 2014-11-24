@@ -16,11 +16,19 @@
  */
 
 on mouseUp
-   if the dgHilitedIndex of group "projects" is not empty then
-      put the dgHilitedIndex of group "stackFiles" into tIndex
-      if tIndex is not empty then
-         dispatch "DeleteIndex" to group "stackFiles" with tIndex
+   put the dgHilitedIndex of group "projects" into tIndex
+   if tIndex is not empty then
+      put the dgHilitedIndex of group "stackFiles" into tStackIndex
+      if tStackIndex is not empty then
+         dispatch "DeleteIndex" to group "stackFiles" with tStackIndex
       end if
-      SaveProject the dgHilitedIndex of group "projects"
+      SaveProject tIndex
+      put the dgDataOfIndex[tIndex] of group "projects" into tDataA
+      put the dgData of group "stackFiles" into tStackFileA
+      repeat with X = 1 to the number of elements of tDataA
+         put tDataA[X]["file"] into tFileA[X]
+      end repeat
+      put tFileA into tDataA["stackFiles"]
+      set the dgDataOfIndex[tIndex] of group "projects" to tDataA
    end if
 end mouseUp

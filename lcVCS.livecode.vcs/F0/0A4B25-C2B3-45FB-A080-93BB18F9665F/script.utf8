@@ -754,7 +754,7 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
          default
             if pProperties["properties"][tProperty] is tCurrentProps[tProperty] then
                delete variable pProperties["properties"][tProperty]
-            else if pProperties["properties"][tProperty] is not a number then
+            else if pProperties["properties"][tProperty] is not a number and pProperties["properties"][tProperty] is not an array then
                put NativeFromUTF8(pProperties["properties"][tProperty]) into pProperties["properties"][tProperty]
             end if
             break
@@ -1012,7 +1012,7 @@ function ExportObjectProperties pObject,pShared,pPassword
                end repeat 
             end if 
             if "text" is among the lines of the keys of tObject["properties"] then
-               put the text of pObject into tObject["properties"]["text"]
+               put NativeToUTF8(the text of pObject) into tObject["properties"]["text"]
             end if
             repeat for each item tProperty in kIconProps
                try
