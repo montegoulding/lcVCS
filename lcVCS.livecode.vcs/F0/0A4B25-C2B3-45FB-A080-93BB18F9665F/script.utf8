@@ -22,6 +22,7 @@ constant kPatternProps = "forePattern,focusPattern,backPattern,borderPattern,bot
 constant kExtension = "vcs"
 constant kPropsToDelete = "defaultButton,armed,layer"
 constant kPasswordProtectedStackPrefix = "34f35cd6-e2fb-4d4e-a93a-bcd12b40a930"
+constant kWidgetProps = "rect toolTip visible topColor textStyle bottomColor backPattern shadowPattern dropShadow topPattern backColor lockLoc hilitePattern foreColor cantSelect forePattern layerMode shadowColor focusPattern opaque innerGlow ink showBorder textSize textFont disabled colorOverlay altId hiliteColor behavior borderColor innerShadow hiliteBorder bottomPattern borderPattern outerGlow id blendLevel hiliteFill traversalOn focusColor textAlign layer"
 
 local sUUIDMap -- an array with UUIDs as keys and object references as values
 local sUUIDsToResolve -- object references are resolved once the stackFile is fully imported
@@ -572,6 +573,15 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                end if
                set the lockUpdates of it to true
                break
+            case "com.runrev.engine.widget"
+               FixWidgetState tObject["A"]["properties"]["widget"]["$state"]
+               import widget from array tObject["A"]["properties"]["widget"]
+               get the long id of the last widget
+               set the name of it to tObject["A"]["properties"]["name"]
+               if word 1 of sUUIDMap[pParentUUID] is "group" then
+                  relayer it to front of sUUIDMap[pParentUUID]
+               end if
+               break
             default
                ##! TODO
                -- custom control so find appropriate template object
@@ -688,6 +698,26 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
    return pStackUUID
 end ImportObject
 
+command FixWidgetState @pState
+   if pState is an array then
+      repeat for each key tKey in pState
+         FixWidgetState pState[tKey]
+      end repeat
+   else
+      switch
+         case pState is "true"
+            put pState is "true" into pState
+            break
+         case pState is "false"
+            put pState is "true" into pState
+            break
+         case pState is a number
+            put pState * 1 into pState
+            break
+      end switch
+   end if
+end FixWidgetState
+
 command SetObjectProperties pProperties,pCardUUID,pDontSetNames
    local tOwner,tUUIDsToResolve,tCurrentProps,tFirstCard,tSharedGroup,tAbbrevID,tControlRef
    set the caseSensitive to true
@@ -751,6 +781,9 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
             end if
          case tProperty is "repeatCount" -- possible side effects of deleting
          case tProperty is "showBorder" -- side effects of deleting
+            break
+         case tProperty is "widget"
+            delete variable pProperties["properties"][tProperty]
             break
          default
             if pProperties["properties"][tProperty] is tCurrentProps[tProperty] then
@@ -912,22 +945,32 @@ function ExportObjectProperties pObject,pShared,pPassword
       set the folder to tObjectPath
       put pObject into sUUIDMap[tObject["UUID"]]
       
-      -- properties
-      put the properties of pObject into tObject["properties"]
-      -- delete some props
-      repeat for each item tProperty in kPropsToDelete
-         delete variable tObject["properties"][tProperty]
-      end repeat
-      put NativeToUTF8(tObject["properties"]["name"]) into tObject["properties"]["name"]
-      -- unicode properties
-      repeat for each item tProperty in kUnicodeProps
-         if tObject["properties"][tProperty] is not empty then
-            put UnicodeToUTF8(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
-         end if
-      end repeat
+      if word 1 of pObject is "widget" then
+         export pObject to array  tObject["properties"]["widget"]
+         put the short name of pObject into  tObject["properties"]["name"]
+         repeat for each word tProperty in kWidgetProps
+            put the tProperty of pObject into tObject["properties"][tProperty]
+         end repeat
+      else
+         -- properties
+         put the properties of pObject into tObject["properties"]
+         -- delete some props
+         repeat for each item tProperty in kPropsToDelete
+            delete variable tObject["properties"][tProperty]
+         end repeat
+         put NativeToUTF8(tObject["properties"]["name"]) into tObject["properties"]["name"]
+         -- unicode properties
+         repeat for each item tProperty in kUnicodeProps
+            if tObject["properties"][tProperty] is not empty then
+               put UnicodeToUTF8(tObject["properties"][tProperty]) into tObject["properties"][tProperty]
+            end if
+         end repeat
+      end if
+      
       if tObject["properties"]["behavior"] is not empty then
          put UUIDForObject(tObject["properties"]["behavior"]) into tObject["properties"]["behavior"]
       end if
+      
       if the cIDEProperties["cCustomControlID"] of pObject <> "" then
          put the cIDEProperties["cCustomControlID"] of pObject into tObject["class"]
       else
@@ -1151,7 +1194,7 @@ command ExportObject pObject,pShared,pPassword
          repeat for each line tID in the cardIDs of pObject
             put UUIDForObject(the long id of card id tID of pObject)&cr after tCards
             set the currentCard of pObject to the short name of card id tId
-¬† ¬† ¬† ¬† ¬† ¬† ExportObject the long id of card id tID of pObject,,pPassword
+            ExportObject the long id of card id tID of pObject,,pPassword
          end repeat
          if not pPassword then
             put tCards into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards")
@@ -1339,6 +1382,8 @@ function ArrayToJSON pArray,pForceRootType,pPretty,pKey
    repeat for each line tKey in the keys of pArray
       if pArray[tKey] is an array then
          put "}"&ArrayToJSON(pArray[tKey],pForceRootType,,tKey) into tArray[tKey]
+      else if pArray[tKey] is strictly a string then
+         put NativeToUTF8(pArray[tKey]) into tArray[tKey]
       else if needsEncoding(pArray[tKey]) then
          put "base64Decode("&base64Encode(pArray[tKey])&")" into tArray[tKey]
       else 
