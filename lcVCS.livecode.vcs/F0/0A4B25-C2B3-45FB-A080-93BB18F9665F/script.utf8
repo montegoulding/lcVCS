@@ -712,6 +712,7 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
       put true into sSharedGroup[pProperties["UUID"]]
    end if
    
+   
    repeat for each key tProperty in pProperties["properties"]
       switch
          case tProperty is "resizable"
@@ -1150,7 +1151,7 @@ command ExportObject pObject,pShared,pPassword
          repeat for each line tID in the cardIDs of pObject
             put UUIDForObject(the long id of card id tID of pObject)&cr after tCards
             set the currentCard of pObject to the short name of card id tId
-            ExportObject the long id of card id tID of pObject,,pPassword
+¬† ¬† ¬† ¬† ¬† ¬† ExportObject the long id of card id tID of pObject,,pPassword
          end repeat
          if not pPassword then
             put tCards into url ("binfile:"& sMainstackPath & slash & UUIDToObjectPath(tUUID) &"/cards")

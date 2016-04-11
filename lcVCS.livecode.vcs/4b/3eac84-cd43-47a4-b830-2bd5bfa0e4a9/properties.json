@@ -33,7 +33,7 @@
     "forePattern": "",
     "hiliteBorder": "true",
     "hiliteColor": "",
-    "hiliteFill": "true",
+    "hiliteFill": "false",
     "hiliteIcon": "0",
     "hilitePattern": "",
     "hilited": "false",

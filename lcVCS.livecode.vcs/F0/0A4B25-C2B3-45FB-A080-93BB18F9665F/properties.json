@@ -160,6 +160,7 @@
     "shadowColor": "",
     "shadowOffset": "4",
     "shadowPattern": "",
+    "showInvisibles": "",
     "stackFiles": "",
     "startUpIconic": "false",
     "style": "toplevel",
