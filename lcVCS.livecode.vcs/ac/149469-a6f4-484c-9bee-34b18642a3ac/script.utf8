@@ -1,0 +1,101 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+local sPrefA -- lcVCS preferences
+
+command EnsureFolder pFolder
+   set the itemDel to slash
+   repeat with tFolder = 1 to the number of items of pFolder
+      if there is not a folder (item 1 to tFolder of pFolder) then
+         create folder (item 1 to tFolder of pFolder)
+      end if
+   end repeat
+end EnsureFolder
+
+function PreferencePath
+   local tFolder
+   
+   if the platform is "Linux" then
+      put "~/.lcVCS" into tFolder
+   else
+      put specialFolderPath("support")&"/lcVCS" into tFolder
+   end if
+   EnsureFolder tFolder
+   
+   return tFolder
+end PreferencePath
+
+command LoadPreferences
+   local tFile
+   
+   put PreferencePath() & slash & "preferences.dat" into tFile
+   
+   if there is a file tFile then
+      try
+         put arrayDecode(url ("binfile:"&tFile)) into sPrefA
+      end try
+   end if
+end LoadPreferences
+
+command SavePreferences
+   local tFile
+   
+   put PreferencePath() & slash & "preferences.dat" into tFile
+   
+   SetUmask
+   try
+      put CompatibleArrayEncode(sPrefA) into url ("binfile:"&tFile)
+   end try
+   UnsetUmask
+end SavePreferences
+
+command SetPreference pPreference,pValue
+   put pValue into sPrefA[pPreference]
+   SavePreferences
+end SetPreference
+
+function GetPreference pPreference
+   if sPrefA is not an array then
+      LoadPreferences
+   end if
+   return sPrefA[pPreference]
+end GetPreference
+
+function ProjectForStackFile pStackFile,pResolved
+   local tProjects,tIndex,tProjectA
+   
+   LoadPreferences
+   put GetPreference("Projects") into tProjects
+   
+   -- resolve all project files
+   repeat for each key tIndex in tProjects
+      put ResolveProjectFile(tProjects[tIndex]) into tProjectA
+      repeat for each key tFileIndex in tProjectA["imported stackFiles"]
+         if tProjectA["imported stackFiles"][tFileIndex] is pStackFile then
+            if pResolved then
+               return tProjectA
+            else
+               return tProjects[tIndex]
+            end if
+         end if
+      end repeat
+   end repeat
+   
+   return empty
+   
+end ProjectForStackFile

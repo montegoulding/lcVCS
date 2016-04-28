@@ -1,0 +1,57 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+on preOpenCard
+   set the dgData of group "search" to empty
+   send "Search" to me in 0 milliseconds
+end preOpenCard
+
+on Search
+   local tOriginalHeaders
+   put the httpHeaders into tOriginalHeaders
+   set the httpHeaders to "Accept: application/vnd.github.preview"
+   
+   # unfortunately there appears to be no way to get the current
+   # ssl verification so it can't be set back to it's current state
+   libURLSetSSLVerification false
+   
+   # fork:true doesn't return anything for some reason
+   # ideally we would list all forks
+   load url "https://api.github.com/search/repositories?q=lcVCS+LiveCode+in:README&sort=stars" with message "SearchComplete"
+   show image "loading"
+   
+   set the httpHeaders to tOriginalHeaders
+end Search
+
+on SearchComplete pURL
+   hide image "loading"
+   put url pURL into tJSON
+   put JSONToArray(tJSON) into tArray
+   set the dgData of group "search" to tArray["items"]
+end SearchComplete
+
+on escapeKey
+   close this stack
+end escapeKey
+
+on lcVCSExport
+   
+   if the target is me then
+      put empty into fld "progress"
+      set the dgData of group "search" to empty
+   end if
+end lcVCSExport

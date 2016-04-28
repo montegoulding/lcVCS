@@ -1,0 +1,86 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+local sPluginsA
+
+on selectionChanged pHilitedIndex,pOldHilitedIndex
+   local tPath,tConflicts
+   # save last project
+   if pOldHilitedIndex is not empty AND pHilitedIndex is not pOldHilitedIndex then
+      SaveProject pOldHilitedIndex
+   end if
+   # display current project
+   
+   local tDataA
+   put the dgDataOfIndex[pHilitedIndex] of me into tDataA
+   put tDataA["build path"] into fld "build path"
+   
+   put PathForProject(pHilitedIndex) into tPath
+   put tPath into fld "project path"
+   
+   put tDataA["resource paths"] into fld "resource paths"
+      
+   put getConflicts() into tConflicts
+   
+   local tStacksA
+   repeat for each key tIndex in tDataA["stackFiles"]
+      put tConflicts[tPath & slash & tDataA["stackFiles"][tIndex]] is an array into tStacksA[tIndex]["conflict"]
+      put tDataA["stackFiles"][tIndex] into tStacksA[tIndex]["file"]
+   end repeat
+   set the dgData of group "stackFiles" to tStacksA
+   
+   put the effective filename of this stack into tPath
+   set the itemDel to slash
+   put "lcVCSPlugins" into item -1 of tPath
+   local tOriginalFolder
+   put the folder into tOriginalFolder
+   set the folder to tPath
+   
+   delete variable sPluginsA
+   put 1 into tIndex
+   repeat for each line tFile in the files
+      if there is a stack tFile then
+         put the short name of stack tFile into sPluginsA[tIndex]["stack"]
+         put the uDescription of stack tFile into sPluginsA[tIndex]["description"]
+         
+         if sPluginsA[tIndex]["description"] is empty then 
+            put sPluginsA[tIndex]["stack"] into sPluginsA[tIndex]["description"]
+         end if
+         
+         if the number of elements of tDataA["plugins"] is 0 then
+            put the uDefault of stack tFile into sPluginsA[tIndex]["checked"]
+         else
+            put false into sPluginsA[tIndex]["checked"]
+         end if
+         if the mode of stack tFile is 0 then
+            delete stack tFile
+         end if
+         add 1 to tIndex
+      end if
+   end repeat
+   set the folder to tOriginalFolder
+   
+   repeat for each key tPluginIndex in tDataA["plugins"]
+      repeat for each key tIndex in sPluginsA
+         if sPluginsA[tIndex]["stack"] is tDataA["plugins"][tPluginIndex] then
+            put true into sPluginsA[tIndex]["checked"]
+         end if
+      end repeat
+   end repeat
+   set the dgData of group "Plugins" to sPluginsA
+   
+end selectionChanged

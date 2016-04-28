@@ -1,0 +1,39 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+on preOpenCard
+   set the itemDel to "."
+   if item 1 to 2 of the version >= 6.5 then
+      set the hideConsoleWindows to true
+      SetDataGridUUIDs
+      SetBehaviorForVersion
+      
+      if "revMenubar" is in the executionContexts or there is a stack "lcVCSLoader" then
+         send "DeleteLoader" to me in 0 milliseconds
+         modeless "lcVCSProjects"
+      end if
+   end if
+   close this stack
+end preOpenCard
+
+-- funky stuff to reload lcVCS after it imports itself
+on DeleteLoader
+   if there is a stack "lcVCSLoader" then
+      delete stack "lcVCSLoader"
+   end if
+end DeleteLoader

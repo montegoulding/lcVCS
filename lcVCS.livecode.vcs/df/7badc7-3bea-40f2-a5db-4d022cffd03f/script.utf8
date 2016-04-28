@@ -1,0 +1,87 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+on mouseUp
+   local tHilite,tDataA,tClone,tOldDefaultFolder
+   put the dgHilitedLine of group "search" into tHilite
+   if tHilite is empty then
+      answer information "Choose a project to add"
+   else
+      put the dgDataOfIndex[tHilite] of group "search" into tDataA
+      answer folder "Choose folder to clone into:"
+      if it is not empty then
+         put the defaultFolder into tOldDefaultFolder
+         set the defaultFolder to it
+         if tDataA["name"] is among the lines of the folders then
+            answer error "There is already a folder named "&tDataA["name"]
+            set the defaultFolder to tOldDefaultFolder
+            exit mouseUp
+         end if
+         if the platform is "Win32" then
+            #! TODO work out Windows clone command
+         else
+            put "git clone --progress --verbose --recursive "&tDataA["html_url"]&".git" into tClone
+         end if
+         put empty into fld "progress"
+         open process tClone for update
+         lock screen for visual effect in rect the rect of fld "progress"
+         show field "progress"
+         unlock screen with visual effect "scroll down fast"
+         repeat 
+            read from process tClone until linefeed
+            replace numToChar(13) with empty in it
+            if it is empty or the result is "eof" then exit repeat
+            put it after fld "progress"
+            set the scroll of fld "progress" to the formattedHeight of fld "progress" - the height of field "progress"
+         end repeat
+         close process tClone
+         wait 300 milliseconds
+         lock screen for visual effect in rect the rect of fld "progress"
+         hide field "progress"
+         unlock screen with visual effect "reveal up fast"
+         put GetPreference("Projects") into tProjects
+         
+         local tPath
+         put ProjectPath(the defaultFolder&"/"&tDataA["name"]) into tProjects[max(replaceText(the keys of tProjects,cr,comma)) + 1]
+         SetPreference "Projects",sProjects
+         set the defaultFolder to tOldDefaultFolder
+      end if
+   end if
+end mouseUp
+
+function ProjectPath pPath
+   local tOldFolder
+   put the folder into tOldFolder
+   set the folder to pPath
+   if there is a file "lcVCSProject.json" then
+      return pPath&"/lcVCSProject.json"
+   else
+      local tFolders
+      put the folders into tFolders
+      filter tFolders without ".*"
+      
+      local tPath
+      repeat for each line tFolder in tFolders
+         put ProjectPath(pPath&"/"&tFolder) into tPath
+         if tPath is not empty then
+            return tPath
+         end if
+      end repeat
+   end if
+   set the folder to tOldFolder
+   return empty
+end ProjectPath

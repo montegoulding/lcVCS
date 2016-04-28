@@ -1,0 +1,34 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+on mouseUp
+   put the dgHilitedIndex of group "projects" into tIndex
+   if tIndex is not empty then
+      put the dgHilitedIndex of group "stackFiles" into tStackIndex
+      if tStackIndex is not empty then
+         dispatch "DeleteIndex" to group "stackFiles" with tStackIndex
+      end if
+      SaveProject tIndex
+      put the dgDataOfIndex[tIndex] of group "projects" into tDataA
+      put the dgData of group "stackFiles" into tStackFileA
+      repeat with X = 1 to the number of elements of tDataA
+         put tDataA[X]["file"] into tFileA[X]
+      end repeat
+      put tFileA into tDataA["stackFiles"]
+      set the dgDataOfIndex[tIndex] of group "projects" to tDataA
+   end if
+end mouseUp

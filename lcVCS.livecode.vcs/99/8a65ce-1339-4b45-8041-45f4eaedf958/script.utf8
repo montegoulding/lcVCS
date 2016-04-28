@@ -1,0 +1,78 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+-- This script defines the behavior of your data grid's custom template. This behavior
+-- only applies to 'forms' and not 'tables'.
+
+on FillInData pDataArray
+   set the text of field "Label" of me to pDataArray["file"]
+   set the visible of btn "conflict" of me to pDataArray["conflict"]=true
+end FillInData
+
+on mouseDoubleUp
+   put the dgDataOfIndex[the dgIndex of me] of me into tData
+   put PathForProject(the dgHilitedIndex of group "projects")&"/"&tData["file"] into tStack
+   if there is a stack tStack then
+      go stack tStack
+   end if
+   if tData["conflict"] then
+      -- launch conflict resolution interface
+      modeless "lcVCSConflicts"
+   end if
+end mouseDoubleUp
+
+on LayoutControl pControlRect
+    local theFieldRect
+    
+    set the right of btn "conflict" of me to item 3 of pControlRect
+    put pControlRect into theFieldRect
+    put the left of btn "conflict" of me into item 3 of theFieldRect
+    set the rect of field "Label" of me to theFieldRect
+    
+    set the rect of graphic "Background" of me to pControlRect
+end LayoutControl
+
+
+on ResetData
+    -- Sent when data is being emptied because the control is no longer being used to display data
+    set the text of field "Label" of me to empty
+end ResetData
+
+
+on PreFillInData
+    -- Sent right before new data is going to replace existing data in the control
+end PreFillInData
+
+
+setprop dgHilite pBoolean
+    -- This custom property is set when the highlight of your custom template has
+    -- changed. By default the "Background" graphic will be highlighted for you. 
+    -- You only add script here if you want to further customize the highlight.
+    
+    -- Example:
+    if pBoolean then
+        set the foregroundColor of me to the dgProp["hilited text color"] of the dgControl of me
+    else
+        set the foregroundColor of me to empty
+    end if
+end dgHilite
+
+
+getprop dgDataControl
+    -- Required by library so that it can locate your control.
+    return the long ID of me
+end dgDataControl

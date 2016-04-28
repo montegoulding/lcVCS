@@ -15,6 +15,23 @@
  *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+*  This file is part of lcVCS (C) 2013 M E R Goulding.
+*  
+*  lcVCS is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*  
+*  lcVCS is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*  
+*  You should have received a copy of the GNU General Public License
+*  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 
 constant kUnicodeProps = "unicodeTitle,unicodeLabel,unicodeToolTip,unicodeText"
 constant kIconProps = "icon,hiliteIcon,disabledIcon,visitedIcon,armedIcon,hoverIcon"
@@ -22,7 +39,6 @@ constant kPatternProps = "forePattern,focusPattern,backPattern,borderPattern,bot
 constant kExtension = "vcs"
 constant kPropsToDelete = "defaultButton,armed,layer"
 constant kPasswordProtectedStackPrefix = "34f35cd6-e2fb-4d4e-a93a-bcd12b40a930"
-constant kWidgetProps = "rect toolTip visible topColor textStyle bottomColor backPattern shadowPattern dropShadow topPattern backColor lockLoc hilitePattern foreColor cantSelect forePattern layerMode shadowColor focusPattern opaque innerGlow ink showBorder textSize textFont disabled colorOverlay altId hiliteColor behavior borderColor innerShadow hiliteBorder bottomPattern borderPattern outerGlow id blendLevel hiliteFill traversalOn focusColor textAlign layer"
 
 local sUUIDMap -- an array with UUIDs as keys and object references as values
 local sUUIDsToResolve -- object references are resolved once the stackFile is fully imported
@@ -38,18 +54,18 @@ local sSharedGroup -- keeps track of imported shared groups in a stack
 local sUnsharedProps -- holds unshared data of shared objects until the group is placed
 local sOldUmask -- holds the original umask property on linux so it can be set back
 
-on libraryStack
-   SetBehaviorForVersion
-end libraryStack
+--on libraryStack
+--   SetBehaviorForVersion
+--end libraryStack
 
-command SetBehaviorForVersion
-   set the itemDel to "."
-   if item 1 of the version < 7 then
-      set the behavior of btn "common" of cd 1 of me to the long id of btn "LC 6" of cd 1 of me
-   else
-      set the behavior of btn "common" of cd 1 of me to the long id of btn "LC 7" of cd 1 of me
-   end if
-end SetBehaviorForVersion
+--command SetBehaviorForVersion
+--   set the itemDel to "."
+--   if item 1 of the version < 7 then
+--      set the behavior of btn "common" of cd 1 of me to the long id of btn "LC 6" of cd 1 of me
+--   else
+--      set the behavior of btn "common" of cd 1 of me to the long id of btn "LC 7" of cd 1 of me
+--   end if
+--end SetBehaviorForVersion
 
 # Use the optional pStackFile parameter to export only one stackFile from
 # a project. This should only be done if there is a plugin resetting
@@ -574,13 +590,8 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
                set the lockUpdates of it to true
                break
             case "com.runrev.engine.widget"
-               FixWidgetState tObject["A"]["properties"]["widget"]["$state"]
-               import widget from array tObject["A"]["properties"]["widget"]
-               get the long id of the last widget
-               set the name of it to tObject["A"]["properties"]["name"]
-               if word 1 of sUUIDMap[pParentUUID] is "group" then
-                  relayer it to front of sUUIDMap[pParentUUID]
-               end if
+               SetWidgetProperties tObject, sUUIDMap[pParentUUID]
+               get the result
                break
             default
                ##! TODO
@@ -698,25 +709,6 @@ on ImportObject pStackUUID,pCardUUID,pParentUUID,pIslcVCS
    return pStackUUID
 end ImportObject
 
-command FixWidgetState @pState
-   if pState is an array then
-      repeat for each key tKey in pState
-         FixWidgetState pState[tKey]
-      end repeat
-   else
-      switch
-         case pState is "true"
-            put pState is "true" into pState
-            break
-         case pState is "false"
-            put pState is "true" into pState
-            break
-         case pState is a number
-            put pState * 1 into pState
-            break
-      end switch
-   end if
-end FixWidgetState
 
 command SetObjectProperties pProperties,pCardUUID,pDontSetNames
    local tOwner,tUUIDsToResolve,tCurrentProps,tFirstCard,tSharedGroup,tAbbrevID,tControlRef
@@ -732,7 +724,7 @@ command SetObjectProperties pProperties,pCardUUID,pDontSetNames
          put pProperties["properties"]["id"] into word 3 of sUUIDMap[pProperties["UUID"]]
       end if
    catch e
-      put "ID conflict: "&&pProperties["properties"]["id"]&&the long name of control id pProperties["properties"]["id"]&cr& \
+      put "ID conflict: "&&pProperties["properties"]["id"]&cr& \
             "Changed to: "&&the id of the long name of sUUIDMap[pProperties["UUID"]]&&the long name of sUUIDMap[pProperties["UUID"]]&cr after msg
    end try
    delete variable pProperties["properties"]["id"]
@@ -946,11 +938,7 @@ function ExportObjectProperties pObject,pShared,pPassword
       put pObject into sUUIDMap[tObject["UUID"]]
       
       if word 1 of pObject is "widget" then
-         export pObject to array  tObject["properties"]["widget"]
-         put the short name of pObject into  tObject["properties"]["name"]
-         repeat for each word tProperty in kWidgetProps
-            put the tProperty of pObject into tObject["properties"][tProperty]
-         end repeat
+         put GetWidgetProperties(pObject) into tObject["properties"]
       else
          -- properties
          put the properties of pObject into tObject["properties"]
@@ -1382,8 +1370,8 @@ function ArrayToJSON pArray,pForceRootType,pPretty,pKey
    repeat for each line tKey in the keys of pArray
       if pArray[tKey] is an array then
          put "}"&ArrayToJSON(pArray[tKey],pForceRootType,,tKey) into tArray[tKey]
-      else if pArray[tKey] is strictly a string then
-         put NativeToUTF8(pArray[tKey]) into tArray[tKey]
+      else if IsString(pArray[tKey]) then
+         put "}}"&NativeToUTF8(pArray[tKey]) into tArray[tKey]
       else if needsEncoding(pArray[tKey]) then
          put "base64Decode("&base64Encode(pArray[tKey])&")" into tArray[tKey]
       else 

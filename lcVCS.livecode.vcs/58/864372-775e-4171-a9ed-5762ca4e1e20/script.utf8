@@ -1,0 +1,48 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+on dragStart
+   local tIndex
+   if (the dgHeader of the target is empty) then
+      put the dgIndex of the dgDataControl of the target into tIndex
+      set the dgDragImageIndex of me to tIndex
+      set the dragData["private"] to empty
+      set the dgTrackDragReorder[tIndex] of me to true
+   end if
+end dragStart
+
+on DragReorderDrop pOriginatingIndex, pStartLine, pDroppedOnLine
+   if (pStartLine is not pDroppedOnLine) then
+      SetLineOfIndex pOriginatingIndex, pDroppedOnLine
+      send resetIndexes to me in 100 milliseconds
+   end if
+end DragReorderDrop
+
+on resetIndexes
+   put 1 into tNewIndex
+   put the dgData of me into tCurrentData
+   repeat for each item tIndex in the dgIndexes of me
+      put tCurrentData[tIndex] into tData[tNewIndex]
+      add 1 to tNewIndex
+   end repeat
+   set the dgData of me to tData
+   SaveProject the dgHilitedIndex of group "projects"
+end resetIndexes
+
+on dragMove
+   set the dragaction to "move"
+end dragMove

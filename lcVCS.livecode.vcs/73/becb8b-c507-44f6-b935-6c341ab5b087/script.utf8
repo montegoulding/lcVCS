@@ -1,0 +1,87 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+-- This script defines the behavior of your data grid's custom template. This behavior
+-- only applies to 'forms' and not 'tables'.
+
+on FillInData pDataArray
+    -- This message is sent when the Data Grid needs to populate
+    -- this template with the data from a record. pDataArray is an
+    -- an array containing the records data.
+    -- You do not need to resize any of your template's controls in
+    -- this message. All resizing should be handled in resizeControl.
+    
+    -- Example:
+   set the label of btn "check" of me to pDataArray["description"]
+   set the hilite of btn "check" of me to pDataArray["checked"] is true
+end FillInData
+
+
+on LayoutControl pControlRect
+    local theFieldRect
+    
+    -- This message is sent when you should layout your template's controls.
+    -- This is where you resize the 'Background' graphic, resize fields and 
+    -- position objects.
+    -- For fixed height data grid forms you can use items 1 through 4 of pControlRect as
+    -- boundaries for laying out your controls.
+    -- For variable height data grid forms you can use items 1 through 3 of pControlRect as
+    -- boundaries, expanding the height of your control as needed.
+        
+    -- Example:
+    put the rect of btn "check" of me into theFieldRect
+    put item 3 of pControlRect into item 3 of theFieldRect
+    set the rect of btn "check" of me to theFieldRect
+    
+    set the rect of graphic "Background" of me to pControlRect
+end LayoutControl
+
+
+on ResetData
+    -- Sent when data is being emptied because the control is no longer being used to display data
+    set the label of btn "check" of me to empty
+end ResetData
+
+
+on PreFillInData
+    -- Sent right before new data is going to replace existing data in the control
+end PreFillInData
+
+
+setprop dgHilite pBoolean
+    -- This custom property is set when the highlight of your custom template has
+    -- changed. By default the "Background" graphic will be highlighted for you. 
+    -- You only add script here if you want to further customize the highlight.
+    
+    -- Example:
+ end dgHilite
+
+
+getprop dgDataControl
+    -- Required by library so that it can locate your control.
+    return the long ID of me
+end dgDataControl
+
+on mouseUp
+   if the short name of the target is "check" then
+      local tDataA
+      put the dgDataOfIndex[the dgIndex of me] of me into tDataA
+      put the hilite of the target into tDataA["checked"]
+      set the dgDataOfIndex[the dgIndex of me] of me to tDataA
+      SaveProject the dgHilitedIndex of group "projects"
+   end if
+end mouseUp

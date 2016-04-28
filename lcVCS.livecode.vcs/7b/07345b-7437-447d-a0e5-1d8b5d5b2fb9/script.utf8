@@ -1,0 +1,90 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
+ constant kWidgetProps = "rect toolTip visible topColor textStyle bottomColor backPattern shadowPattern dropShadow topPattern backColor lockLoc hilitePattern foreColor cantSelect forePattern layerMode shadowColor focusPattern opaque innerGlow ink showBorder textSize textFont disabled colorOverlay altId hiliteColor behavior borderColor innerShadow hiliteBorder bottomPattern borderPattern outerGlow id blendLevel hiliteFill traversalOn focusColor textAlign layer"
+
+function GetWidgetProperties pObject
+   local theObjectA
+   
+   # default properties
+   put the short name of pObject into theObjectA["name"]
+   repeat for each word theProperty in kWidgetProps
+      put the theProperty of pObject into theObjectA[theProperty]
+   end repeat
+   
+   # widget properties
+   export pObject to array theObjectA["widget"]
+  
+   return theObjectA
+end GetWidgetProperties
+
+command SetWidgetProperties pPropertiesA, pParent
+   local tObject
+   _FixWidgetState pPropertiesA["A"]["properties"]["widget"]["$state"]
+   
+   import widget from array pPropertiesA["A"]["properties"]["widget"]
+   put the long id of the last widget into tObject
+   
+   set the name of tObject to pPropertiesA["A"]["properties"]["name"]
+   if word 1 of pParent is "group" then
+      relayer tObject to front of pParent
+   end if
+   
+   return tObject
+end SetWidgetProperties
+
+
+private command _FixWidgetState @pState
+   if pState is an array then
+      repeat for each key tKey in pState
+         _FixWidgetState pState[tKey]
+      end repeat
+   else
+      switch
+         case pState is "true"
+            put pState is "true" into pState
+            break
+         case pState is "false"
+            put pState is "true" into pState
+            break
+         case pState is a number
+            put pState * 1 into pState
+            break
+      end switch
+   end if
+end _FixWidgetState
+
+function IsString pString
+   return pString is strictly a string
+end IsString

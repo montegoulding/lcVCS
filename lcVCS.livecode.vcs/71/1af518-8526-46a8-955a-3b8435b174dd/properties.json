@@ -1,0 +1,44 @@
+{
+  "UUID": "711af518-8526-46a8-955a-3b8435b174dd",
+  "class": "com.runrev.engine.card",
+  "customPropertySets": {
+    "customKeys": {
+      "kColorProps": "",
+      "kMissingProps": ""
+    }
+  },
+  "properties": {
+    "altId": "0",
+    "backColor": "",
+    "backPattern": "",
+    "behavior": "",
+    "blendLevel": "0",
+    "borderColor": "",
+    "borderPattern": "",
+    "borderWidth": "2",
+    "bottomColor": "",
+    "bottomPattern": "",
+    "cantDelete": "false",
+    "dontSearch": "false",
+    "focusColor": "",
+    "focusPattern": "",
+    "foreColor": "",
+    "forePattern": "",
+    "hiliteColor": "",
+    "hilitePattern": "",
+    "id": "1003",
+    "ink": "srcCopy",
+    "mark": "false",
+    "name": "Script",
+    "shadowColor": "",
+    "shadowOffset": "4",
+    "shadowPattern": "",
+    "showBorder": "false",
+    "textFont": "",
+    "textSize": "",
+    "textStyle": "",
+    "threeD": "true",
+    "topColor": "",
+    "topPattern": ""
+  }
+}

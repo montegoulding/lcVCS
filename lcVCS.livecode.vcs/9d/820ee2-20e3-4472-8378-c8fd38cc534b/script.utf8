@@ -1,0 +1,46 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+on mouseUp
+   put the dgHilitedIndex of group "projects" into tIndex
+   if tIndex is not empty then
+      put the dgDataOfIndex[tIndex] of group "projects" into tProject
+      put merge(tProject["build path"]) into tPath
+      if there is not a folder tPath then
+         put PathForProject(tIndex) &"/"&tPath into tPath
+      end if
+      if the last char of tPath is not slash then
+         put slash after tPath
+      end if
+      if tPath is not empty then
+         answer file "Choose stackFile" with tPath
+         if it is not empty then
+            put it into tFile
+            if there is a stack tFile then
+               if char 1 to the number of chars of tPath of tFile is not tPath then
+                  answer "Not in project"
+               else
+                  replace tPath with empty in tFile
+                  put tFile into tData["file"]
+                  dispatch "AddData" to group "stackFiles" with tData
+                  SaveProject tIndex
+               end if
+            end if
+         end if
+      end if
+   end if
+end mouseUp

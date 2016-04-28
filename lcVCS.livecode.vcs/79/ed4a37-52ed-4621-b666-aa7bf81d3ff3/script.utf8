@@ -1,0 +1,109 @@
+/**
+ *  This file is part of lcVCS (C) 2013 M E R Goulding.
+ *  
+ *  lcVCS is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  lcVCS is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lcVCS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+-- This script defines the behavior of your data grid's custom template. This behavior
+-- only applies to 'forms' and not 'tables'.
+
+on FillInData pDataArray
+   set the text of field "key" of me to pDataArray["key"]
+   if pDataArray["A"] is an array then
+      put ArrayToJSON(pDataArray["A"],"",true) into fld "A" of me
+   else
+      put pDataArray["A"] into fld "A" of me
+   end if
+   if pDataArray["B"] is an array then
+      put ArrayToJSON(pDataArray["B"],"",true) into fld "B" of me
+   else
+      put pDataArray["B"] into fld "B" of me
+   end if
+   set the hilitedButtonName of me to pDataArray["hilite"]
+end FillInData
+
+
+on LayoutControl pControlRect
+   local tRect
+   
+   put the rect of field "key" of me into tRect
+   put item 3 of pControlRect into item 3 of tRect
+   set the rect of field "key" of me to tRect
+   
+   put the rect of field "A" of me into tRect
+   put item 3 of pControlRect into item 3 of tRect
+   set the rect of field "A" of me to tRect
+   put item 2 of tRect+max(16,the formattedHeight of fld "A") into item 4 of tRect
+   set the rect of field "A" of me to tRect
+   
+   put item 1 of pControlRect + 5 into item 1 of tRect
+   set the rect of btn "A" of me to tRect
+   
+   put the rect of field "B" of me into tRect
+   put item 3 of pControlRect into item 3 of tRect
+   set the rect of field "B" of me to tRect
+   put the bottom of field "A" of me + 4 into item 2 of tRect
+   put item 2 of tRect+max(16,the formattedHeight of fld "B") into item 4 of tRect
+   set the rect of field "B" of me to tRect
+   
+   put item 1 of pControlRect + 5 into item 1 of tRect
+   set the rect of btn "B" of me to tRect
+   
+   put the bottom of field "B" of me into item 4 of pControlRect
+   set the rect of graphic "Background" of me to pControlRect
+end LayoutControl
+
+
+on ResetData
+    -- Sent when data is being emptied because the control is no longer being used to display data
+   set the text of field "key" of me to empty
+   set the text of field "A" of me to empty
+   set the text of field "B" of me to empty
+end ResetData
+
+
+on PreFillInData
+    -- Sent right before new data is going to replace existing data in the control
+end PreFillInData
+
+
+setprop dgHilite pBoolean
+    -- This custom property is set when the highlight of your custom template has
+    -- changed. By default the "Background" graphic will be highlighted for you. 
+    -- You only add script here if you want to further customize the highlight.
+    
+    -- Example:
+    if pBoolean then
+        set the foregroundColor of me to the dgProp["hilited text color"] of the dgControl of me
+    else
+        set the foregroundColor of me to empty
+    end if
+end dgHilite
+
+
+getprop dgDataControl
+    -- Required by library so that it can locate your control.
+    return the long ID of me
+end dgDataControl
+
+on mouseUp pButton
+   local tBranch,tObject,tDataA
+   if pButton is 1 then
+      put the short name of the target into tBranch
+      if tBranch is among the items of "A,B" then
+         put the dgDataOfIndex[the dgIndex of me] of me into tDataA
+         SetProperty tBranch,"properties",tDataA["key"]
+      end if
+   end if
+end mouseUp
