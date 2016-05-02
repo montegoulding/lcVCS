@@ -1,5 +1,7 @@
 #lcVCS
 
+[![Join the chat at https://gitter.im/montegoulding/lcVCS](https://badges.gitter.im/montegoulding/lcVCS.svg)](https://gitter.im/montegoulding/lcVCS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Stackfile export/import for VCS support in LiveCode
 
 lcVCS exports and imports stack files to a structured folder of json, script and image files.
