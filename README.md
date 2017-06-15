@@ -1,4 +1,4 @@
-#lcVCS
+# lcVCS
 
 [![Join the chat at https://gitter.im/montegoulding/lcVCS](https://badges.gitter.im/montegoulding/lcVCS.svg)](https://gitter.im/montegoulding/lcVCS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -8,7 +8,7 @@ lcVCS exports and imports stack files to a structured folder of json, script and
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z772WTBXRTLMQ)
 
-##Author
+## Author
 
 Monte Goulding - monte@goulding.ws
 
@@ -16,10 +16,10 @@ M E R Goulding Software Development http://goulding.ws
 
 mergExt LiveCode Extensions http://mergext.com
 
-##Project File
+## Project File
 A lcVCSProject.json file is used to order the stackFiles in a project and manage the build path of the stackFiles. It is posible to use multiple project files in a single code repository so the projects can be imported and exported independently.
 
-##Folder structure
+## Folder structure
 
 Each object is given a UUID during the stackFile export. A stackFile is exported to a directory with the name of the stackFile and a .vcs extension. Inside this directory the data for each object can be found at a relative path created from the first two characters of the UUID as a parent directory and the rest of the UUID as a child directory.
 
@@ -36,14 +36,14 @@ This structure has been designed to resolve many of the issues there are with me
 
 A plugin system supports the export and import of object references found in custom property sets.
 
-##Reducing false positive conflicts
+## Reducing false positive conflicts
 Because LiveCode stackfiles retain session changes between saves it's important to clear anything that's likey to cause a false positive conflict between two versions. A good example of this is a resizable stack with a resizeStack handler that moves objects. This could cause a conflict on most of the controls on the stack. What we want to do is reset the stack to it's default state during the export. To help with this each object is dispatched a message `lcVCSExport`. lcVCS unlocks messages to dispatch the command so you can handle the message in the stack script and resize the stack triggering your resizeStack handler. Because the message is sent to every object the objects in the lower parts of the message heirarchy will recieve it multiple times. In any control that has a child control you will want to script your lcVCSExport handler like this:
 
 	on lcVCSExport
 		if the target is not me then exit lcVCSExport
 	end lcVCSExport
 
-##Rules for successful use of lcVCS
+## Rules for successful use of lcVCS
 * If you use IDs in scripts anywhere (such as setting the icon of a button) then replace it with a name based reference.
 * Implement lcVCSExport handlers to ensure everything is set back to defaults during the export.
 * If you have any custom objects or libraries that maintain custom property sets that store IDs then implement a plugin to support it. The plugin api is quite simple and there’s a number of examples demonstrating their use. If possible contribute the plugin back to the project so we can maintain them centrally.
@@ -51,14 +51,14 @@ Because LiveCode stackfiles retain session changes between saves it's important 
 * Order your stackFiles so that the stackFiles that have object references to objects in other stackFiles are imported and exported after the stackFiles they refer to. The stackFiles list in the lcVCSProjects stack can be re-ordered by drag and drop.
 * If you have object references to objects that no longer exist (such as icons referencing deleted images) clear the property.
 
-##Dependencies
+## Dependencies
 * [mergJSON](https://github.com/montegoulding/mergJSON) which is a dual licensed (GPL/Commercial) JSON external for implementing JSONToArray and ArrayToJSON.
 * LiveCode 6.5.1
 
-##Installation
+## Installation
 You will need [mergJSON](https://github.com/montegoulding/mergJSON) and the lcVCS stackFiles. Compiled versions can be downloaded from [here](http://mergext.com). If you don't have a mergExt account you can sign up for a free one.
 
-###mergJSON
+### mergJSON
 * If you don't have a user extensions/Externals folder then create one. To find your user extensions folder go to LiveCode prefs.
 * If you don't have an Externals.txt file in the user extensions/Externals folder then create one
 * OS X
@@ -71,11 +71,11 @@ You will need [mergJSON](https://github.com/montegoulding/mergJSON) and the lcVC
     * Copy mergJSON.dll into your user extensions/Externals directory
     * Add mergJSON,mergJSON.dll to your Externals.txt file in you user extensions/External directory
 
-###lcVCS
+### lcVCS
 * Copy lcVCS.livecode into your user extensions/Plugins directory
 * Copy the lcVCSPlugins folder into your user extensions/Plugins directory
 
-##Keeping lcVCS updated via git
+## Keeping lcVCS updated via git
 ### Get the repo if you think it's unlikely you will contribute
 * Clone the repo using `git clone https://github.com/montegoulding/lcVCS.git`
 * Open lcVCS and click the + icon on the bottom left of the projects stack.
@@ -91,7 +91,7 @@ You will need [mergJSON](https://github.com/montegoulding/mergJSON) and the lcVC
 * Add my repo as upstream with `git remote add upstream https://github.com/montegoulding/lcVCS.git`
 * Make the `master` branch track `upstream/master` rather than `origin/master` with `git branch --set-upstream upstream/master master`
 
-###Updating the repo
+### Updating the repo
     cd lcVCS
     git pull
 
@@ -100,12 +100,12 @@ You will need [mergJSON](https://github.com/montegoulding/mergJSON) and the lcVC
 * Click the Import Project button
 * When the import is complete the projects list will appear blank so just click the stack to trigger resumeStack and it will show the projects again
 
-##Contributing to lcVCS
+## Contributing to lcVCS
 * Follow the instructions above to fork lcVCS
 * Branch from master before committing so you will always be able to pull master from the upstream remote
 * Commit your changes using the `--sign-off` or `-s` option
 * Send a pull request from your branch against the upstream remote
 * By sending a pull request you are agreeing to the *Developer's Certificate of Origin* found in `DCO.txt`
 
-##GitHub Search
+## GitHub Search
 lcVCS includes a GitHub search for lcVCS based projects. If you want your project to appear in the list you just need to include lcVCS and LiveCode somewhere in the README of the repo. Just write something like `This is project uses lcVCS to enable VCS support in a LiveCode project`.
